@@ -53,7 +53,7 @@ end
 -- GUI Section
 function Hub:Gui()
     -- Create the GUI Window
-    local _G[randomKey] = Fluent:Create_G[randomKey]({
+    local _G[randomKey] = Fluent:Window({
         Title = "RNGHub",
         SubTitle = "by Av",
         TabWidth = 100,
