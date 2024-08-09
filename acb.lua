@@ -232,13 +232,6 @@ function Hub:Gui()
         Default = false,
     })
 
-    Tabs.Auto:AddButton({
-        Title = "Teleport to Sword",
-        Callback = function()
-            self.characterTeleport(otherCoordinates["Sword"])
-        end
-    })
-
     swordTimer = Tabs.Auto:AddParagraph({
         Title = "Obby Sword Timer",
         Content = "timer",
