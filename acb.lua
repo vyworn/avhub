@@ -159,7 +159,7 @@ end
 -- Fluent GUI
 function Hub:Gui()
     guiWindow[randomKey] = Fluent:CreateWindow({
-        Title = "UK+1 Hub",
+        Title = "UK1 Hub",
         SubTitle = "by Av",
         TabWidth = 100,
         Size = UDim2.fromOffset(500, 300),
