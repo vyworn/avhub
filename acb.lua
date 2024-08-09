@@ -1,6 +1,7 @@
--- Initialize Hub table
-local avhub = {}
-local init = false
+-- Define the global environment
+_G.avhub = _G.avhub or {} -- Initialize if it doesn't exist
+
+local Hub = _G.avhub -- Use the global avhub table
 
 -- Load Fluent library
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -12,7 +13,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 -- Functions Section
-function avhub:Functions()
+function Hub:Functions()
     -- Function to grab potions
     self.grabPotions = function()
         local activePotions = workspace:WaitForChild("ActivePotions")
@@ -40,7 +41,7 @@ function avhub:Functions()
 end
 
 -- GUI Section
-function avhub:Gui()
+function Hub:Gui()
     -- Create the GUI Window
     local Window = Fluent:CreateWindow({
         Title = "UK+1 Hub",
@@ -78,7 +79,7 @@ function avhub:Gui()
 end
 
 -- Initialize GUI
-avhub:Gui()
+Hub:Gui()
 
 -- Initialize Hub Functions
-avhub:Functions()
+Hub:Functions()
