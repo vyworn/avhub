@@ -234,7 +234,7 @@ function Hub:Gui()
 
     swordTimer = Tabs.Auto:AddParagraph({
         Title = "Obby Sword Timer",
-        Content = "timer",
+        Content = "Off",
     })
 
     self.autoPotionsToggle:OnChanged(function()
@@ -257,6 +257,8 @@ function Hub:Gui()
                 swordTimer:SetDesc("Time left: " .. tostring(timeLeft))
                 task.wait(0.1)
             end
+        else
+            swordTimer:SetDesc("Off") 
         end
     end)
 
