@@ -1,3 +1,10 @@
+-- Wait till game is loaded
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+task.wait(math.random())
+
+-- Generate random key
 local function generateRandomKey(length)
     local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     local key = ""
@@ -24,6 +31,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 local workspace = game:GetService("Workspace")
 local player = game.Players.LocalPlayer
 local placeid = game.PlaceId
+local playerid = player.UserId
 local character = player.Character
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local virtualinput = game:GetService("VirtualInputManager")
@@ -31,6 +39,22 @@ local virtualuser = game:GetService("VirtualUser")
 local replicatedstorage = game:GetService("ReplicatedStorage")
 local remotes = replicatedstorage:WaitForChild("Remotes")
 local teleportservice = game:GetService("TeleportService")
+
+-- Services and variables for tools
+local api = "https://games.roblox.com/v1/games/"
+local http = game:GetService("HttpService")
+local teleportservice = game:GetService("TeleportService")
+local username = player.Name
+local displayname = player.DisplayName
+local playerage = player.AccountAge
+local creatorid = game.CreatorId
+local creatortype = game.CreatorType
+local jobid = game.JobId
+
+local devid = {
+    164011583,
+}
+local isdeveloper = table.find(devid, playerid) ~= nil
 
 local otherLocations = {
     "Sword",
@@ -74,11 +98,11 @@ function Hub:Functions()
     -- Anti AFK
     player.Idled:connect(function()
         virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-        task.wait(1)
+        task.wait(0.5)
         virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-        task.wait(1)
+        task.wait(0.5)
         virtualuser:CaptureController()
-        task.wait(1)
+        task.wait(0.5)
         virtualuser:ClickButton2(Vector2.new())
     end)
     
@@ -107,7 +131,7 @@ function Hub:Functions()
     self.characterTeleport = function(destination)
         if character then
             character:SetPrimaryPartCFrame(CFrame.new(destination))
-            task.wait(1)
+            task.wait(0.1)
         end
     end
 
@@ -127,7 +151,7 @@ function Hub:Functions()
     self.autoPotionsLoop = function()
         while self.autoPotionsToggle.Value do
             self:grabPotions()
-            task.wait(1)
+            task.wait(0.5)
         end
     end
 
@@ -146,7 +170,7 @@ function Hub:Functions()
             if swordObbyCD == 0 then
                 self:grabSword()
             end
-            task.wait(1)
+            task.wait(0.5)
         end
     end
 
@@ -260,9 +284,169 @@ function Hub:Gui()
     InterfaceManager:SetFolder("UK1")
     InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 
+    -- Tools Tab
+    if isdeveloper then
+        Tabs.Tools = guiWindow[randomKey]:AddTab({ Title = "Tools", Icon = "wrench"})
+        Tabs.Tools:AddButton({
+            Title = "Remote Spy",
+            Callback = function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"))()
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Infinite Yield",
+            Callback = function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Join Public Server",
+            Callback = function()
+                task.spawn(self.joinPublicServer)
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Rejoin Game",
+            Callback = function()
+                task.spawn(self.rejoinGame)
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Leave Game",
+            Callback = function()
+                task.spawn(self.leaveGame)
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Get Position",
+            Callback = function()
+                task.spawn(self.getPosition)
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Teleport to Logged Position",
+            Callback = function()
+                task.spawn(self.teleportToLoggedPosition)
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Copy Player Id",
+            Callback = function()
+                setclipboard(tostring(playerid))
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Copy Place Id",
+            Callback = function()
+                setclipboard(tostring(placeid))
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Copy Job Id",
+            Callback = function()
+                setclipboard(tostring(jobid))
+            end
+        })
+    
+        Tabs.Tools:AddButton({
+            Title = "Copy Creator Id",
+            Callback = function()
+                setclipboard(tostring(creatorid))
+            end
+        })
+
+        Tabs.Tools:AddParagraph({
+            Title = "Info",
+            Content = "User: " .. username .. " (" .. displayname .. ")" 
+            .. "\nPlayer Id: " .. playerid 
+            .. "\nAccount Age: " .. playerage
+            .. "\nPlace Id: " .. placeid 
+            .. "\nJob Id: " .. jobid 
+            .. "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
+        })
+    end
+
     guiWindow[randomKey]:SelectTab(1)
+
+end
+
+function Hub:Tools()
+    -- Function to teleport to a position
+    self.teleportToPosition = function(x, y, z)
+        if character then
+            local pos = Vector3.new(x, y, z)
+            character:SetPrimaryPartCFrame(CFrame.new(pos))
+        else
+            warn("Character not found.")
+        end
+    end
+    
+    -- Function to join a random public server
+    self.joinPublicServer = function()
+        local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10"
+        local function listServers(cursor)
+            local raw = game:HttpGet(serversurl .. ((cursor and "&cursor=" .. cursor) or ""))
+            return http:JSONDecode(raw)
+        end
+        local servers = listServers()
+        local server = servers.data[math.random(1, #servers.data)]
+        teleportService:TeleportToPlaceInstance(placeid, server.id, player)
+    end
+    
+    -- Function to rejoin the game
+    self.rejoinGame = function()
+        teleportService:Teleport(placeid, player)
+    end
+    
+    -- Function to leave the game
+    self.leaveGame = function()
+        if player then
+            player:Kick("Left game via hub")
+        end
+    end
+    
+    -- Function to get the current position
+    local loggedPositionX, loggedPositionY, loggedPositionZ
+    self.getPosition = function()
+        if character and humanoidRootPart then
+            local position = humanoidRootPart.Position
+            loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z
+            local dataString = string.format("X: %.6f, Y: %.6f, Z: %.6f", position.X, position.Y, position.Z)
+            setclipboard(dataString)
+            return loggedPositionX, loggedPositionY, loggedPositionZ
+        else
+            if not character then
+                warn("Character not found for player:", player.Name)
+            end
+            if not humanoidRootPart then
+                warn("HumanoidRootPart not found for player:", player.Name)
+            end
+            return nil, nil, nil
+        end
+    end
+    
+    -- Function to teleport to the logged position
+    self.teleportToLoggedPosition = function()
+        if loggedPositionX and loggedPositionY and loggedPositionZ then
+            self.teleportToPosition(loggedPositionX, loggedPositionY, loggedPositionZ)
+        else
+            warn("Logged position is not set.")
+        end
+    end
 end
 
 -- init
-Hub:Gui()
+if isdeveloper then 
+    Hub:Tools()
+end
 Hub:Functions()
+Hub:Gui()
