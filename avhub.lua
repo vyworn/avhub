@@ -8,7 +8,8 @@ local games = {
     [18138547215] = 'https://raw.githubusercontent.com/vyworn/rng/main/acb.lua', -- ACB
 }
 
-local function _G[_G.ahKey .. _G.ahKey]()
+local name = _G.ahKey .. _G.ahKey
+_G[name] = function()
     if games[game.PlaceId] then
         task.wait(math.random())
         if games[game.PlaceId] then
@@ -25,4 +26,4 @@ local function _G[_G.ahKey .. _G.ahKey]()
     end
 end
 
-_G[_G.ahKey .. _G.ahKey]() 
+_G[name]()
