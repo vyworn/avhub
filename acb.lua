@@ -100,18 +100,12 @@ local npcTeleports = {
 local mobTeleports = {
     "Earth's Mightiest",
     "Prince",
-    "Galactic Tyrant (Boss)",    -- Boss
     "Knucklehead Ninja",
     "Rogue Ninja",
-    "Shinobi God (Boss)",        -- Boss
     "Limitless",
-    "King of Curses (Boss)",     -- Boss
     "Substitute Reaper",
-    "Cifer (Boss)",              -- Boss
     "Rubber Boy",
-    "Wicked Weaver (Boss)",      -- Boss
     "Bald Hero",
-    "Cosmic Menace (Boss)",      -- Boss
 }
 
 local areaTeleports = {
@@ -137,18 +131,12 @@ local npcTeleportsCoordinates = {
 local mobsTeleportsCoordinates = {
     ["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169,-5141.633789),
     ["Prince"] = Vector3.new(10987.201172, 344.049896,-5241.321777),
-    ["Galactic Tyrant (Boss)"] = Vector3.new(10924.627930, 351.769928, -5073.692383), -- Boss
     ["Knucklehead Ninja"] = Vector3.new(4219.748535, 31.724997,7506.525391),
     ["Rogue Ninja"] = Vector3.new(4306.954102, 31.724993,7506.855469),
-    ["Shinobi God (Boss)"] = Vector3.new(4255.913086, 31.724993,7447.152344), -- Boss
     ["Limitless"] = Vector3.new(-12.537902, 272.422241,5996.076660),
-    ["King of Curses (Boss)"] = Vector3.new(-24.329866, 256.645111,5882.711426), -- Boss
     ["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009,6714.296875),
-    ["Cifer (Boss)"] = Vector3.new(-7897.004883, 734.204712,6741.215332), -- Boss
     ["Rubber Boy"] = Vector3.new(13150.526367, 84.124977,11365.570312),
-    ["Wicked Weaver (Boss)"] = Vector3.new(13108.460938, 84.124977,11336.056641), -- Boss
     ["Bald Hero"] = Vector3.new(-11790.704102, 152.171967,-8566.525391),
-    ["Cosmic Menace"] = Vector3.new(-11717.936523, 157.884125,-8550.355469), -- Boss
 }
 
 local areaTeleportCoordinates = {
