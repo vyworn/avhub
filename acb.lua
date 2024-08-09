@@ -32,6 +32,12 @@ function Hub:Functions()
         end)
     end
 
+    -- Function to tp to sword and grab it
+    self.grabSword = function()
+    -- pos X: -5959.848145, Y: 168.778305, Z: -8940.508789
+
+    end
+
     -- Function to loop the potion grabbing function
     self.autoPotionsLoop = function()
         while self.autoPotionsToggle.Value do
