@@ -13,7 +13,7 @@ if games[game.CreatorId] then
     if game.CreatorId == 33660620 then
         repeat
             loadstring(game:HttpGet(games[game.CreatorId]))()
-            task.wait(10)
+            task.wait(5)
         until _G.ahKey and _G[_G.ahKey] ~= nil
     else
         loadstring(game:HttpGet(games[game.CreatorId]))()
