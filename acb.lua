@@ -18,6 +18,7 @@ local Hub = _G[randomKey]
 
 -- Fluent Library
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 -- Services and variables
 local workspace = game:GetService("Workspace")
@@ -125,7 +126,8 @@ function Hub:Gui()
     })
 
     local Tabs = {
-        Auto = guiWindow[randomKey]:AddTab({ Title = "Auto", Icon = "repeat" })
+        Auto = guiWindow[randomKey]:AddTab({ Title = "Auto", Icon = "repeat"}),
+        Settings = guiWindow[randomKey]:AddTab({ Title = "Settings", Icon = "settings"}),
     }
 
     local Options = Fluent.Options
@@ -169,6 +171,10 @@ function Hub:Gui()
             task.spawn(self.autoSwordLoop)
         end
     end)
+
+    InterfaceManager:SetLibrary(Fluent)
+    InterfaceManager:SetFolder("UK1")
+    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 
     guiWindow[randomKey]:SelectTab(1)
 end
