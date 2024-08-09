@@ -54,10 +54,14 @@ local jobid = game.JobId
 local devid = {
     164011583,
 }
+
 local isdeveloper = table.find(devid, playerid) ~= nil
+
+local swordTimer
 
 local otherLocations = {
     "Sword",
+    "Old Position"
 }
 
 local otherCoordinates = {
@@ -135,22 +139,33 @@ function Hub:Functions()
         end
     end
 
+    self.getOldPosition = function()
+        if character and humanoidRootPart then
+            local position = humanoidRootPart.Position
+            otherCoordinates["Old Position"] = Vector3.new(position.X, position.Y, position.Z)
+        end
+    end
+
     -- Function to teleport to the sword and interact with the ProximityPrompt
     self.grabSword = function()
-        self.characterTeleport(otherCoordinates["Sword"])
-
         local swordBlock = workspace:WaitForChild("ObbySword"):WaitForChild("SwordBlock")
         local proximityPrompt = swordBlock:FindFirstChild("ProximityPrompt")
+
+        self.getOldPosition()
+        self.characterTeleport(otherCoordinates["Sword"])
 
         virtualinput:SendKeyEvent(true, Enum.KeyCode.E, false, game)
         task.wait(0.1)
         virtualinput:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+
+        task.wait(2)
+        self.characterTeleport(otherCoordinates["Old Position"])
     end
 
     -- Function to loop the potion grabbing function
     self.autoPotionsLoop = function()
         while self.autoPotionsToggle.Value do
-            self:grabPotions()
+            self.grabPotions()
             task.wait(0.5)
         end
     end
@@ -158,7 +173,7 @@ function Hub:Functions()
     -- Function to loop the roll function
     self.autoRollLoop = function()
         while self.autoRollToggle.Value do
-            self:rollEvent()
+            self.rollEvent()
             task.wait(0.01)
         end
     end
@@ -168,7 +183,7 @@ function Hub:Functions()
         while self.autoSwordToggle.Value do 
             local swordObbyCD = player.Stats:WaitForChild("SwordObbyCD").value
             if swordObbyCD == 0 then
-                self:grabSword()
+                self.grabSword()
             end
             task.wait(0.5)
         end
@@ -224,6 +239,11 @@ function Hub:Gui()
         end
     })
 
+    swordTimer = Tabs.Auto:AddParagraph({
+        Title = "Obby Sword Timer",
+        Content = "timer",
+    })
+
     self.autoPotionsToggle:OnChanged(function()
         if self.autoPotionsToggle.Value then
             task.spawn(self.autoPotionsLoop)
@@ -239,6 +259,11 @@ function Hub:Gui()
     self.autoSwordToggle:OnChanged(function()
         if self.autoSwordToggle.Value then
             task.spawn(self.autoSwordLoop)
+            while self.autoSwordToggle.Value do 
+                local timeLeft = player.Stats:WaitForChild("SwordObbyCD").value
+                swordTimer:SetDesc("Time left: " .. tostring(timeLeft))
+                task.wait(0.1)
+            end
         end
     end)
 
