@@ -111,7 +111,7 @@ local mobTeleports = {
     "Rubber Boy",
     "Wicked Weaver (Boss)",      -- Boss
     "Bald Hero",
-    "Cosmic Menace",             -- Boss
+    "Cosmic Menace (Boss)",      -- Boss
 }
 
 local areaTeleports = {
