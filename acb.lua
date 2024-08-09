@@ -226,13 +226,14 @@ function Hub:Functions()
         local timeLeft = swordCooldown
 
         self.getOldPosition()
-        task.wait(0.5)
+        task.wait(1)
         self.characterTeleport(otherCoordinates["Sword"])
 
         virtualinput:SendKeyEvent(true, Enum.KeyCode.E, false, game)
         task.wait(0.1)
         virtualinput:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-        task.wait(0.4)
+        
+        task.wait(2)
         self.characterTeleport(otherCoordinates["Old Position"])
     end
 
