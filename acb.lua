@@ -169,6 +169,7 @@ function Hub:Functions()
     self.grabSword = function()
         local swordBlock = workspace:WaitForChild("ObbySword"):WaitForChild("SwordBlock")
         local proximityPrompt = swordBlock:FindFirstChild("ProximityPrompt")
+        local timeLeft = swordCooldown
 
         self.getOldPosition()
         self.characterTeleport(otherCoordinates["Sword"])
@@ -177,8 +178,11 @@ function Hub:Functions()
         task.wait(0.1)
         virtualinput:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 
-        task.wait(2)
-        self.characterTeleport(otherCoordinates["Old Position"])
+        task.wait(0.4)
+
+        if timeLeft < 300 and timeLeft > 0 then
+            self.characterTeleport(otherCoordinates["Old Position"])
+        end
     end
 
     -- Function to loop the potion grabbing function
@@ -314,6 +318,7 @@ function Hub:Gui()
         local destination = npcTeleportsCoordinates[Value]
         if destination then
             self.characterTeleport(destination)
+            npcTeleportDropdown:SetValue(nil)
         end
     end)
     
@@ -321,6 +326,7 @@ function Hub:Gui()
         local destination = areaTeleportCoordinates[Value]
         if destination then
             self.characterTeleport(destination)
+            areaTeleportDropdown:SetValue(nil)
         end
     end)
 
