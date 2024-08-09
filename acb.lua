@@ -86,7 +86,7 @@ local npcTeleports = {
 local mobTeleports = {
     "Earth's Mightiest",
     "Prince",
-    "Galactic Tyrant (Boss)",   -- Boss
+    "Galactic Tyrant (Boss)",    -- Boss
     "Knucklehead Ninja",
     "Rogue Ninja",
     "Shinobi God (Boss)",        -- Boss
@@ -96,6 +96,8 @@ local mobTeleports = {
     "Cifer (Boss)",              -- Boss
     "Rubber Boy",
     "Wicked Weaver (Boss)",      -- Boss
+    "Bald Hero",
+    "Cosmic Menace",             -- Boss
 }
 
 local areaTeleports = {
@@ -131,6 +133,8 @@ local mobsTeleportsCoordinates = {
     ["Cifer (Boss)"] = Vector3.new(-7897.004883, 734.204712,6741.215332), -- Boss
     ["Rubber Boy"] = Vector3.new(13150.526367, 84.124977,11365.570312),
     ["Wicked Weaver (Boss)"] = Vector3.new(13108.460938, 84.124977,11336.056641), -- Boss
+    ["Bald Hero"] = Vector3.new(-11790.704102, 152.171967,-8566.525391),
+    ["Cosmic Menace"] = Vector3.new(-11717.936523, 157.884125,-8550.355469), -- Boss
 }
 
 local areaTeleportCoordinates = {
