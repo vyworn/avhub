@@ -25,12 +25,24 @@ local player = game.Players.LocalPlayer
 local character = player.Character
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local virtualinput = game:GetService("VirtualInputManager")
+local virtualuser = game:GetService("VirtualUser")
 local replicatedstorage = game:GetService("ReplicatedStorage")
 local remotes = replicatedstorage:WaitForChild("Remotes")
 
 local swordPosition = Vector3.new(-5922.687012, 102.940720, -8286.416016)
 
 function Hub:Functions()
+    -- Anti AFK
+    player.Idled:connect(function()
+        virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        virtualuser:CaptureController()
+        task.wait(1)
+        virtualuser:ClickButton2(Vector2.new())
+    end)
+    
     -- Function to grab potions
     self.grabPotions = function()
         local activePotions = workspace:WaitForChild("ActivePotions")
