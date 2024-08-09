@@ -39,6 +39,8 @@ local virtualuser = game:GetService("VirtualUser")
 local replicatedstorage = game:GetService("ReplicatedStorage")
 local remotes = replicatedstorage:WaitForChild("Remotes")
 local teleportservice = game:GetService("TeleportService")
+local textchatserivce = game:GetService("TextChatService")
+local textchannel = textchatserivce.TextChannels:WaitForChild("RBXGeneral")
 
 -- Services and variables for tools
 local api = "https://games.roblox.com/v1/games/"
@@ -53,6 +55,7 @@ local jobid = game.JobId
 
 local devid = {
     164011583,
+    1607510152,
 }
 
 local isdeveloper = table.find(devid, playerid) ~= nil
@@ -63,6 +66,17 @@ local potionCount = 0
 local swordCooldown = player.Stats:WaitForChild("SwordObbyCD").Value
 local autoPotionsActive = false
 local autoSwordActive = false
+
+local codes = {
+    "RELEASE!",
+    "THANKS4PLAYING!",
+    "1KLIKES!",
+    "2KLIKES!",
+    "4KLIKES!",
+    "5KLIKES!",
+    "6KLIKES!",
+    "500KVISITS!",
+}
 
 local otherLocations = {
     "Sword",
@@ -158,6 +172,26 @@ function Hub:Functions()
         task.wait(0.5)
         virtualuser:ClickButton2(Vector2.new())
     end)
+
+    -- Function to send a chat message to claim codes
+    self.sendMessage = function(message)
+        if textchannel then
+            local success, result = pcall(function()
+                return textchannel:SendAsync(message)
+            end)
+        else 
+            warn("TextChannel not found.")
+        end
+    end
+
+    -- Function to loop through codes and send messages
+    self.useCodes = function()
+        for _, code in ipairs(codes) do
+            local message = "/code " .. code
+            self.sendMessage(message)
+            task.wait(1)
+        end
+    end
     
     -- Function to grab potions
     self.grabPotions = function()
@@ -310,6 +344,13 @@ function Hub:Gui()
     self.autoSwordToggle = Tabs.Auto:AddToggle("AutoSword", {
         Title = "Auto Sword",
         Default = false,
+    })
+
+    self.claimAllCodesButton = Tabs.Auto:AddButton({
+        Title = "Claim All Codes",
+        Callback = function()
+            task.spawn(self.useCodes)
+        end
     })
 
     statsParagraph = Tabs.Auto:AddParagraph({
