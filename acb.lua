@@ -57,7 +57,12 @@ local devid = {
 
 local isdeveloper = table.find(devid, playerid) ~= nil
 
-local swordTimer
+local statsParagraph
+local updatingParagraph = false
+local potionCount = 0
+local swordCooldown = player.Stats:WaitForChild("SwordObbyCD").Value
+local autoPotionsActive = false
+local autoSwordActive = false
 
 local otherLocations = {
     "Sword",
@@ -113,13 +118,14 @@ function Hub:Functions()
     -- Function to grab potions
     self.grabPotions = function()
         local activePotions = workspace:WaitForChild("ActivePotions")
-
         for _, potion in ipairs(activePotions:GetChildren()) do
             local base = potion:FindFirstChild("Base")
             if base and base:FindFirstChild("TouchInterest") then
                 firetouchinterest(base, humanoidRootPart, 1)
                 task.wait(0.1)
                 firetouchinterest(base, humanoidRootPart, 0)
+
+                potionCount = potionCount + 1
             end
         end
     end
@@ -139,10 +145,23 @@ function Hub:Functions()
         end
     end
 
+    -- Function to get the players current/old position
     self.getOldPosition = function()
         if character and humanoidRootPart then
             local position = humanoidRootPart.Position
             otherCoordinates["Old Position"] = Vector3.new(position.X, position.Y, position.Z)
+        end
+    end
+
+    -- Function to update the paragraph
+    self.updateParagraph = function()
+        while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
+            local totalPotions = potionCount
+            local timeLeft = swordCooldown
+            local potionText = "Total Potions: " .. totalPotions
+            local swordText = "Sword Timer: " .. timeLeft
+            statsParagraph:SetDesc(potionText .. "\n" .. swordText)
+            task.wait(0.2)
         end
     end
 
@@ -180,8 +199,9 @@ function Hub:Functions()
 
     -- Function to loop grabbing the sword
     self.autoSwordLoop = function()
-        while self.autoSwordToggle.Value do 
-            local swordObbyCD = player.Stats:WaitForChild("SwordObbyCD").value
+        while self.autoSwordToggle.Value do
+            swordCooldown = player.Stats:WaitForChild("SwordObbyCD").Value 
+            local swordObbyCD = swordCooldown
             if swordObbyCD == 0 then
                 self.grabSword()
             end
@@ -189,8 +209,23 @@ function Hub:Functions()
         end
     end
 
+    -- Function to check the status of the update
+    self.updateParagraphStatus = function()
+        if autoPotionsActive or autoSwordActive then
+            if not updatingParagraph then
+                updatingParagraph = true
+                task.spawn(self.updateParagraph)
+            end
+        else
+            if updatingParagraph then
+                updatingParagraph = false
+            end
+        end
+    end
+
     -- Function to rejoin the game
     self.rejoinGame = function()
+        task.wait(1)
         teleportservice:Teleport(placeid, player)
     end
 end
@@ -232,17 +267,20 @@ function Hub:Gui()
         Default = false,
     })
 
-    swordTimer = Tabs.Auto:AddParagraph({
-        Title = "Obby Sword Timer",
-        Content = "Off",
+    statsParagraph = Tabs.Auto:AddParagraph({
+        Title = "Stats",
+        Content = "Total Potions: " .. potionCount 
+        .. "\nSword Timer: " .. swordCooldown,
     })
 
     self.autoPotionsToggle:OnChanged(function()
-        if self.autoPotionsToggle.Value then
+        autoPotionsActive = self.autoPotionsToggle.Value
+        if autoPotionsActive then
             task.spawn(self.autoPotionsLoop)
         end
+        self.updateParagraphStatus()
     end)
-
+    
     self.autoRollToggle:OnChanged(function()
         if self.autoRollToggle.Value then
             task.spawn(self.autoRollLoop)
@@ -250,16 +288,11 @@ function Hub:Gui()
     end)
     
     self.autoSwordToggle:OnChanged(function()
-        if self.autoSwordToggle.Value then
+        autoSwordActive = self.autoSwordToggle.Value
+        if autoSwordActive then
             task.spawn(self.autoSwordLoop)
-            while self.autoSwordToggle.Value do 
-                local timeLeft = player.Stats:WaitForChild("SwordObbyCD").value
-                swordTimer:SetDesc("Time left: " .. tostring(timeLeft))
-                task.wait(0.1)
-            end
-        else
-            swordTimer:SetDesc("Off") 
         end
+        self.updateParagraphStatus()
     end)
 
     -- Teleports Tab
