@@ -23,14 +23,52 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 -- Services and variables
 local workspace = game:GetService("Workspace")
 local player = game.Players.LocalPlayer
+local placeid = game.PlaceId
 local character = player.Character
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local virtualinput = game:GetService("VirtualInputManager")
 local virtualuser = game:GetService("VirtualUser")
 local replicatedstorage = game:GetService("ReplicatedStorage")
 local remotes = replicatedstorage:WaitForChild("Remotes")
+local teleportservice = game:GetService("TeleportService")
 
-local swordPosition = Vector3.new(-5922.687012, 102.940720, -8286.416016)
+local otherLocations = {
+    "Sword",
+}
+
+local otherCoordinates = {
+    ["Sword"] = Vector3.new(-5922.687012, 102.940720, -8286.416016),
+}
+
+local npcTeleports = {
+    "Charm Merchant",
+    "Potion Shop",
+    "Card Fusion",
+}
+
+local areaTeleports = {
+    "Heavens Arena",
+    "Portal 5",
+    "Portal 4",
+    "Portal 3",
+    "Portal 2",
+    "Portal 1",
+}
+
+local npcTeleportsCoordinates = {
+    ["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
+    ["Potion Shop"] = Vector3.new(-45.672028, 256.645111, 5976.190918),
+    ["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
+}
+
+local areaTeleportCoordinates = {
+    ["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
+    ["Portal 5"] = Vector3.new(13116.553711, 84.124977, 11327.412109),
+    ["Portal 4"] = Vector3.new(-7902.407227, 734.204712, 6737.871582),
+    ["Portal 3"] = Vector3.new(-24.246572, 256.645111, 5886.447754),
+    ["Portal 2"] = Vector3.new(4260.783203, 31.724993, 7455.575684),
+    ["Portal 1"] = Vector3.new(10932.377930, 351.924957, -5078.314941),
+}
 
 function Hub:Functions()
     -- Anti AFK
@@ -65,17 +103,17 @@ function Hub:Functions()
         end)
     end
 
-    self.swordTeleport = function()
+    -- Function to teleport the character to the destination
+    self.characterTeleport = function(destination)
         if character then
-            character:SetPrimaryPartCFrame(CFrame.new(swordPosition))
-            print("teleported to sword")
+            character:SetPrimaryPartCFrame(CFrame.new(destination))
             task.wait(1)
         end
     end
 
     -- Function to teleport to the sword and interact with the ProximityPrompt
     self.grabSword = function()
-        self:swordTeleport()
+        self.characterTeleport(otherCoordinates["Sword"])
 
         local swordBlock = workspace:WaitForChild("ObbySword"):WaitForChild("SwordBlock")
         local proximityPrompt = swordBlock:FindFirstChild("ProximityPrompt")
@@ -111,6 +149,11 @@ function Hub:Functions()
             task.wait(1)
         end
     end
+
+    -- Function to rejoin the game
+    self.rejoinGame = function()
+        teleportservice:Teleport(placeid, player)
+    end
 end
 
 -- Fluent GUI
@@ -127,11 +170,14 @@ function Hub:Gui()
 
     local Tabs = {
         Auto = guiWindow[randomKey]:AddTab({ Title = "Auto", Icon = "repeat"}),
+        Teleports = guiWindow[randomKey]:AddTab({ Title = "Teleports", Icon = "navigation"}),
+        Misc = guiWindow[randomKey]:AddTab({ Title = "Misc", Icon = "circle-ellipsis"}),
         Settings = guiWindow[randomKey]:AddTab({ Title = "Settings", Icon = "settings"}),
     }
 
     local Options = Fluent.Options
 
+    -- Auto Tab
     self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
         Title = "Auto Potions",
         Default = false,
@@ -150,7 +196,7 @@ function Hub:Gui()
     Tabs.Auto:AddButton({
         Title = "Teleport to Sword",
         Callback = function()
-            task.spawn(self.swordTeleport)
+            self.characterTeleport(otherCoordinates["Sword"])
         end
     })
 
@@ -172,6 +218,44 @@ function Hub:Gui()
         end
     end)
 
+    -- Teleports Tab
+    local npcTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
+        Title = "Npc Teleports",
+        Values = npcTeleports,
+        Multi = false,
+        Default = nil,
+    })
+
+    local areaTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
+        Title = "Area Teleports",
+        Values = areaTeleports,
+        Multi = false,
+        Default = nil,
+    })
+
+    npcTeleportDropdown:OnChanged(function(Value)
+        local destination = npcTeleportsCoordinates[Value]
+        if destination then
+            self.characterTeleport(destination)
+        end
+    end)
+    
+    areaTeleportDropdown:OnChanged(function(Value)
+        local destination = areaTeleportCoordinates[Value]
+        if destination then
+            self.characterTeleport(destination)
+        end
+    end)
+
+    -- Misc Tab
+    Tabs.Misc:AddButton({
+        Title = "Rejoin game",
+        Callback = function()
+            task.spawn(self.rejoinGame)
+        end
+    })
+
+    -- Settings Tab
     InterfaceManager:SetLibrary(Fluent)
     InterfaceManager:SetFolder("UK1")
     InterfaceManager:BuildInterfaceSection(Tabs.Settings)
