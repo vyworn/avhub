@@ -15,8 +15,6 @@ if games[game.PlaceId] then
             loadstring(game:HttpGet(games[game.PlaceId]))()
             task.wait(5)
         until _G.ahKey and _G[_G.ahKey] ~= nil
-    else
-        loadstring(game:HttpGet(games[game.PlaceId]))()
     end
 else
     games = nil
