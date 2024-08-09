@@ -369,13 +369,6 @@ function Hub:Gui()
         })
     
         Tabs.Tools:AddButton({
-            Title = "Leave Game",
-            Callback = function()
-                task.spawn(self.leaveGame)
-            end
-        })
-    
-        Tabs.Tools:AddButton({
             Title = "Get Position",
             Callback = function()
                 task.spawn(self.getPosition)
@@ -458,13 +451,6 @@ function Hub:Tools()
     -- Function to rejoin the game
     self.rejoinGame = function()
         teleportService:Teleport(placeid, player)
-    end
-    
-    -- Function to leave the game
-    self.leaveGame = function()
-        if player then
-            player:Kick("Left game via hub")
-        end
     end
     
     -- Function to get the current position
