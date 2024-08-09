@@ -1,4 +1,3 @@
--- Wait until the game is fully loaded
 if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
