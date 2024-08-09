@@ -77,10 +77,30 @@ local npcTeleports = {
     "Charm Merchant",
     "Potion Shop",
     "Card Fusion",
+    "Card Packs",
+    "Strange Trader",
+    "Heaven's Arena Tower",
+    "Heaven's Arena Infinite",
+}
+
+local mobTeleports = {
+    "Earth's Mightiest",
+    "Prince",
+    "Galactic Tyrant (Boss)",   -- Boss
+    "Knucklehead Ninja",
+    "Rogue Ninja",
+    "Shinobi God (Boss)",        -- Boss
+    "Limitless",
+    "King of Curses (Boss)",     -- Boss
+    "Substitute Reaper",
+    "Cifer (Boss)",              -- Boss
+    "Rubber Boy",
+    "Wicked Weaver (Boss)",      -- Boss
 }
 
 local areaTeleports = {
     "Heavens Arena",
+    "Sword",
     "Portal 5",
     "Portal 4",
     "Portal 3",
@@ -92,10 +112,30 @@ local npcTeleportsCoordinates = {
     ["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
     ["Potion Shop"] = Vector3.new(-45.672028, 256.645111, 5976.190918),
     ["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
+    ["Card Packs"] = Vector3.new(-6024.296387, 152.574966,-8582.142578),
+    ["Strange Trader"] = Vector3.new(523.097717, 247.374268,6017.144531),
+    ["Heaven's Arena Tower"] = Vector3.new(451.595367, 247.374268,5980.721191),
+    ["Heaven's Arena Infinite"] = Vector3.new(459.257782, 247.425293,5931.338379),
+}
+
+local mobsTeleportsCoordinates = {
+    ["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169,-5141.633789),
+    ["Prince"] = Vector3.new(10987.201172, 344.049896,-5241.321777),
+    ["Galactic Tyrant (Boss)"] = Vector3.new(10924.627930, 351.769928, -5073.692383), -- Boss
+    ["Knucklehead Ninja"] = Vector3.new(4219.748535, 31.724997,7506.525391),
+    ["Rogue Ninja"] = Vector3.new(4306.954102, 31.724993,7506.855469),
+    ["Shinobi God (Boss)"] = Vector3.new(4255.913086, 31.724993,7447.152344), -- Boss
+    ["Limitless"] = Vector3.new(-12.537902, 272.422241,5996.076660),
+    ["King of Curses (Boss)"] = Vector3.new(-24.329866, 256.645111,5882.711426), -- Boss
+    ["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009,6714.296875),
+    ["Cifer (Boss)"] = Vector3.new(-7897.004883, 734.204712,6741.215332), -- Boss
+    ["Rubber Boy"] = Vector3.new(13150.526367, 84.124977,11365.570312),
+    ["Wicked Weaver (Boss)"] = Vector3.new(13108.460938, 84.124977,11336.056641), -- Boss
 }
 
 local areaTeleportCoordinates = {
     ["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
+    ["Sword"] = Vector3.new(-5922.687012, 102.940720, -8286.416016),
     ["Portal 5"] = Vector3.new(13116.553711, 84.124977, 11327.412109),
     ["Portal 4"] = Vector3.new(-7902.407227, 734.204712, 6737.871582),
     ["Portal 3"] = Vector3.new(-24.246572, 256.645111, 5886.447754),
@@ -153,18 +193,6 @@ function Hub:Functions()
         end
     end
 
-    -- Function to update the paragraph
-    self.updateParagraph = function()
-        while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
-            local totalPotions = potionCount
-            local timeLeft = swordCooldown
-            local potionText = "Total Potions: " .. totalPotions
-            local swordText = "Sword Timer: " .. timeLeft
-            statsParagraph:SetDesc(potionText .. "\n" .. swordText)
-            task.wait(0.2)
-        end
-    end
-
     -- Function to teleport to the sword and interact with the ProximityPrompt
     self.grabSword = function()
         local swordBlock = workspace:WaitForChild("ObbySword"):WaitForChild("SwordBlock")
@@ -172,17 +200,14 @@ function Hub:Functions()
         local timeLeft = swordCooldown
 
         self.getOldPosition()
+        task.wait(0.5)
         self.characterTeleport(otherCoordinates["Sword"])
 
         virtualinput:SendKeyEvent(true, Enum.KeyCode.E, false, game)
         task.wait(0.1)
         virtualinput:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-
         task.wait(0.4)
-
-        if timeLeft < 300 and timeLeft > 0 then
-            self.characterTeleport(otherCoordinates["Old Position"])
-        end
+        self.characterTeleport(otherCoordinates["Old Position"])
     end
 
     -- Function to loop the potion grabbing function
@@ -204,12 +229,24 @@ function Hub:Functions()
     -- Function to loop grabbing the sword
     self.autoSwordLoop = function()
         while self.autoSwordToggle.Value do
-            swordCooldown = player.Stats:WaitForChild("SwordObbyCD").Value 
             local swordObbyCD = swordCooldown
             if swordObbyCD == 0 then
                 self.grabSword()
             end
             task.wait(0.5)
+        end
+    end
+
+    -- Function to update the paragraph
+    self.updateParagraph = function()
+        while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
+            swordCooldown = player.Stats:WaitForChild("SwordObbyCD").Value 
+            local totalPotions = potionCount
+            local timeLeft = swordCooldown
+            local potionText = "Total Potions: " .. totalPotions
+            local swordText = "Sword Timer: " .. timeLeft
+            statsParagraph:SetDesc(potionText .. "\n" .. swordText)
+            task.wait(0.2)
         end
     end
 
@@ -307,6 +344,13 @@ function Hub:Gui()
         Default = nil,
     })
 
+    local mobTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
+        Title = "Mob Teleports",
+        Values = mobTeleports,
+        Multi = false,
+        Default = nil,
+    })
+
     local areaTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
         Title = "Area Teleports",
         Values = areaTeleports,
@@ -322,6 +366,14 @@ function Hub:Gui()
         end
     end)
     
+    mobTeleportDropdown:OnChanged(function(Value)
+        local destination = mobsTeleportsCoordinates[Value]
+        if destination then
+            self.characterTeleport(destination)
+            mobTeleportDropdown:SetValue(nil)
+        end
+    end)
+
     areaTeleportDropdown:OnChanged(function(Value)
         local destination = areaTeleportCoordinates[Value]
         if destination then
@@ -465,7 +517,7 @@ function Hub:Tools()
         if character and humanoidRootPart then
             local position = humanoidRootPart.Position
             loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z
-            local dataString = string.format("X: %.6f, Y: %.6f, Z: %.6f", position.X, position.Y, position.Z)
+            local dataString = string.format("%.6f, %.6f,%.6f", position.X, position.Y, position.Z)
             setclipboard(dataString)
             return loggedPositionX, loggedPositionY, loggedPositionZ
         else
