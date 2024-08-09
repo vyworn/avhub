@@ -54,7 +54,7 @@ end
 function Hub:Gui()
     -- Create the GUI Window
     local _G[randomKey] = Fluent:Create_G[randomKey]({
-        Title = ,
+        Title = "RNGHub",
         SubTitle = "by Av",
         TabWidth = 100,
         Size = UDim2.fromOffset(500, 300),
