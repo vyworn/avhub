@@ -1,18 +1,15 @@
--- Define the global environment
-_G.avhub = _G.avhub or {} -- Initialize if it doesn't exist
-
-local Hub = _G.avhub -- Use the global avhub table
-
--- Load Fluent library
+-- Services and variables
+_G.avhub = _G.avhub or {}
+local Hub = _G.avhub
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
--- Services and variables
 local workspace = game:GetService("Workspace")
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local replicatedstorage = game:GetService("ReplicatedStorage")
+local remotes = replicatedstorage:WaitForChild("Remotes")
 
--- Functions Section
 function Hub:Functions()
     -- Function to grab potions
     self.grabPotions = function()
@@ -21,28 +18,39 @@ function Hub:Functions()
         for _, potion in ipairs(activePotions:GetChildren()) do
             local base = potion:FindFirstChild("Base")
             if base and base:FindFirstChild("TouchInterest") then
-                -- Simulate touch begin
                 firetouchinterest(base, humanoidRootPart, 1)
-                task.wait(0.1) -- Short wait to simulate touch duration
-                -- Simulate touch end
+                task.wait(0.1)
                 firetouchinterest(base, humanoidRootPart, 0)
-                print("Grabbed potion:", potion.Name)
             end
         end
     end
 
-    -- Function to run the potion grabber in a loop
+    -- Function to roll
+    self.rollEvent = function()
+        local success, response = pcall(function()
+            remotes:WaitForChild("RollEvent"):FireServer()
+        end)
+    end
+
+    -- Function to loop the potion grabbing function
     self.autoPotionsLoop = function()
         while self.autoPotionsToggle.Value do
             self:grabPotions()
-            task.wait(1) -- Wait 1 second before the next grab attempt
+            task.wait(1)
+        end
+    end
+
+    -- Function to loop the roll function
+    self.autoRollLoop = function()
+        while self.autoRollToggle.Value do
+            self:rollEvent()
+            task.wait(0.01)
         end
     end
 end
 
 -- GUI Section
 function Hub:Gui()
-    -- Create the GUI Window
     local Window = Fluent:CreateWindow({
         Title = "UK+1 Hub",
         SubTitle = "by Av",
@@ -53,33 +61,37 @@ function Hub:Gui()
         MinimizeKey = Enum.KeyCode.LeftControl
     })
 
-    -- Add Tabs
     local Tabs = {
         Auto = Window:AddTab({ Title = "Auto", Icon = "repeat" })
     }
 
-    -- Access Fluent Options
     local Options = Fluent.Options
 
-    -- Add Auto Potions Toggle
     self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
         Title = "Auto Potions",
         Default = false,
     })
 
-    -- Connect the toggle to the loop function
+    self.autoRollToggle = Tabs.Auto:AddToggle("AutoRoll", {
+        Title = "Auto Roll",
+        Default = false,
+    })
+
     self.autoPotionsToggle:OnChanged(function()
         if self.autoPotionsToggle.Value then
             task.spawn(self.autoPotionsLoop)
         end
     end)
 
-    -- Set default tab
+    self.autoRollToggle:OnChanged(function()
+        if self.autoRollToggle.Value then
+            task.spawn(self.autoRollLoop)
+        end
+    end)
+
     Window:SelectTab(1)
 end
 
--- Initialize GUI
+-- init
 Hub:Gui()
-
--- Initialize Hub Functions
 Hub:Functions()
