@@ -346,13 +346,6 @@ function Hub:Gui()
         Default = false,
     })
 
-    self.claimAllCodesButton = Tabs.Auto:AddButton({
-        Title = "Claim All Codes",
-        Callback = function()
-            task.spawn(self.useCodes)
-        end
-    })
-
     statsParagraph = Tabs.Auto:AddParagraph({
         Title = "Stats",
         Content = "Total Potions: " .. potionCount 
@@ -432,6 +425,13 @@ function Hub:Gui()
         Title = "Rejoin game",
         Callback = function()
             task.spawn(self.rejoinGame)
+        end
+    })
+
+    Tabs.Misc:AddButton({
+        Title = "Claim All Codes",
+        Callback = function()
+            task.spawn(self.useCodes)
         end
     })
 
