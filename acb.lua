@@ -144,7 +144,7 @@ local areaTeleportCoordinates = {
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
 function Hub:Functions()
-	self.antiAFK = function()
+	self.antiAfk = function()
 		player.Idled:connect(function()
 			virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
 			task.wait(0.5);
@@ -184,11 +184,6 @@ function Hub:Functions()
 				potionCount = potionCount + 1;
 			end;
 		end;
-	end;
-	self.rollEvent = function()
-		local success, response = pcall(function()
-			(remotes:WaitForChild("RollEvent")):FireServer();
-		end);
 	end;
 	self.setPrimaryPart = function()
 		player = game.Players.LocalPlayer;
@@ -230,16 +225,15 @@ function Hub:Functions()
 			self.characterTeleport(otherCoordinates["Old Position"]);
 		end;
 	end;
+	self.rollEvent = function()
+		local success, response = pcall(function()
+			(remotes:WaitForChild("RollEvent")):FireServer();
+		end);
+	end;
 	self.autoPotionsLoop = function()
 		while self.autoPotionsToggle.Value do
 			self.grabPotions();
 			task.wait(0.5);
-		end;
-	end;
-	self.autoRollLoop = function()
-		while self.autoRollToggle.Value do
-			self.rollEvent();
-			task.wait(0.01);
 		end;
 	end;
 	self.autoSwordLoop = function()
@@ -249,6 +243,12 @@ function Hub:Functions()
 				self.grabSword();
 			end;
 			task.wait(0.5);
+		end;
+	end;
+	self.autoRollLoop = function()
+		while self.autoRollToggle.Value do
+			self.rollEvent();
+			task.wait(0.01);
 		end;
 	end;
 	self.updateParagraph = function()
@@ -345,29 +345,27 @@ function Hub:Functions()
 			end;
 		end;
 		self.clickYes = function()
+			
+		end
+		self.testFunction = function()
 			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue")
 			if not npcDialogue then
-				return false;
-			end;
+				return false
+			end
+		
 			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-			
+		
 			for _, child in pairs(responseFrame:GetChildren()) do
 				if child:IsA("ImageButton") and child.Name == "DialogueOption" then
 					local textValue = child:FindFirstChild("Text")
 					if textValue and textValue.Text == "Yes please!" then
-						-- Simulate a click
-						
-						
-						return true
+						self.clickYes();
 					end
 				end
 			end
-		end		
-		self.testFunction = function()
-			self.clickYes();
 		end;
-		self.antiAFK();
+		self.antiAfk();
 		self.setPrimaryPart();
 		player.CharacterAdded:Connect(function(newCharacter)
 			player = game.Players.LocalPlayer;
@@ -412,12 +410,12 @@ function Hub:Gui()
 		Title = "Auto Potions",
 		Default = false
 	});
-	self.autoRollToggle = Tabs.Auto:AddToggle("AutoRoll", {
-		Title = "Auto Roll",
-		Default = false
-	});
 	self.autoSwordToggle = Tabs.Auto:AddToggle("AutoSword", {
 		Title = "Auto Sword",
+		Default = false
+	});
+	self.autoRollToggle = Tabs.Auto:AddToggle("AutoRoll", {
+		Title = "Auto Roll",
 		Default = false
 	});
 	statsParagraph = Tabs.Auto:AddParagraph({
