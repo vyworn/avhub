@@ -39,7 +39,6 @@ local textchatserivce = game:GetService("TextChatService");
 local textchannel = textchatserivce.TextChannels:WaitForChild("RBXGeneral");
 local api = "https://games.roblox.com/v1/games/";
 local http = game:GetService("HttpService");
-local teleportservice = game:GetService("TeleportService");
 local proximitypromptservice = game:GetService("ProximityPromptService");
 local devid = {
 	164011583,
@@ -481,7 +480,7 @@ function Hub:Gui()
 		local testdesc = "Prints the PrimaryPart of the character if it exists.";
 		Tabs.Tools:AddButton({
 			Title = "Test Function",
-			Desc = testdesc,
+			Description = testdesc,
 			Callback = function()
 				if character.PrimaryPart then
 					print("PrimaryPart of the character is: " .. character.PrimaryPart.Name);
