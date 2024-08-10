@@ -192,8 +192,6 @@ function Hub:Functions()
 			swordProximityPrompt:InputHoldEnd();
 			task.wait(2);
 			self.characterTeleport(otherCoordinates["Old Position"]);
-		else
-			warn("ProximityPrompt not found on SwordBlock.");
 		end;
 	end;
 	self.autoPotionsLoop = function()
