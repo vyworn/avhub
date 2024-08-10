@@ -431,12 +431,12 @@ function Hub:Gui()
 	});
 	codesParagraph = Tabs.Misc:AddParagraph({
 		Title = "Codes",
-		Content = reversedCodesString
+		Content = self.reverseCodes()
 	});
 	Tabs.Misc:AddButton({
 		Title = "Copy All Codes",
 		Callback = function()
-			setclipboard(reversedCodesStringCopy);
+			setclipboard(self.reverseCodesCopy());
 		end
 	});
 	InterfaceManager:SetLibrary(Fluent);
