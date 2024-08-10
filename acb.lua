@@ -361,6 +361,14 @@ function Hub:Gui()
 			task.spawn(self.useCodes);
 		end
 	});
+	local reversedCodesString = "";
+	for i = #codes, 1, -1 do
+		reversedCodesString = reversedCodesString .. codes[i] .. "\n";
+	end;
+	codesParagraph = Tabs.Misc:AddParagraph({
+		Title = "Codes",
+		Content = reversedCodesString
+	});
 	InterfaceManager:SetLibrary(Fluent);
 	InterfaceManager:SetFolder("UK1");
 	InterfaceManager:BuildInterfaceSection(Tabs.Settings);
