@@ -86,8 +86,8 @@ local npcTeleports = {
 	"Card Fusion",
 	"Card Packs",
 	"Strange Trader",
-	"Heaven's Arena Tower",
-	"Heaven's Arena Infinite"
+	"Heaven Tower",
+	"Heaven Infinite"
 };
 local mobTeleports = {
 	"Earth's Mightiest",
@@ -101,12 +101,12 @@ local mobTeleports = {
 };
 local areaTeleports = {
 	"Heavens Arena",
-	"Sword",
-	"Portal 5",
-	"Portal 4",
-	"Portal 3",
-	"Portal 2",
-	"Portal 1"
+	"Obby Sword",
+	"Wicked Weaver (Boss)",
+	"Cifer (Boss)",
+	"King Of Curses (Boss)",
+	"Shinobi God (Boss)",
+	"Galactic Tyrant (Boss)",
 };
 local npcTeleportsCoordinates = {
 	["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
