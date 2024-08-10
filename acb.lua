@@ -43,7 +43,8 @@ local jobid = game.JobId;
 local proximitypromptservice = game:GetService("ProximityPromptService");
 local devid = {
 	164011583,
-	1607510152
+	1607510152,
+	417954849,
 };
 local isdeveloper = table.find(devid, playerid) ~= nil;
 local statsParagraph;
@@ -77,7 +78,7 @@ local otherLocations = {
 	"Old Position"
 };
 local otherCoordinates = {
-	Sword = Vector3.new(-5922.687012, 102.94072, -8286.416016)
+	["Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016)
 };
 local npcTeleports = {
 	"Charm Merchant",
@@ -113,27 +114,27 @@ local npcTeleportsCoordinates = {
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
 	["Card Packs"] = Vector3.new(-6024.296387, 152.574966, -8582.142578),
 	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
-	["Heaven's Arena Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
-	["Heaven's Arena Infinite"] = Vector3.new(459.257782, 247.425293, 5931.338379)
+	["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
+	["Heaven Infinite"] = Vector3.new(459.257782, 247.425293, 5931.338379)
 };
 local mobsTeleportsCoordinates = {
 	["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169, -5141.633789),
-	Prince = Vector3.new(10987.201172, 344.049896, -5241.321777),
+	["Prince"] = Vector3.new(10987.201172, 344.049896, -5241.321777),
 	["Knucklehead Ninja"] = Vector3.new(4219.748535, 31.724997, 7506.525391),
 	["Rogue Ninja"] = Vector3.new(4306.954102, 31.724993, 7506.855469),
-	Limitless = Vector3.new(-12.537902, 272.422241, 5996.07666),
+	["Limitless"] = Vector3.new(-12.537902, 272.422241, 5996.07666),
 	["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009, 6714.296875),
 	["Rubber Boy"] = Vector3.new(13150.526367, 84.124977, 11365.570312),
 	["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391)
 };
 local areaTeleportCoordinates = {
 	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
-	Sword = Vector3.new(-5922.687012, 102.94072, -8286.416016),
-	["Portal 5"] = Vector3.new(13116.553711, 84.124977, 11327.412109),
-	["Portal 4"] = Vector3.new(-7902.407227, 734.204712, 6737.871582),
-	["Portal 3"] = Vector3.new(-24.246572, 256.645111, 5886.447754),
-	["Portal 2"] = Vector3.new(4260.783203, 31.724993, 7455.575684),
-	["Portal 1"] = Vector3.new(10932.37793, 351.924957, -5078.314941)
+	["Obby Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
+	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979,11333.648438),
+	["Cifer (Boss)"] = Vector3.new(-7899.034180, 734.354736,6741.601562),
+	["King Of Curses (Boss)"] = Vector3.new(-25.217384, 256.795135,5882.467773),
+	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994,7444.705078),
+	["Galactic Tyrant (Boss)"] = Vector3.new(10927.659180, 352.199860,-5072.885254)
 };
 function Hub:Functions()
 	player.Idled:connect(function()
