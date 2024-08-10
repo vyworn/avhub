@@ -488,10 +488,10 @@ function Hub:Gui()
 			Title = "Tools",
 			Icon = "wrench"
 		});
-		local testdesc = "Prints the PrimaryPart of the character if it exists.";
+		local testdesc = "Prints the PrimaryPart";
 		Tabs.Tools:AddButton({
 			Title = "Test Function",
-			Description = testdesc,
+			Description = "Current Function: " .. testdesc,
 			Callback = function()
 				if character.PrimaryPart then
 					print("PrimaryPart of the character is: " .. character.PrimaryPart.Name);
