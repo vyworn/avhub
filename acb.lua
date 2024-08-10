@@ -144,15 +144,19 @@ local areaTeleportCoordinates = {
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
 function Hub:Functions()
-	player.Idled:connect(function()
-		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-		virtualuser:CaptureController();
-		task.wait(0.5);
-		virtualuser:ClickButton2(Vector2.new());
-	end);
+	self.antiAfk = function()
+		player.Idled:connect(function()
+			virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+			task.wait(0.5);
+			virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+		end);
+		player.Idled:connect(function()
+			virtualuser:CaptureController();
+			task.wait(0.5);
+			virtualuser:ClickButton2(Vector2.new());
+		end);
+		print('Anti Afk Is Now On')
+	end
 	self.sendMessage = function(message)
 		if textchannel then
 			local success, result = pcall(function()
