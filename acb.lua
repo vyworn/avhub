@@ -57,10 +57,19 @@ local codes = {
 	"THANKS4PLAYING!",
 	"1KLIKES!",
 	"2KLIKES!",
+	"SUB2VALK!",
 	"4KLIKES!",
 	"5KLIKES!",
 	"6KLIKES!",
 	"500KVISITS!",
+	"SORRYFORSHUTDOWN!",
+	"SUB2TOADBOI!",
+	"SUB2RIJORO!",
+	"SUB2WIRY!",
+	"SUB2CONSUME!",
+	"SUB2D1SGUISED!",
+	"SUB2ItsHappyYT1!",
+	"SUB2Joltzy!",
 	"1MVISITS!"
 };
 local otherLocations = {
