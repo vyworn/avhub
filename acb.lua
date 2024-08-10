@@ -40,6 +40,7 @@ local playerage = player.AccountAge;
 local creatorid = game.CreatorId;
 local creatortype = game.CreatorType;
 local jobid = game.JobId;
+local proximitypromptservice = game:GetService("ProximityPromptService");
 local devid = {
 	164011583,
 	1607510152
@@ -180,17 +181,20 @@ function Hub:Functions()
 		end;
 	end;
 	self.grabSword = function()
-		local swordBlock = (workspace:WaitForChild("ObbySword")):WaitForChild("SwordBlock");
-		local proximityPrompt = swordBlock:FindFirstChild("ProximityPrompt");
-		local timeLeft = swordCooldown;
-		self.getOldPosition();
-		task.wait(1);
-		self.characterTeleport(otherCoordinates.Sword);
-		virtualinput:SendKeyEvent(true, Enum.KeyCode.E, false, game);
-		task.wait(0.1);
-		virtualinput:SendKeyEvent(false, Enum.KeyCode.E, false, game);
-		task.wait(2);
-		self.characterTeleport(otherCoordinates["Old Position"]);
+		local swordBlock = (workspace:WaitForChild("ObbySwordPrompt")):WaitForChild("SwordBlock");
+		local swordProximityPrompt = swordBlock:WaitForChild("ProximityPrompt");
+		if swordProximityPrompt then
+			self.getOldPosition();
+			task.wait(1);
+			self.characterTeleport(otherCoordinates.Sword);
+			swordProximityPrompt:InputHoldBegin();
+			wait(0.5);
+			swordProximityPrompt:InputHoldEnd();
+			task.wait(2);
+			self.characterTeleport(otherCoordinates["Old Position"]);
+		else
+			warn("ProximityPrompt not found on SwordBlock.");
+		end;
 	end;
 	self.autoPotionsLoop = function()
 		while self.autoPotionsToggle.Value do
