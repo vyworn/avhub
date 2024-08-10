@@ -454,7 +454,7 @@ function Hub:Gui()
 	Tabs.Teleports:AddButton({
 		Title = "Teleport to the Lucky Spot",
 		Callback = function()
-			task.spawn(self.characterTeleport(otherCoordinates["Lucky Spot"]));
+			self.characterTeleport(otherCoordinates["Lucky Spot"]);
 		end
 	});
 	Tabs.Misc:AddButton({
