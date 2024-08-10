@@ -253,6 +253,7 @@ function Hub:Functions()
 				reversedCodesString = reversedCodesString .. "\n";
 			end;
 		end;
+		return reversedCodesString;
 	end;
 	self.reverseCodesCopy = function()
 		local reversedCodesStringCopy = "";
@@ -262,6 +263,7 @@ function Hub:Functions()
 				reversedCodesStringCopy = reversedCodesStringCopy .. "\n";
 			end;
 		end;
+		return reversedCodesStringCopy;
 	end;
 	if isdeveloper then
 		self.teleportToPosition = function(x, y, z)
@@ -421,8 +423,6 @@ function Hub:Gui()
 			task.spawn(self.rejoinGame);
 		end
 	});
-	self.reverseCodes();
-	self.reverseCodesCopy();
 	Tabs.Misc:AddButton({
 		Title = "Claim All Codes",
 		Callback = function()
