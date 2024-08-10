@@ -106,6 +106,7 @@ local mobTeleports = {
 local areaTeleports = {
 	"Heavens Arena",
 	"Obby Sword",
+	"Cosmic Menace (Boss)",
 	"Wicked Weaver (Boss)",
 	"Cifer (Boss)",
 	"King Of Curses (Boss)",
@@ -135,6 +136,7 @@ local mobsTeleportsCoordinates = {
 local areaTeleportCoordinates = {
 	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
 	["Obby Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
+	["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225,-8551.984375),
 	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
 	["Cifer (Boss)"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
 	["King Of Curses (Boss)"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
@@ -142,15 +144,19 @@ local areaTeleportCoordinates = {
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
 function Hub:Functions()
-	player.Idled:connect(function()
-		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-		virtualuser:CaptureController();
-		task.wait(0.5);
-		virtualuser:ClickButton2(Vector2.new());
-	end);
+	self.antiAfk = function()
+		player.Idled:connect(function()
+			virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+			task.wait(0.5);
+			virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+		end);
+		player.Idled:connect(function()
+			virtualuser:CaptureController();
+			task.wait(0.5);
+			virtualuser:ClickButton2(Vector2.new());
+		end);
+		print('Anti Afk Is Now On')
+	end
 	self.sendMessage = function(message)
 		if textchannel then
 			local success, result = pcall(function()
@@ -350,14 +356,13 @@ function Hub:Functions()
 				if child:IsA("ImageButton") and child.Name == "DialogueOption" then
 					local textValue = child:FindFirstChild("Text")
 					if textValue and textValue.Text == "Yes please!" then
-						-- Simulate a click on this button by triggering the MouseButton1Click event
-
+						-- Simulate a click
+						
 						
 						return true
 					end
 				end
 			end
-
 		end		
 		self.testFunction = function()
 			self.clickYes();
