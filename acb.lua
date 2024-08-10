@@ -61,7 +61,7 @@ local codes = {
 	"5KLIKES!",
 	"6KLIKES!",
 	"500KVISITS!",
-	"1MVISITS!",
+	"1MVISITS!"
 };
 local otherLocations = {
 	"Sword",
@@ -146,8 +146,8 @@ function Hub:Functions()
 		end;
 	end;
 	self.useCodes = function()
-		for _, code in ipairs(codes) do
-			local message = "/code " .. code;
+		for i = #codes, 1, -1 do
+			local message = "/code " .. codes[i];
 			self.sendMessage(message);
 			task.wait(1);
 		end;
