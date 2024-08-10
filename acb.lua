@@ -371,6 +371,12 @@ function Hub:Gui()
 			end
 		});
 		Tabs.Tools:AddButton({
+			Title = "Dex",
+			Callback = function()
+				(loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua")))();
+			end
+		});
+		Tabs.Tools:AddButton({
 			Title = "Infinite Yield",
 			Callback = function()
 				(loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")))();
