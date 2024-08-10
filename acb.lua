@@ -112,7 +112,7 @@ local areaTeleports = {
 	"Galactic Tyrant (Boss)"
 };
 local npcTeleportsCoordinates = {
-	["Heaven Infinite"] = Vector3.new(459.257782, 247.425293, 5931.338379)
+	["Heaven Infinite"] = Vector3.new(459.257782, 247.425293, 5931.338379),
 	["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
 	["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
 	["Potion Shop"] = Vector3.new(-45.672028, 256.645111, 5976.190918),
