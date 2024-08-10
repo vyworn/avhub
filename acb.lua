@@ -163,7 +163,7 @@ function Hub:Functions()
 		for i = #codes, 1, -1 do
 			local message = "/code " .. codes[i];
 			self.sendMessage(message);
-			task.wait(1);
+			task.wait(2);
 		end;
 	end;
 	self.grabPotions = function()
