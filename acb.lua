@@ -23,6 +23,12 @@ local player = game.Players.LocalPlayer;
 local placeid = game.PlaceId;
 local playerid = player.UserId;
 local character = player.Character;
+local username = player.Name;
+local displayname = player.DisplayName;
+local playerage = player.AccountAge;
+local creatorid = game.CreatorId;
+local creatortype = game.CreatorType;
+local jobid = game.JobId;
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart");
 local virtualinput = game:GetService("VirtualInputManager");
 local virtualuser = game:GetService("VirtualUser");
@@ -34,12 +40,6 @@ local textchannel = textchatserivce.TextChannels:WaitForChild("RBXGeneral");
 local api = "https://games.roblox.com/v1/games/";
 local http = game:GetService("HttpService");
 local teleportservice = game:GetService("TeleportService");
-local username = player.Name;
-local displayname = player.DisplayName;
-local playerage = player.AccountAge;
-local creatorid = game.CreatorId;
-local creatortype = game.CreatorType;
-local jobid = game.JobId;
 local proximitypromptservice = game:GetService("ProximityPromptService");
 local devid = {
 	164011583,
@@ -336,6 +336,7 @@ function Hub:Functions()
 		end;
 		self.setPrimaryPart();
 		player.CharacterAdded:Connect(function(newCharacter)
+			player = game.Players.LocalPlayer;
 			character = newCharacter;
 			local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10);
 			if humanoidRootPart then
