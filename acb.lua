@@ -421,6 +421,8 @@ function Hub:Gui()
 			task.spawn(self.rejoinGame);
 		end
 	});
+	self.reverseCodes();
+	self.reverseCodesCopy();
 	Tabs.Misc:AddButton({
 		Title = "Claim All Codes",
 		Callback = function()
