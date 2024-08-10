@@ -44,7 +44,7 @@ local proximitypromptservice = game:GetService("ProximityPromptService");
 local devid = {
 	164011583,
 	1607510152,
-	417954849,
+	417954849
 };
 local isdeveloper = table.find(devid, playerid) ~= nil;
 local statsParagraph;
@@ -78,7 +78,8 @@ local otherLocations = {
 	"Old Position"
 };
 local otherCoordinates = {
-	["Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016)
+	["Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
+	["Old Position"] = Vector3.new(0, 0, 0)
 };
 local npcTeleports = {
 	"Charm Merchant",
@@ -106,7 +107,7 @@ local areaTeleports = {
 	"Cifer (Boss)",
 	"King Of Curses (Boss)",
 	"Shinobi God (Boss)",
-	"Galactic Tyrant (Boss)",
+	"Galactic Tyrant (Boss)"
 };
 local npcTeleportsCoordinates = {
 	["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
@@ -130,11 +131,11 @@ local mobsTeleportsCoordinates = {
 local areaTeleportCoordinates = {
 	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
 	["Obby Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
-	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979,11333.648438),
-	["Cifer (Boss)"] = Vector3.new(-7899.034180, 734.354736,6741.601562),
-	["King Of Curses (Boss)"] = Vector3.new(-25.217384, 256.795135,5882.467773),
-	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994,7444.705078),
-	["Galactic Tyrant (Boss)"] = Vector3.new(10927.659180, 352.199860,-5072.885254)
+	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
+	["Cifer (Boss)"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
+	["King Of Curses (Boss)"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
+	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
+	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
 function Hub:Functions()
 	player.Idled:connect(function()
@@ -179,10 +180,20 @@ function Hub:Functions()
 			(remotes:WaitForChild("RollEvent")):FireServer();
 		end);
 	end;
+	self.setPrimaryPart = function()
+		player = game.Players.LocalPlayer;
+		character = player.Character;
+		if character:FindFirstChild("HumanoidRootPart") then
+			character.PrimaryPart = character.HumanoidRootPart;
+		end;
+	end;
 	self.characterTeleport = function(destination)
-		if character then
+		if character and character.PrimaryPart then
 			character:SetPrimaryPartCFrame(CFrame.new(destination));
 			task.wait(0.1);
+		else
+			character = player.Character;
+			self.setPrimaryPart();
 		end;
 	end;
 	self.getOldPosition = function()
@@ -277,11 +288,12 @@ function Hub:Functions()
 	end;
 	if isdeveloper then
 		self.teleportToPosition = function(x, y, z)
-			if character then
+			if character and character.PrimaryPart then
 				local pos = Vector3.new(x, y, z);
 				character:SetPrimaryPartCFrame(CFrame.new(pos));
 			else
-				warn("Character not found.");
+				character = player.Character;
+				self.setPrimaryPart();
 			end;
 		end;
 		self.joinPublicServer = function()
@@ -322,6 +334,14 @@ function Hub:Functions()
 				warn("Logged position is not set.");
 			end;
 		end;
+		self.setPrimaryPart();
+		player.CharacterAdded:Connect(function(newCharacter)
+			character = newCharacter;
+			local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10);
+			if humanoidRootPart then
+				character.PrimaryPart = humanoidRootPart;
+			end;
+		end);
 	end;
 end;
 function Hub:Gui()
@@ -456,6 +476,18 @@ function Hub:Gui()
 		Tabs.Tools = guiWindow[randomKey]:AddTab({
 			Title = "Tools",
 			Icon = "wrench"
+		});
+		local testdesc = "Prints the PrimaryPart of the character if it exists.";
+		Tabs.Tools:AddButton({
+			Title = "Test Function",
+			Desc = testdesc,
+			Callback = function()
+				if character.PrimaryPart then
+					print("PrimaryPart of the character is: " .. character.PrimaryPart.Name);
+				else
+					print("Character does not have a PrimaryPart set.");
+				end;
+			end
 		});
 		Tabs.Tools:AddButton({
 			Title = "Remote Spy",
