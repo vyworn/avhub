@@ -245,6 +245,72 @@ function Hub:Functions()
 		task.wait(1);
 		teleportservice:Teleport(placeid, player);
 	end;
+	self.reverseCodes = function()
+		local reversedCodesString = "";
+		for i = #codes, 1, -1 do
+			reversedCodesString = reversedCodesString .. codes[i];
+			if i > 1 then
+				reversedCodesString = reversedCodesString .. "\n";
+			end;
+		end;
+	end;
+	self.reverseCodesCopy = function()
+		local reversedCodesStringCopy = "";
+		for i = #codes, 1, -1 do
+			reversedCodesStringCopy = reversedCodesStringCopy .. "/code " .. codes[i];
+			if i > 1 then
+				reversedCodesStringCopy = reversedCodesStringCopy .. "\n";
+			end;
+		end;
+	end;
+	if isdeveloper then
+		self.teleportToPosition = function(x, y, z)
+			if character then
+				local pos = Vector3.new(x, y, z);
+				character:SetPrimaryPartCFrame(CFrame.new(pos));
+			else
+				warn("Character not found.");
+			end;
+		end;
+		self.joinPublicServer = function()
+			local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
+			local function listServers(cursor)
+				local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
+				return http:JSONDecode(raw);
+			end;
+			local servers = listServers();
+			local server = servers.data[math.random(1, #servers.data)];
+			teleportService:TeleportToPlaceInstance(placeid, server.id, player);
+		end;
+		self.rejoinGame = function()
+			teleportService:Teleport(placeid, player);
+		end;
+		local loggedPositionX, loggedPositionY, loggedPositionZ;
+		self.getPosition = function()
+			if character and humanoidRootPart then
+				local position = humanoidRootPart.Position;
+				loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z;
+				local dataString = string.format("%.6f, %.6f,%.6f", position.X, position.Y, position.Z);
+				setclipboard(dataString);
+				return loggedPositionX, loggedPositionY, loggedPositionZ;
+			else
+				if not character then
+					warn("Character not found for player:", player.Name);
+				end;
+				if not humanoidRootPart then
+					warn("HumanoidRootPart not found for player:", player.Name);
+				end;
+				return nil, nil, nil;
+			end;
+		end;
+		self.teleportToLoggedPosition = function()
+			if loggedPositionX and loggedPositionY and loggedPositionZ then
+				self.teleportToPosition(loggedPositionX, loggedPositionY, loggedPositionZ);
+			else
+				warn("Logged position is not set.");
+			end;
+		end;
+	end;
 end;
 function Hub:Gui()
 	guiWindow[randomKey] = Fluent:CreateWindow({
@@ -355,19 +421,23 @@ function Hub:Gui()
 			task.spawn(self.rejoinGame);
 		end
 	});
+	self.reverseCodes();
+	self.reverseCodesCopy();
 	Tabs.Misc:AddButton({
 		Title = "Claim All Codes",
 		Callback = function()
 			task.spawn(self.useCodes);
 		end
 	});
-	local reversedCodesString = "";
-	for i = #codes, 1, -1 do
-		reversedCodesString = reversedCodesString .. codes[i] .. "\n";
-	end;
 	codesParagraph = Tabs.Misc:AddParagraph({
 		Title = "Codes",
 		Content = reversedCodesString
+	});
+	Tabs.Misc:AddButton({
+		Title = "Copy All Codes",
+		Callback = function()
+			setclipboard(reversedCodesStringCopy);
+		end
 	});
 	InterfaceManager:SetLibrary(Fluent);
 	InterfaceManager:SetFolder("UK1");
@@ -449,57 +519,6 @@ function Hub:Gui()
 		});
 	end;
 	guiWindow[randomKey]:SelectTab(1);
-end;
-function Hub:Tools()
-	self.teleportToPosition = function(x, y, z)
-		if character then
-			local pos = Vector3.new(x, y, z);
-			character:SetPrimaryPartCFrame(CFrame.new(pos));
-		else
-			warn("Character not found.");
-		end;
-	end;
-	self.joinPublicServer = function()
-		local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
-		local function listServers(cursor)
-			local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
-			return http:JSONDecode(raw);
-		end;
-		local servers = listServers();
-		local server = servers.data[math.random(1, #servers.data)];
-		teleportService:TeleportToPlaceInstance(placeid, server.id, player);
-	end;
-	self.rejoinGame = function()
-		teleportService:Teleport(placeid, player);
-	end;
-	local loggedPositionX, loggedPositionY, loggedPositionZ;
-	self.getPosition = function()
-		if character and humanoidRootPart then
-			local position = humanoidRootPart.Position;
-			loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z;
-			local dataString = string.format("%.6f, %.6f,%.6f", position.X, position.Y, position.Z);
-			setclipboard(dataString);
-			return loggedPositionX, loggedPositionY, loggedPositionZ;
-		else
-			if not character then
-				warn("Character not found for player:", player.Name);
-			end;
-			if not humanoidRootPart then
-				warn("HumanoidRootPart not found for player:", player.Name);
-			end;
-			return nil, nil, nil;
-		end;
-	end;
-	self.teleportToLoggedPosition = function()
-		if loggedPositionX and loggedPositionY and loggedPositionZ then
-			self.teleportToPosition(loggedPositionX, loggedPositionY, loggedPositionZ);
-		else
-			warn("Logged position is not set.");
-		end;
-	end;
-end;
-if isdeveloper then
-	Hub:Tools();
 end;
 Hub:Functions();
 Hub:Gui();
