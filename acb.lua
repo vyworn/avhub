@@ -81,13 +81,14 @@ local otherCoordinates = {
 	["Old Position"] = Vector3.new(0, 0, 0)
 };
 local npcTeleports = {
+	"Heaven Infinite",
+	"Heaven Tower",
 	"Charm Merchant",
 	"Potion Shop",
 	"Card Fusion",
 	"Card Packs",
 	"Strange Trader",
-	"Heaven Tower",
-	"Heaven Infinite"
+	"Luck Fountain",
 };
 local mobTeleports = {
 	"Earth's Mightiest",
@@ -109,13 +110,14 @@ local areaTeleports = {
 	"Galactic Tyrant (Boss)"
 };
 local npcTeleportsCoordinates = {
+	["Heaven Infinite"] = Vector3.new(459.257782, 247.425293, 5931.338379)
+	["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
 	["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
 	["Potion Shop"] = Vector3.new(-45.672028, 256.645111, 5976.190918),
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
 	["Card Packs"] = Vector3.new(-6024.296387, 152.574966, -8582.142578),
 	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
-	["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
-	["Heaven Infinite"] = Vector3.new(459.257782, 247.425293, 5931.338379)
+	["Luck Fountain"] = Vector3.new(-5971.769043, 156.174988,-8725.775391),
 };
 local mobsTeleportsCoordinates = {
 	["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169, -5141.633789),
