@@ -18,5 +18,3 @@ else
 		until _G.ahKey and _G[_G.ahKey] ~= nil;
 	end;
 end;
-
--- test
