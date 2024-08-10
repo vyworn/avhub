@@ -268,7 +268,7 @@ function Hub:Functions()
 	end;
 	self.rejoinGame = function()
 		task.wait(1);
-		teleportservice:Teleport(placeid, player);
+		teleportservice:Teleport(placeid, player)
 	end;
 	self.reverseCodes = function()
 		local reversedCodesString = "";
@@ -337,6 +337,30 @@ function Hub:Functions()
 			else
 				warn("Logged position is not set.");
 			end;
+		end;
+		self.clickYes = function()
+			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue")
+			if not npcDialogue then
+				return false;
+			end;
+			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+			
+			for _, child in pairs(responseFrame:GetChildren()) do
+				if child:IsA("ImageButton") and child.Name == "DialogueOption" then
+					local textValue = child:FindFirstChild("Text")
+					if textValue and textValue.Text == "Yes please!" then
+						-- Simulate a click on this button by triggering the MouseButton1Click event
+
+						
+						return true
+					end
+				end
+			end
+
+		end		
+		self.testFunction = function()
+			self.clickYes();
 		end;
 		self.setPrimaryPart();
 		player.CharacterAdded:Connect(function(newCharacter)
@@ -461,18 +485,18 @@ function Hub:Gui()
 	Tabs.Misc:AddButton({
 		Title = "Rejoin game",
 		Callback = function()
-			task.spawn(self.rejoinGame);
+			self.rejoinGame();
 		end
 	});
 	Tabs.Misc:AddButton({
 		Title = "Claim All Codes",
 		Callback = function()
-			task.spawn(self.useCodes);
+			self.useCodes();
 		end
 	});
 	codesParagraph = Tabs.Misc:AddParagraph({
 		Title = "Codes",
-		Content = self.reverseCodes()
+		Content = self.reverseCodes();
 	});
 	Tabs.Misc:AddButton({
 		Title = "Copy All Codes",
@@ -488,16 +512,12 @@ function Hub:Gui()
 			Title = "Tools",
 			Icon = "wrench"
 		});
-		local testdesc = "Prints the PrimaryPart";
+		local testdesc = "Clicking Yes";
 		Tabs.Tools:AddButton({
 			Title = "Test Function",
-			Description = "Current Function: " .. testdesc,
+			Description = "Current Function:\n" .. testdesc,
 			Callback = function()
-				if character.PrimaryPart then
-					print("PrimaryPart of the character is: " .. character.PrimaryPart.Name);
-				else
-					print("Character does not have a PrimaryPart set.");
-				end;
+				self.testFunction();
 			end
 		});
 		Tabs.Tools:AddButton({
