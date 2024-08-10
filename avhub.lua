@@ -13,7 +13,7 @@ else
 	task.wait(math.random());
 	if games[game.PlaceId] then
 		repeat
-			loadstring(game:HttpGet(games[game.PlaceId]))();
+			(loadstring(game:HttpGet(games[game.PlaceId])))();
 			task.wait(math.random());
 		until _G.ahKey and _G[_G.ahKey] ~= nil;
 	end;
