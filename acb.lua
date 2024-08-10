@@ -42,6 +42,7 @@ local http = game:GetService("HttpService");
 local proximitypromptservice = game:GetService("ProximityPromptService");
 local devid = {
 	164011583,
+	85087803,
 	1607510152,
 	417954849
 };
@@ -487,10 +488,10 @@ function Hub:Gui()
 			Title = "Tools",
 			Icon = "wrench"
 		});
-		local testdesc = "Prints the PrimaryPart of the character if it exists.";
+		local testdesc = "Prints the PrimaryPart";
 		Tabs.Tools:AddButton({
 			Title = "Test Function",
-			Description = testdesc,
+			Description = "Current Function: " .. testdesc,
 			Callback = function()
 				if character.PrimaryPart then
 					print("PrimaryPart of the character is: " .. character.PrimaryPart.Name);
