@@ -74,11 +74,13 @@ local codes = {
 };
 local otherLocations = {
 	"Sword",
-	"Old Position"
+	"Lucky Spot",
+	"Old Position",
 };
 local otherCoordinates = {
 	["Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
-	["Old Position"] = Vector3.new(0, 0, 0)
+	["Lucky Spot"] = Vector3.new(-5872.769531, 965.790771,-9323.985352),
+	["Old Position"] = Vector3.new(0, 0, 0),
 };
 local npcTeleports = {
 	"Heaven Infinite",
@@ -449,6 +451,12 @@ function Hub:Gui()
 			areaTeleportDropdown:SetValue(nil);
 		end;
 	end);
+	Tabs.Teleports:AddButton({
+		Title = "Teleport to the Lucky Spot",
+		Callback = function()
+			task.spawn(self.characterTeleport(otherCoordinates["Lucky Spot"]));
+		end
+	});
 	Tabs.Misc:AddButton({
 		Title = "Rejoin game",
 		Callback = function()
