@@ -144,7 +144,7 @@ local areaTeleportCoordinates = {
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
 function Hub:Functions()
-	self.antiAfk = function()
+	self.antiAFK = function()
 		player.Idled:connect(function()
 			virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
 			task.wait(0.5);
@@ -367,6 +367,7 @@ function Hub:Functions()
 		self.testFunction = function()
 			self.clickYes();
 		end;
+		self.antiAFK();
 		self.setPrimaryPart();
 		player.CharacterAdded:Connect(function(newCharacter)
 			player = game.Players.LocalPlayer;
