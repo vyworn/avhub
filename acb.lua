@@ -60,7 +60,8 @@ local codes = {
 	"4KLIKES!",
 	"5KLIKES!",
 	"6KLIKES!",
-	"500KVISITS!"
+	"500KVISITS!",
+	"1MVISITS!",
 };
 local otherLocations = {
 	"Sword",
@@ -192,7 +193,7 @@ function Hub:Functions()
 			swordProximityPrompt:InputHoldEnd();
 			task.wait(0.1);
 			swordProximityPrompt:InputHoldBegin();
-			wait(0.1);
+			task.wait(0.1);
 			swordProximityPrompt:InputHoldEnd();
 			task.wait(2);
 			self.characterTeleport(otherCoordinates["Old Position"]);
