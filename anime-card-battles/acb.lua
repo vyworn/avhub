@@ -159,7 +159,7 @@ local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 local canGoBack = false;
-local startTime
+local useAntiAfk = true;
 
 --[[
 	Helper Functions
@@ -175,11 +175,13 @@ local function generateRandomKey(length)
 	return key;
 end;
 local function antiAfk()
-	player.Idled:Connect(function()
+	while useAntiAfk do
 		local clickpos = Vector2.new(0,0);
 		virtualuser:Button2Down(clickpos);
+		task.wait(0.1);
 		virtualuser:Button2Up(clickpos);
-	end);
+		task.wait(math.random(60, 120));
+	end;
 	print("Anti Afk enabled");
 end;
 local function rejoinGame()
