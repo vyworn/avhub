@@ -58,12 +58,12 @@ local codes = {
 	"THANKS4PLAYING!",
 	"1KLIKES!",
 	"2KLIKES!",
-	"SUB2VALK!",
 	"4KLIKES!",
 	"5KLIKES!",
 	"6KLIKES!",
 	"500KVISITS!",
 	"SORRYFORSHUTDOWN!",
+	"SUB2VALK!",
 	"SUB2TOADBOI!",
 	"SUB2RIJORO!",
 	"SUB2WIRY!",
@@ -188,7 +188,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.4.5";
+local version = "0.4.6";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -533,7 +533,8 @@ function Hub:Gui()
 	});
 	codesParagraph = Tabs.Misc:AddParagraph({
 		Title = "Codes\n",
-		Content = self.reverseCodes()
+		Content = "[Not all codes are shown, use the button to copy all codes]\n" 
+		.. self.reverseCodes()
 	});
 
 	--[[
