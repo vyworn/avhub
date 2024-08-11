@@ -199,7 +199,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.6.0";
+local version = "0.6.1";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -558,7 +558,7 @@ function Hub:Gui()
 	});
 	codesParagraph = Tabs.Misc:AddParagraph({
 		Title = "Codes\n",
-		Content = "[Not all codes are shown, use the button to copy all codes]\n" 
+		Content = "-->\tNot all codes are shown, use the button to copy all codes\n" 
 		.. self.reverseCodes()
 	});
 
