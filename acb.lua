@@ -396,17 +396,17 @@ function Hub:Gui()
 		Main Tab
 	--]]
 	updateLogParagraph = Tabs.Main:AddParagraph({
-		Title = "Update Log",
+		Title = "Update Log\n",
 		Content = "[+] " .. "."
 		.. "\n[+] " .. "." 
 		.. "\n[+] " .. "."
 	});
 	infoParagraph = Tabs.Main:AddParagraph({
-		Title = "Information",
+		Title = "Information\n",
 		Content = "[=] " .. "Working on Auto Infinite"
 		.. "\n[=] " .. "Working on Auto Repeatable Bosses"
 	});
-	
+
 	--[[
 		Auto Tab
 	--]]
@@ -423,7 +423,7 @@ function Hub:Gui()
 		Default = false
 	});
 	statsParagraph = Tabs.Auto:AddParagraph({
-		Title = "Stats",
+		Title = "Stats\n",
 		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown
 	});
 	self.autoPotionsToggle:OnChanged(function()
@@ -511,7 +511,7 @@ function Hub:Gui()
 		end
 	});
 	codesParagraph = Tabs.Misc:AddParagraph({
-		Title = "Codes",
+		Title = "Codes\n",
 		Content = self.reverseCodes()
 	});
 	Tabs.Misc:AddButton({
