@@ -1,23 +1,13 @@
+--[[
+	Loaded Check
+--]]
 if not game:IsLoaded() then
 	game.Loaded:Wait();
 end;
-task.wait(math.random());
-local function generateRandomKey(length)
-	local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	local key = "";
-	for i = 1, length do
-		local randIndex = math.random(1, #chars);
-		key = key .. string.sub(chars, randIndex, randIndex);
-	end;
-	return key;
-end;
-local randomKey = generateRandomKey(11);
-_G[randomKey] = {};
-_G.ahKey = randomKey;
-local guiWindow = {};
-local Hub = _G[randomKey];
-local Fluent = (loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua")))();
-local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
+
+--[[
+	Roblox Services & Variables
+--]]
 local workspace = game:GetService("Workspace");
 local player = game.Players.LocalPlayer;
 local placeid = game.PlaceId;
@@ -40,19 +30,22 @@ local textchannel = textchatserivce.TextChannels:WaitForChild("RBXGeneral");
 local api = "https://games.roblox.com/v1/games/";
 local http = game:GetService("HttpService");
 local proximitypromptservice = game:GetService("ProximityPromptService");
+
+--[[
+	Libraries
+--]]
+local Fluent = (loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua")))();
+local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
+
+--[[
+	Tables
+--]]
 local devid = {
 	164011583,
 	85087803,
 	1607510152,
 	417954849
 };
-local isdeveloper = table.find(devid, playerid) ~= nil;
-local statsParagraph;
-local updatingParagraph = false;
-local potionCount = 0;
-local swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
-local autoPotionsActive = false;
-local autoSwordActive = false;
 local codes = {
 	"RELEASE!",
 	"THANKS4PLAYING!",
@@ -73,13 +66,17 @@ local codes = {
 	"SUB2Joltzy!",
 	"1MVISITS!"
 };
+
+--[[
+	Teleport Tables
+--]]
 local otherLocations = {
 	"Sword",
 	"Lucky Spot",
 	"Old Position"
 };
 local otherCoordinates = {
-	Sword = Vector3.new(-5922.687012, 102.94072, -8286.416016),
+	["Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
 	["Lucky Spot"] = Vector3.new(-5872.769531, 965.790771, -9323.985352),
 	["Old Position"] = Vector3.new(0, 0, 0)
 };
@@ -125,10 +122,10 @@ local npcTeleportsCoordinates = {
 };
 local mobsTeleportsCoordinates = {
 	["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169, -5141.633789),
-	Prince = Vector3.new(10987.201172, 344.049896, -5241.321777),
+	["Prince"] = Vector3.new(10987.201172, 344.049896, -5241.321777),
 	["Knucklehead Ninja"] = Vector3.new(4219.748535, 31.724997, 7506.525391),
 	["Rogue Ninja"] = Vector3.new(4306.954102, 31.724993, 7506.855469),
-	Limitless = Vector3.new(-12.537902, 272.422241, 5996.07666),
+	["Limitless"] = Vector3.new(-12.537902, 272.422241, 5996.07666),
 	["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009, 6714.296875),
 	["Rubber Boy"] = Vector3.new(13150.526367, 84.124977, 11365.570312),
 	["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391)
@@ -143,7 +140,95 @@ local areaTeleportCoordinates = {
 	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
+
+--[[
+	Variables
+--]]
+local statsParagraph;
+local updatingParagraph = false;
+local potionCount = 0;
+local swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
+local autoPotionsActive = false;
+local autoSwordActive = false;
+
+--[[
+	Helper Functions
+--]]
+local function generateRandomKey(length)
+	local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	local key = "";
+	for i = 1, length do
+		local randIndex = math.random(1, #chars);
+		key = key .. string.sub(chars, randIndex, randIndex);
+		task.wait(0.1);
+	end;
+	return key;
+end;
+local function antiAfk()
+	player.Idled:connect(function()
+		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+		task.wait(0.5);
+		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+	end);
+	print("Anti-AFK enabled");
+end;
+local function rejoinGame()
+	task.wait(1);
+	teleportservice:Teleport(placeid, player);
+end;
+local isdeveloper = table.find(devid, playerid) ~= nil;
+
+--[[
+	Library Library Variables
+--]]
+local randomKey = generateRandomKey(9);
+_G[randomKey] = {};
+_G.ahKey = randomKey;
+local guiWindow = {};
+local Hub = _G[randomKey];
+
+--[[
+	Hub Functions
+--]]
 function Hub:Functions()
+	--[[
+		Character & Position Functions
+	--]]
+	self.setPrimaryPart = function()
+		player = game.Players.LocalPlayer;
+		character = player.Character;
+		if character:FindFirstChild("HumanoidRootPart") then
+			character.PrimaryPart = character.HumanoidRootPart;
+		end;
+	end;
+	self.getOldPosition = function()
+		if character and humanoidRootPart then
+			local position = humanoidRootPart.Position;
+			otherCoordinates["Old Position"] = Vector3.new(position.X, position.Y, position.Z);
+		end;
+	end;
+	self.characterTeleport = function(destination)
+		if character and character.PrimaryPart then
+			character:SetPrimaryPartCFrame(CFrame.new(destination));
+			task.wait(0.1);
+		else
+			character = player.Character;
+			self.setPrimaryPart();
+		end;
+	end;
+	self.setPrimaryPart();
+	player.CharacterAdded:Connect(function(newCharacter)
+		player = game.Players.LocalPlayer;
+		character = newCharacter;
+		local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10);
+		if humanoidRootPart then
+			character.PrimaryPart = humanoidRootPart;
+		end;
+	end);
+
+	--[[
+		Codes
+	--]]
 	self.sendMessage = function(message)
 		if textchannel then
 			local success, result = pcall(function()
@@ -160,6 +245,30 @@ function Hub:Functions()
 			task.wait(2);
 		end;
 	end;
+	self.reverseCodes = function()
+		local reversedCodesString = "";
+		for i = #codes, 1, -1 do
+			reversedCodesString = reversedCodesString .. codes[i];
+			if i > 1 then
+				reversedCodesString = reversedCodesString .. "\n";
+			end;
+		end;
+		return reversedCodesString;
+	end;
+	self.reverseCodesCopy = function()
+		local reversedCodesStringCopy = "";
+		for i = #codes, 1, -1 do
+			reversedCodesStringCopy = reversedCodesStringCopy .. "/code " .. codes[i];
+			if i > 1 then
+				reversedCodesStringCopy = reversedCodesStringCopy .. "\n";
+			end;
+		end;
+		return reversedCodesStringCopy;
+	end;
+
+	--[[
+		Auto Functions
+	--]]
 	self.grabPotions = function()
 		local activePotions = workspace:WaitForChild("ActivePotions");
 		for _, potion in ipairs(activePotions:GetChildren()) do
@@ -170,28 +279,6 @@ function Hub:Functions()
 				firetouchinterest(base, humanoidRootPart, 0);
 				potionCount = potionCount + 1;
 			end;
-		end;
-	end;
-	self.setPrimaryPart = function()
-		player = game.Players.LocalPlayer;
-		character = player.Character;
-		if character:FindFirstChild("HumanoidRootPart") then
-			character.PrimaryPart = character.HumanoidRootPart;
-		end;
-	end;
-	self.characterTeleport = function(destination)
-		if character and character.PrimaryPart then
-			character:SetPrimaryPartCFrame(CFrame.new(destination));
-			task.wait(0.1);
-		else
-			character = player.Character;
-			self.setPrimaryPart();
-		end;
-	end;
-	self.getOldPosition = function()
-		if character and humanoidRootPart then
-			local position = humanoidRootPart.Position;
-			otherCoordinates["Old Position"] = Vector3.new(position.X, position.Y, position.Z);
 		end;
 	end;
 	self.grabSword = function()
@@ -217,6 +304,10 @@ function Hub:Functions()
 			(remotes:WaitForChild("RollEvent")):FireServer();
 		end);
 	end;
+
+	--[[
+		Auto Loops
+	--]]
 	self.autoPotionsLoop = function()
 		while self.autoPotionsToggle.Value do
 			self.grabPotions();
@@ -238,6 +329,10 @@ function Hub:Functions()
 			task.wait(0.01);
 		end;
 	end;
+
+	--[[
+		Paragraphs
+	--]]
 	self.updateParagraph = function()
 		while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
 			swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
@@ -259,108 +354,11 @@ function Hub:Functions()
 			updatingParagraph = false;
 		end;
 	end;
-	self.rejoinGame = function()
-		task.wait(1);
-		teleportservice:Teleport(placeid, player);
-	end;
-	self.reverseCodes = function()
-		local reversedCodesString = "";
-		for i = #codes, 1, -1 do
-			reversedCodesString = reversedCodesString .. codes[i];
-			if i > 1 then
-				reversedCodesString = reversedCodesString .. "\n";
-			end;
-		end;
-		return reversedCodesString;
-	end;
-	self.reverseCodesCopy = function()
-		local reversedCodesStringCopy = "";
-		for i = #codes, 1, -1 do
-			reversedCodesStringCopy = reversedCodesStringCopy .. "/code " .. codes[i];
-			if i > 1 then
-				reversedCodesStringCopy = reversedCodesStringCopy .. "\n";
-			end;
-		end;
-		return reversedCodesStringCopy;
-	end;
-	if isdeveloper then
-		self.teleportToPosition = function(x, y, z)
-			if character and character.PrimaryPart then
-				local pos = Vector3.new(x, y, z);
-				character:SetPrimaryPartCFrame(CFrame.new(pos));
-			else
-				character = player.Character;
-				self.setPrimaryPart();
-			end;
-		end;
-		self.joinPublicServer = function()
-			local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
-			local function listServers(cursor)
-				local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
-				return http:JSONDecode(raw);
-			end;
-			local servers = listServers();
-			local server = servers.data[math.random(1, #servers.data)];
-			teleportService:TeleportToPlaceInstance(placeid, server.id, player);
-		end;
-		self.rejoinGame = function()
-			teleportService:Teleport(placeid, player);
-		end;
-		local loggedPositionX, loggedPositionY, loggedPositionZ;
-		self.getPosition = function()
-			if character and humanoidRootPart then
-				local position = humanoidRootPart.Position;
-				loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z;
-				local dataString = string.format("%.6f, %.6f,%.6f", position.X, position.Y, position.Z);
-				setclipboard(dataString);
-				return loggedPositionX, loggedPositionY, loggedPositionZ;
-			else
-				if not character then
-					warn("Character not found for player:", player.Name);
-				end;
-				if not humanoidRootPart then
-					warn("HumanoidRootPart not found for player:", player.Name);
-				end;
-				return nil, nil, nil;
-			end;
-		end;
-		self.teleportToLoggedPosition = function()
-			if loggedPositionX and loggedPositionY and loggedPositionZ then
-				self.teleportToPosition(loggedPositionX, loggedPositionY, loggedPositionZ);
-			else
-				warn("Logged position is not set.");
-			end;
-		end;
-		self.clickYes = function()
-		end;
-		self.testFunction = function()
-			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue");
-			if not npcDialogue then
-				return false;
-			end;
-			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame");
-			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame");
-			for _, child in pairs(responseFrame:GetChildren()) do
-				if child:IsA("ImageButton") and child.Name == "DialogueOption" then
-					local textValue = child:FindFirstChild("Text");
-					if textValue and textValue.Text == "Yes please!" then
-						self.clickYes();
-					end;
-				end;
-			end;
-		end;
-		self.setPrimaryPart();
-		player.CharacterAdded:Connect(function(newCharacter)
-			player = game.Players.LocalPlayer;
-			character = newCharacter;
-			local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10);
-			if humanoidRootPart then
-				character.PrimaryPart = humanoidRootPart;
-			end;
-		end);
-	end;
 end;
 function Hub:Gui()
+	--[[
+		Gui Init
+	--]]
 	guiWindow[randomKey] = Fluent:CreateWindow({
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
@@ -389,6 +387,10 @@ function Hub:Gui()
 		})
 	};
 	local Options = Fluent.Options;
+
+	--[[
+		Auto Tab
+	--]]
 	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
 		Default = false
@@ -424,6 +426,10 @@ function Hub:Gui()
 		end;
 		self.updateParagraphStatus();
 	end);
+
+	--[[
+		Teleports Tab
+	--]]
 	local npcTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
 		Title = "Npc Teleports",
 		Values = npcTeleports,
@@ -469,10 +475,14 @@ function Hub:Gui()
 			self.characterTeleport(otherCoordinates["Lucky Spot"]);
 		end
 	});
+
+	--[[
+		Misc Tab
+	--]]
 	Tabs.Misc:AddButton({
 		Title = "Rejoin game",
 		Callback = function()
-			self.rejoinGame();
+			rejoinGame();
 		end
 	});
 	Tabs.Misc:AddButton({
@@ -491,15 +501,24 @@ function Hub:Gui()
 			setclipboard(self.reverseCodesCopy());
 		end
 	});
+
+	--[[
+		Settings Tab
+	--]]
 	InterfaceManager:SetLibrary(Fluent);
 	InterfaceManager:SetFolder("UK1");
 	InterfaceManager:BuildInterfaceSection(Tabs.Settings);
+	guiWindow[randomKey]:SelectTab(1);
+
 	if isdeveloper then
+		--[[
+			Developer Tab
+		--]]
 		Tabs.Tools = guiWindow[randomKey]:AddTab({
 			Title = "Tools",
 			Icon = "wrench"
 		});
-		local testdesc = "Clicking Yes";
+		local testdesc = "Find NPC Dialogue";
 		Tabs.Tools:AddButton({
 			Title = "Test Function",
 			Description = "Current Function:\n" .. testdesc,
@@ -534,7 +553,7 @@ function Hub:Gui()
 		Tabs.Tools:AddButton({
 			Title = "Rejoin Game",
 			Callback = function()
-				task.spawn(self.rejoinGame);
+				rejoinGame();
 			end
 		});
 		Tabs.Tools:AddButton({
@@ -578,16 +597,82 @@ function Hub:Gui()
 			Content = "User: " .. username .. " (" .. displayname .. ")" .. "\nPlayer Id: " .. playerid .. "\nAccount Age: " .. playerage .. "\nPlace Id: " .. placeid .. "\nJob Id: " .. jobid .. "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
 		});
 	end;
-	guiWindow[randomKey]:SelectTab(1);
 end;
+
+
+
+
+--[[
+	Main
+--]]
 Hub:Functions();
 Hub:Gui();
-local function antiAfk()
-	player.Idled:connect(function()
-		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-	end);
-	print("Anti-AFK enabled");
-end;
 antiAfk();
+
+if isdeveloper then
+	function Hub:DevFunctions()
+		--[[
+			Developer Functions
+		--]]
+		self.teleportToPosition = function(x, y, z)
+			if character and character.PrimaryPart then
+				local pos = Vector3.new(x, y, z);
+				character:SetPrimaryPartCFrame(CFrame.new(pos));
+			else
+				character = player.Character;
+				self.setPrimaryPart();
+			end;
+		end;
+		local loggedPositionX, loggedPositionY, loggedPositionZ;
+		self.getPosition = function()
+			if character and humanoidRootPart then
+				local position = humanoidRootPart.Position;
+				loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z;
+				local dataString = string.format("%.6f, %.6f,%.6f", position.X, position.Y, position.Z);
+				setclipboard(dataString);
+				return loggedPositionX, loggedPositionY, loggedPositionZ;
+			else
+				if not character then
+					warn("Character not found for player:", player.Name);
+				end;
+				if not humanoidRootPart then
+					warn("HumanoidRootPart not found for player:", player.Name);
+				end;
+				return nil, nil, nil;
+			end;
+		end;
+		self.teleportToLoggedPosition = function()
+			if loggedPositionX and loggedPositionY and loggedPositionZ then
+				self.teleportToPosition(loggedPositionX, loggedPositionY, loggedPositionZ);
+			else
+				warn("Logged position is not set.");
+			end;
+		end;
+		self.joinPublicServer = function()
+			local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
+			local function listServers(cursor)
+				local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
+				return http:JSONDecode(raw);
+			end;
+			local servers = listServers();
+			local server = servers.data[math.random(1, #servers.data)];
+			teleportService:TeleportToPlaceInstance(placeid, server.id, player);
+		end;
+		self.testFunction = function()
+			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue");
+			if not npcDialogue then
+				return false;
+			end;
+			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame");
+			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame");
+			for _, child in pairs(responseFrame:GetChildren()) do
+				if child:IsA("ImageButton") and child.Name == "DialogueOption" then
+					local textValue = child:FindFirstChild("Text");
+					if textValue and textValue.Text == "Yes please!" then
+					end;
+				end;
+			end;
+		end;
+	end;
+	Hub:DevFunctions();
+end;
