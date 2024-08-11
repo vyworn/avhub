@@ -191,7 +191,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.4.9";
+local version = "0.5.0";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -410,24 +410,26 @@ function Hub:Gui()
 	--]]
 	updateLogParagraph = Tabs.Main:AddParagraph({
 		Title = "Update Log\n",
-		Content = "[Added]" 
-		.. "\n[+] " .. "Added Main Tab"
-		.. "\n[Changed]"
-		.. "\n[*] " .. "Fixed Anti Afk"
-		.. "\n[*] " .. "Changed Codes Tab Layout"
-		.. "\n[Removed]"
-		.. "\n[-] "
+		Content = "*Added" 
+		.. "\n->\t" .. "~"
+		.. "\n*Changed"
+		.. "\n->\t" .. "Improved Auto Sword"
+		.. "\n->\t" .. "Improved Main Tab"
+		.. "\n*Removed"
+		.. "\n->\t" .. "~"
 	});
 	comingSoonParagraph = Tabs.Main:AddParagraph({
-		Title = "Coming Soon\n",
-		Content = "[~] " .. "Working on Auto Infinite"
-		.. "\n[~] " .. "Working on Auto Repeatable Bosses"
-		.. "\n[~] " .. "Working on Configs"
+		Title = "*Coming Soon\n",
+		Content = "->\t" .. "Working on Auto Infinite"
+		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
+		.. "\n->\t" .. "Working on Configs"
 	});
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
-		Content = "Version: " .. version
-		.. "\nMade By: " .. devs
+		Content = "*Version*" 
+		.. "\n->\t" .. "v_" .. version
+		.. "\n*Made By" 
+		.. "\n->\t" .. devs
 	});
 
 	--[[
