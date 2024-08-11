@@ -46,16 +46,6 @@ local Fluent = (loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 
 --[[
-	Variables
---]]
-local swordCooldown = player:WaitForChild("Stats"):WaitForChild("SwordObbyCD").Value;
-local potionCount = 0;
-local autoPotionsActive = false;
-local autoSwordActive = false;
-local canGoBack = false;
-local useAntiAfk = true;
-
---[[
 	Helper Functions
 --]]
 local function generateRandomKey(length)
@@ -86,6 +76,12 @@ local function rejoinGame()
 	task.wait(1);
 	teleportservice:Teleport(placeid, player);
 end;
+local devid = {
+	164011583,
+	85087803,
+	1607510152,
+	417954849
+};
 local isdeveloper = table.find(devid, playerid) ~= nil;
 
 --[[
@@ -104,12 +100,6 @@ local Hub = _G[randomKey];
 --[[
 	Tables
 --]]
-local devid = {
-	164011583,
-	85087803,
-	1607510152,
-	417954849
-};
 local codes = {
 	"RELEASE!",
 	"THANKS4PLAYING!",
@@ -208,6 +198,16 @@ local areaTeleportCoordinates = {
 	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
+
+--[[
+	Variables
+--]]
+local swordCooldown = player:WaitForChild("Stats"):WaitForChild("SwordObbyCD").Value;
+local potionCount = 0;
+local autoPotionsActive = false;
+local autoSwordActive = false;
+local canGoBack = false;
+local useAntiAfk = true;
 
 --[[
 	Hub Functions
