@@ -115,12 +115,12 @@ local codes = {
 	"THANKS4PLAYING!",
 	"1KLIKES!",
 	"2KLIKES!",
+	"SUB2VALK!",
 	"4KLIKES!",
 	"5KLIKES!",
 	"6KLIKES!",
-	"10KLIKES!",
+	"500KVISITS!",
 	"SORRYFORSHUTDOWN!",
-	"SUB2VALK!",
 	"SUB2TOADBOI!",
 	"SUB2RIJORO!",
 	"SUB2WIRY!",
@@ -128,9 +128,9 @@ local codes = {
 	"SUB2D1SGUISED!",
 	"SUB2ItsHappyYT1!",
 	"SUB2Joltzy!",
-	"FOLLOWEXVAR1",
-	"500KVISITS!",
 	"1MVISITS!",
+	"FOLLOWEXVAR1",
+	"10KLIKES!",
 };
 
 --[[
