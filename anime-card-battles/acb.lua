@@ -431,7 +431,7 @@ function Hub:Gui()
 	});
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
-		Content = "*Version*" 
+		Content = "*Version" 
 		.. "\n->\t" .. "v_" .. version
 		.. "\n*Made By" 
 		.. "\n->\t" .. devs
