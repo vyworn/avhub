@@ -176,10 +176,9 @@ local function generateRandomKey(length)
 end;
 local function antiAfk()
 	while useAntiAfk do
-		local clickpos = Vector2.new(0,0);
-		virtualuser:Button2Down(clickpos);
+		virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 		task.wait(0.1);
-		virtualuser:Button2Up(clickpos);
+		virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 		task.wait(math.random(60, 120));
 	end;
 	print("Anti Afk enabled");
@@ -195,7 +194,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.5.5";
+local version = "0.5.7";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
