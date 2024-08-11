@@ -402,11 +402,21 @@ function Hub:Gui()
 			Title = "Misc",
 			Icon = "circle-ellipsis"
 		}),
-		Settings = guiWindow[randomKey]:AddTab({
-			Title = "Settings",
-			Icon = "settings"
-		})
 	};
+	if isdeveloper then
+		Tabs.Tools = guiWindow[randomKey]:AddTab({
+			Title = "Tools",
+			Icon = "wrench"
+		});
+		Tabs.Test = guiWindow[randomKey]:AddTab({
+			Title = "Test",
+			Icon = "code"
+		});
+	end
+	Tabs.Settings = guiWindow[randomKey]:AddTab({
+		Title = "Settings",
+		Icon = "settings"
+	})
 	local Options = Fluent.Options;
 
 	--[[
@@ -564,18 +574,6 @@ function Hub:Gui()
 		--[[
 			Developer Tab
 		--]]
-		Tabs.Tools = guiWindow[randomKey]:AddTab({
-			Title = "Tools",
-			Icon = "wrench"
-		});
-		local testdesc = "Find NPC Dialogue";
-		Tabs.Tools:AddButton({
-			Title = "Test Function",
-			Description = "Current Function:\n" .. testdesc,
-			Callback = function()
-				self.testFunction();
-			end
-		});
 		Tabs.Tools:AddButton({
 			Title = "Remote Spy",
 			Callback = function()
@@ -647,6 +645,22 @@ function Hub:Gui()
 			Title = "Info",
 			Content = infodata
 		});
+		local testdesc1 = "Fire signal on 'Yes please!' option";
+		Tabs.Test:AddButton({
+			Title = "Test Function 1",
+			Description = "Current Function:\n" .. testdesc1,
+			Callback = function()
+				self.testFunction1();
+			end
+		});
+		local testdesc2 = "Iterate through ResponseFrame children";
+		Tabs.Test:AddButton({
+			Title = "Test Function 2",
+			Description = "Current Function:\n" .. testdesc2,
+			Callback = function()
+				self.testFunction2();
+			end
+		});
 	end;
 end;
 
@@ -700,30 +714,86 @@ if isdeveloper then
 			local server = servers.data[math.random(1, #servers.data)];
 			teleportservice:TeleportToPlaceInstance(placeid, server.id, player);
 		end;
-		self.testFunction = function()
+		self.testFunction1 = function()
 			local player = game:GetService("Players").LocalPlayer
-			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue")
+			local npcDialogue = player.PlayerGui:FindFirstChild("NPCDialogue")
 			if not npcDialogue then
+				warn("NPCDialogue not found")
 				return false
 			end
 			
-			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
-			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-			
-			for _, option in pairs(responseFrame:GetChildren()) do
-				if option:IsA("ImageButton") and option.Text.Text == "Yes please!" then
-					print(option.Text.Text)
-					firesignal(option.TouchTap)
-					firesignal(option.Activated)
-					firesignal(option.MouseButton1Down)
-					firesignal(option.MouseButton1Up)
-					firesignal(option.InputBegan)
-					firesignal(option.InputEnded)
-					return
-				end
+			local dialogueFrame = npcDialogue:FindFirstChild("DialogueFrame")
+			if not dialogueFrame then
+				warn("DialogueFrame not found")
+				return false
 			end
-			print("'Yes please!' option not found")
-		end		
+			
+			local responseFrame = dialogueFrame:FindFirstChild("ResponseFrame")
+			if not responseFrame then
+				warn("ResponseFrame not found")
+				return false
+			end
+		
+			-- Wait until there are at least 3 children in ResponseFrame
+			while #responseFrame:GetChildren() < 3 do
+				print("Waiting for at least 3 children in ResponseFrame...")
+				responseFrame.ChildAdded:Wait() -- Wait for a child to be added
+			end
+		
+			-- Get the 2nd child (assuming it's the "Yes please!" option)
+			local button = responseFrame:GetChildren()[2]
+		
+			if button:IsA("ImageButton") then
+				print(tostring(button))
+				print(button.Text.Text)
+				print("Creating and firing signals")
+		
+				local signals = {
+					"MouseButton1Click",
+					"Activated",
+					"MouseButton1Down",
+					"MouseButton1Up",
+					"InputBegan",
+					"InputEnded",
+					"TouchTap"
+				}
+		
+				for _, signal in ipairs(signals) do
+					local success, err = pcall(function()
+						firesignal(button[signal])
+						print("Fired signal: " .. signal)
+					end)
+					
+					if not success then
+						warn("Error during firesignal for " .. signal .. ": " .. tostring(err))
+					end
+				end
+			else
+				warn("Second child is not an ImageButton")
+			end
+		end
+		self.testFunction2 = function()
+			local player = game:GetService("Players").LocalPlayer
+			local npcDialogue = player.PlayerGui.NPCDialogue
+			
+			if npcDialogue then
+				local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+				local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+				
+				for _, child in pairs(responseFrame:GetChildren()) do
+					print("Name: " .. child.Name .. ", Type: " .. child.ClassName)
+					
+					-- Check if the child has a Text property and print its value if it exists
+					if child:IsA("TextLabel") or child:IsA("TextButton") then
+						print("Text: " .. child.Text)
+					elseif child:FindFirstChild("Text") then
+						print("Text: " .. child.Text.Text)
+					end
+				end
+			else
+				print("NPCDialogue not found.")
+			end
+		end;
 	end;
 	Hub:DevFunctions();
 end;
