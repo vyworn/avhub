@@ -62,6 +62,7 @@ local codes = {
 	"4KLIKES!",
 	"5KLIKES!",
 	"6KLIKES!",
+	"10KLIKES!",
 	"500KVISITS!",
 	"SORRYFORSHUTDOWN!",
 	"SUB2VALK!",
@@ -72,7 +73,7 @@ local codes = {
 	"SUB2D1SGUISED!",
 	"SUB2ItsHappyYT1!",
 	"SUB2Joltzy!",
-	"1MVISITS!"
+	"1MVISITS!",
 };
 
 --[[
