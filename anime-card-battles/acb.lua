@@ -193,7 +193,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.5.3";
+local version = "0.5.4";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
