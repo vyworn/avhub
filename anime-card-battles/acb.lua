@@ -89,7 +89,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.6.2";
+local version = "0.6.5";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -427,11 +427,10 @@ function Hub:Gui()
 	updateLogParagraph = Tabs.Main:AddParagraph({
 		Title = "Update Log\n",
 		Content = "*Added" 
+		.. "\n->\t" .. "New Codes"
+		.. "\n*Removed"
 		.. "\n->\t" .. "~"
 		.. "\n*Changed"
-		.. "\n->\t" .. "Improved Auto Sword"
-		.. "\n->\t" .. "Improved Main Tab"
-		.. "\n*Removed"
 		.. "\n->\t" .. "~"
 	});
 	notesParagraph = Tabs.Main:AddParagraph({
