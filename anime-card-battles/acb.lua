@@ -645,13 +645,6 @@ function Hub:Gui()
 	end;
 end;
 
---[[
-	Main
---]]
-Hub:Functions();
-Hub:Gui();
-antiAfk();
-
 if isdeveloper then
 	function Hub:DevFunctions()
 		--[[
@@ -702,20 +695,37 @@ if isdeveloper then
 			teleportService:TeleportToPlaceInstance(placeid, server.id, player);
 		end;
 		self.testFunction = function()
-			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue");
+			local player = game:GetService("Players").LocalPlayer
+			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue")
 			if not npcDialogue then
-				return false;
-			end;
-			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame");
-			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame");
-			for _, child in pairs(responseFrame:GetChildren()) do
-				if child:IsA("ImageButton") and child.Name == "DialogueOption" then
-					local textValue = child:FindFirstChild("Text");
-					if textValue and textValue.Text == "Yes please!" then
-					end;
-				end;
-			end;
-		end;
+				return false
+			end
+			
+			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+			
+			for _, option in pairs(responseFrame:GetChildren()) do
+				if option:IsA("ImageButton") and option.Text.Text == "Yes please!" then
+					print(option.Text.Text)
+					firesignal(option.TouchTap)
+					firesignal(option.Activated)
+					firesignal(option.MouseButton1Down)
+					firesignal(option.MouseButton1Up)
+					firesignal(option.InputBegan)
+					firesignal(option.InputEnded)
+					return
+				end
+			end
+			print("'Yes please!' option not found")
+		end		
 	end;
 	Hub:DevFunctions();
 end;
+
+--[[
+	Main
+--]]
+Hub:Functions();
+Hub:Gui();
+antiAfk();
+
