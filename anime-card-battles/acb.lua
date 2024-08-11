@@ -144,10 +144,8 @@ local areaTeleportCoordinates = {
 --[[
 	Variables
 --]]
-local statsParagraph;
-local updatingParagraph = false;
-local potionCount = 0;
 local swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
+local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 
@@ -179,8 +177,12 @@ end;
 local isdeveloper = table.find(devid, playerid) ~= nil;
 
 --[[
-	Library Library Variables
+	Library Variables
 --]]
+local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
+local updatingParagraph = false;
+local version = "1.4.3";
+local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
 _G.ahKey = randomKey;
@@ -227,7 +229,7 @@ function Hub:Functions()
 	end);
 
 	--[[
-		Codes
+		Code Functions
 	--]]
 	self.sendMessage = function(message)
 		if textchannel then
@@ -306,7 +308,7 @@ function Hub:Functions()
 	end;
 
 	--[[
-		Auto Loops
+		Auto Loop Functions
 	--]]
 	self.autoPotionsLoop = function()
 		while self.autoPotionsToggle.Value do
@@ -331,7 +333,7 @@ function Hub:Functions()
 	end;
 
 	--[[
-		Paragraphs
+		Paragraph Functions
 	--]]
 	self.updateParagraph = function()
 		while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
@@ -399,11 +401,18 @@ function Hub:Gui()
 		Title = "Update Log\n",
 		Content = "[+] " .. "Added Main Tab"
 		.. "\n[+] " .. "Fixed Anti Afk"
+		.. "\n[+] " .. "Changed Codes Tab Layout"
 	});
-	infoParagraph = Tabs.Main:AddParagraph({
-		Title = "Information\n",
+	comingSoonParagraph = Tabs.Main:AddParagraph({
+		Title = "Coming Soon\n",
 		Content = "[=] " .. "Working on Auto Infinite"
 		.. "\n[=] " .. "Working on Auto Repeatable Bosses"
+		.. "\n[=] " .. "Working on Configs"
+	});
+	informationParagraph = Tabs.Main:AddParagraph({
+		Title = "Information\n",
+		Content = "Version: " .. version
+		.. "\nMade By: " .. devs
 	});
 
 	--[[
@@ -488,7 +497,7 @@ function Hub:Gui()
 		end;
 	end);
 	Tabs.Teleports:AddButton({
-		Title = "Teleport to the Lucky Spot",
+		Title = "God Spot",
 		Callback = function()
 			self.characterTeleport(otherCoordinates["Lucky Spot"]);
 		end
@@ -509,15 +518,15 @@ function Hub:Gui()
 			self.useCodes();
 		end
 	});
-	codesParagraph = Tabs.Misc:AddParagraph({
-		Title = "Codes\n",
-		Content = self.reverseCodes()
-	});
 	Tabs.Misc:AddButton({
 		Title = "Copy All Codes",
 		Callback = function()
 			setclipboard(self.reverseCodesCopy());
 		end
+	});
+	codesParagraph = Tabs.Misc:AddParagraph({
+		Title = "Codes\n",
+		Content = self.reverseCodes()
 	});
 
 	--[[
