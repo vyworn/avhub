@@ -4,6 +4,13 @@
 if not game:IsLoaded() then
 	game.Loaded:Wait();
 end;
+local waitplayer = game.Players.LocalPlayer;
+if waitplayer.Character then
+	local waithrp = waitplayer.Character:WaitForChild("HumanoidRootPart");
+else
+    waitplayer.CharacterAdded:Wait()
+    local waithrp = waitplayer.Character:WaitForChild("HumanoidRootPart")
+end
 
 --[[
 	Roblox Services & Variables
@@ -30,6 +37,9 @@ local textchannel = textchatserivce.TextChannels:WaitForChild("RBXGeneral");
 local api = "https://games.roblox.com/v1/games/";
 local http = game:GetService("HttpService");
 local proximitypromptservice = game:GetService("ProximityPromptService");
+
+
+
 
 --[[
 	Libraries
@@ -181,7 +191,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "1.4.3";
+local version = "1.4.4";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
