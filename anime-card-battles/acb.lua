@@ -199,7 +199,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.5.8";
+local version = "0.5.9";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -690,6 +690,7 @@ if isdeveloper then
 			end;
 		end;
 		self.joinPublicServer = function()
+			task.wait(1);
 			local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
 			local function listServers(cursor)
 				local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
@@ -697,7 +698,7 @@ if isdeveloper then
 			end;
 			local servers = listServers();
 			local server = servers.data[math.random(1, #servers.data)];
-			teleportService:TeleportToPlaceInstance(placeid, server.id, player);
+			teleportservice:TeleportToPlaceInstance(placeid, server.id, player);
 		end;
 		self.testFunction = function()
 			local player = game:GetService("Players").LocalPlayer
