@@ -179,9 +179,9 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --[[
 	Library Variables
 --]]
-local updateLogParagraph, comingSoonParagraph, informationParagraph, statsParagraph, codesParagraph;
+local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "1.4.2";
+local version = "1.4.3";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -413,6 +413,7 @@ function Hub:Gui()
 		Title = "Information\n",
 		Content = "Version: " .. version
 		.. "\nMade By: " .. devs
+	});
 
 	--[[
 		Auto Tab
