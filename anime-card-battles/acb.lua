@@ -159,7 +159,7 @@ local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 local canGoBack = false;
-local useAntiAfk = true;
+local startTime
 
 --[[
 	Helper Functions
@@ -174,11 +174,17 @@ local function generateRandomKey(length)
 	end;
 	return key;
 end;
+local function resetTimer()
+	startTime = tick();
+end;
 local function antiAfk()
 	player.Idled:Connect(function()
-		virtualuser:CaptureController();
-		virtualuser:ClickButton2(Vector2.new(0,0)) 
-		task.wait((Random.new()):NextNumber(15, 120));
+		local idleTime = tick() - startTime;
+		print("Idle Time:", idleTime);
+		local clickpos = Vector2.new(0,0);
+		virtualuser:Button2Down(clickpos);
+		virtualuser:Button2Up(clickpos);
+		resetTimer();
 	end);
 	print("Anti Afk enabled");
 end;
@@ -649,6 +655,7 @@ end;
 --]]
 Hub:Functions();
 Hub:Gui();
+resetTimer();
 antiAfk();
 
 if isdeveloper then
