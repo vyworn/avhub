@@ -29,6 +29,7 @@ local jobid = game.JobId;
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart");
 local virtualinput = game:GetService("VirtualInputManager");
 local virtualuser = game:GetService("VirtualUser");
+local userinputservice = game:GetService("UserInputService");
 local replicatedstorage = game:GetService("ReplicatedStorage");
 local remotes = replicatedstorage:WaitForChild("Remotes");
 local teleportservice = game:GetService("TeleportService");
@@ -174,13 +175,12 @@ local function generateRandomKey(length)
 	return key;
 end;
 local function antiAfk()
-	while useAntiAfk do
-		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-	end;
-	print("Anti-AFK enabled");
+	player.Idled:Connect(function()
+		virtualuser:CaptureController();
+		virtualuser:ClickButton2(Vector2.new(0,0)) 
+		task.wait((Random.new()):NextNumber(15, 120));
+	end);
+	print("Anti Afk enabled");
 end;
 local function rejoinGame()
 	task.wait(1);
