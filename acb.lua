@@ -371,7 +371,7 @@ function Hub:Gui()
 	local Tabs = {
 		Main = guiWindow[randomKey]:AddTab({
 			Title = "Main",
-			Icon = "house"
+			Icon = "home"
 		}),
 		Auto = guiWindow[randomKey]:AddTab({
 			Title = "Auto",
@@ -397,9 +397,8 @@ function Hub:Gui()
 	--]]
 	updateLogParagraph = Tabs.Main:AddParagraph({
 		Title = "Update Log\n",
-		Content = "[+] " .. "."
-		.. "\n[+] " .. "." 
-		.. "\n[+] " .. "."
+		Content = "[+] " .. "Added Main Tab"
+		.. "\n[+] " .. "Fixed Anti Afk"
 	});
 	infoParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
