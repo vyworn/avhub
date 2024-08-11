@@ -189,7 +189,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --[[
 	Library Variables
 --]]
-local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
+local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
 local version = "0.5.0";
 local devs = "Av & Hari";
@@ -418,9 +418,10 @@ function Hub:Gui()
 		.. "\n*Removed"
 		.. "\n->\t" .. "~"
 	});
-	comingSoonParagraph = Tabs.Main:AddParagraph({
-		Title = "*Coming Soon\n",
-		Content = "->\t" .. "Working on Auto Infinite"
+	notesParagraph = Tabs.Main:AddParagraph({
+		Title = "Notes\n",
+		Content = "*Coming Soon"
+		.. "->\t" .. "Working on Auto Infinite"
 		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
 		.. "\n->\t" .. "Working on Configs"
 	});
