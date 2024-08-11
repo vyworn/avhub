@@ -92,9 +92,9 @@ local npcTeleports = {
 	"Heaven Tower",
 	"Charm Merchant",
 	"Potion Shop",
+	"Strange Trader",
 	"Card Fusion",
 	"Card Packs",
-	"Strange Trader",
 	"Luck Fountain"
 };
 local mobTeleports = {
@@ -123,9 +123,9 @@ local npcTeleportsCoordinates = {
 	["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
 	["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
 	["Potion Shop"] = Vector3.new(-45.672028, 256.645111, 5976.190918),
+	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
 	["Card Packs"] = Vector3.new(-6024.296387, 152.574966, -8582.142578),
-	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
 	["Luck Fountain"] = Vector3.new(-5971.769043, 156.174988, -8725.775391)
 };
 local mobsTeleportsCoordinates = {
@@ -629,15 +629,13 @@ function Hub:Gui()
 				setclipboard(tostring(creatorid));
 			end
 		});
+		local infodata = "User: " .. username .. " (" .. displayname .. ")" .. "\nPlayer Id: " .. playerid .. "\nAccount Age: " .. playerage .. "\nPlace Id: " .. placeid .. "\nJob Id: " .. jobid .. "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
 		Tabs.Tools:AddParagraph({
 			Title = "Info",
-			Content = "User: " .. username .. " (" .. displayname .. ")" .. "\nPlayer Id: " .. playerid .. "\nAccount Age: " .. playerage .. "\nPlace Id: " .. placeid .. "\nJob Id: " .. jobid .. "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
+			Content = infodata
 		});
 	end;
 end;
-
-
-
 
 --[[
 	Main
