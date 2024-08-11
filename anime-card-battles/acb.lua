@@ -158,6 +158,7 @@ local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 local canGoBack = false;
+local useAntiAfk = true;
 
 --[[
 	Helper Functions
@@ -173,11 +174,12 @@ local function generateRandomKey(length)
 	return key;
 end;
 local function antiAfk()
-	player.Idled:connect(function()
+	while useAntiAfk do
 		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
 		task.wait(0.5);
 		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-	end);
+		task.wait(0.5);
+	end;
 	print("Anti-AFK enabled");
 end;
 local function rejoinGame()
@@ -189,9 +191,9 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --[[
 	Library Variables
 --]]
-local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
+local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.5.0";
+local version = "0.5.1";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -418,9 +420,10 @@ function Hub:Gui()
 		.. "\n*Removed"
 		.. "\n->\t" .. "~"
 	});
-	comingSoonParagraph = Tabs.Main:AddParagraph({
-		Title = "*Coming Soon\n",
-		Content = "->\t" .. "Working on Auto Infinite"
+	notesParagraph = Tabs.Main:AddParagraph({
+		Title = "Notes\n",
+		Content = "*Coming Soon"
+		.. "->\t" .. "Working on Auto Infinite"
 		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
 		.. "\n->\t" .. "Working on Configs"
 	});
