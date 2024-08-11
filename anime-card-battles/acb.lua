@@ -458,19 +458,19 @@ function Hub:Gui()
 		Teleports Tab
 	--]]
 	local npcTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
-		Title = "Npc Teleports",
+		Title = "Npcs",
 		Values = npcTeleports,
 		Multi = false,
 		Default = nil
 	});
 	local mobTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
-		Title = "Mob Teleports",
+		Title = "Repeatable Bosses",
 		Values = mobTeleports,
 		Multi = false,
 		Default = nil
 	});
 	local areaTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
-		Title = "Area Teleports",
+		Title = "Areas",
 		Values = areaTeleports,
 		Multi = false,
 		Default = nil
