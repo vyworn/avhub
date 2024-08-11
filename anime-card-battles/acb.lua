@@ -144,10 +144,8 @@ local areaTeleportCoordinates = {
 --[[
 	Variables
 --]]
-local statsParagraph;
-local updatingParagraph = false;
-local potionCount = 0;
 local swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
+local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 
@@ -179,8 +177,12 @@ end;
 local isdeveloper = table.find(devid, playerid) ~= nil;
 
 --[[
-	Library Library Variables
+	Library Variables
 --]]
+local updateLogParagraph, comingSoonParagraph, informationParagraph, statsParagraph, codesParagraph;
+local updatingParagraph = false;
+local version = "1.4.2";
+local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
 _G.ahKey = randomKey;
@@ -227,7 +229,7 @@ function Hub:Functions()
 	end);
 
 	--[[
-		Codes
+		Code Functions
 	--]]
 	self.sendMessage = function(message)
 		if textchannel then
@@ -306,7 +308,7 @@ function Hub:Functions()
 	end;
 
 	--[[
-		Auto Loops
+		Auto Loop Functions
 	--]]
 	self.autoPotionsLoop = function()
 		while self.autoPotionsToggle.Value do
@@ -331,7 +333,7 @@ function Hub:Functions()
 	end;
 
 	--[[
-		Paragraphs
+		Paragraph Functions
 	--]]
 	self.updateParagraph = function()
 		while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
@@ -409,8 +411,8 @@ function Hub:Gui()
 	});
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
-		Content = "Nothing to see here." 
-	});
+		Content = "Version: " .. version
+		.. "\nMade By: " .. devs
 
 	--[[
 		Auto Tab
