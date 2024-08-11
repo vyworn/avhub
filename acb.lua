@@ -369,6 +369,10 @@ function Hub:Gui()
 		MinimizeKey = Enum.KeyCode.LeftControl
 	});
 	local Tabs = {
+		Main = guiWindow[randomKey]:AddTab({
+			Title = "Main",
+			Icon = "house"
+		}),
 		Auto = guiWindow[randomKey]:AddTab({
 			Title = "Auto",
 			Icon = "repeat"
@@ -388,6 +392,21 @@ function Hub:Gui()
 	};
 	local Options = Fluent.Options;
 
+	--[[
+		Main Tab
+	--]]
+	updateLogParagraph = Tabs.Main:AddParagraph({
+		Title = "Update Log",
+		Content = "[+] " .. "."
+		.. "\n[+] " .. "." 
+		.. "\n[+] " .. "."
+	});
+	infoParagraph = Tabs.Main:AddParagraph({
+		Title = "Information",
+		Content = "[=] " .. "Working on Auto Infinite"
+		.. "\n[=] " .. "Working on Auto Repeatable Bosses"
+	});
+	
 	--[[
 		Auto Tab
 	--]]
