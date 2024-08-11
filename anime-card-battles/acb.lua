@@ -176,6 +176,11 @@ local function generateRandomKey(length)
 end;
 local function antiAfk()
 	while useAntiAfk do
+		player.Idled:Connect(function()
+			virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+			task.wait(0.1);
+			virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+		end);
 		virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 		task.wait(0.1);
 		virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
