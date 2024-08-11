@@ -154,7 +154,7 @@ local areaTeleportCoordinates = {
 --[[
 	Variables
 --]]
-local swordCooldown = player.Stats:WaitForChild("SwordObbyCD").Value;
+local swordCooldown = player:WaitForChild("Stats"):WaitForChild("SwordObbyCD").Value;
 local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
@@ -199,7 +199,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.5.9";
+local version = "0.6.0";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
