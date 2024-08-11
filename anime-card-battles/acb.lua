@@ -399,11 +399,17 @@ function Hub:Gui()
 		Title = "Update Log\n",
 		Content = "[+] " .. "Added Main Tab"
 		.. "\n[+] " .. "Fixed Anti Afk"
+		.. "\n[+] " .. "Changed Codes Tab Layout"
 	});
-	infoParagraph = Tabs.Main:AddParagraph({
-		Title = "Information\n",
+	comingSoonParagraph = Tabs.Main:AddParagraph({
+		Title = "Coming Soon\n",
 		Content = "[=] " .. "Working on Auto Infinite"
 		.. "\n[=] " .. "Working on Auto Repeatable Bosses"
+		.. "\n[=] " .. "Working on Configs"
+	});
+	informationParagraph = Tabs.Main:AddParagraph({
+		Title = "Information\n",
+		Content = "Nothing to see here." 
 	});
 
 	--[[
@@ -488,7 +494,7 @@ function Hub:Gui()
 		end;
 	end);
 	Tabs.Teleports:AddButton({
-		Title = "Teleport to the Lucky Spot",
+		Title = "God Spot",
 		Callback = function()
 			self.characterTeleport(otherCoordinates["Lucky Spot"]);
 		end
@@ -509,15 +515,15 @@ function Hub:Gui()
 			self.useCodes();
 		end
 	});
-	codesParagraph = Tabs.Misc:AddParagraph({
-		Title = "Codes\n",
-		Content = self.reverseCodes()
-	});
 	Tabs.Misc:AddButton({
 		Title = "Copy All Codes",
 		Callback = function()
 			setclipboard(self.reverseCodesCopy());
 		end
+	});
+	codesParagraph = Tabs.Misc:AddParagraph({
+		Title = "Codes\n",
+		Content = self.reverseCodes()
 	});
 
 	--[[
