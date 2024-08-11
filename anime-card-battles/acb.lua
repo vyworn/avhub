@@ -29,6 +29,7 @@ local jobid = game.JobId;
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart");
 local virtualinput = game:GetService("VirtualInputManager");
 local virtualuser = game:GetService("VirtualUser");
+local userinputservice = game:GetService("UserInputService");
 local replicatedstorage = game:GetService("ReplicatedStorage");
 local remotes = replicatedstorage:WaitForChild("Remotes");
 local teleportservice = game:GetService("TeleportService");
@@ -158,7 +159,7 @@ local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 local canGoBack = false;
-local useAntiAfk = true;
+local startTime
 
 --[[
 	Helper Functions
@@ -173,14 +174,19 @@ local function generateRandomKey(length)
 	end;
 	return key;
 end;
+local function resetTimer()
+	startTime = tick();
+end;
 local function antiAfk()
-	while useAntiAfk do
-		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		task.wait(0.5);
-	end;
-	print("Anti-AFK enabled");
+	player.Idled:Connect(function()
+		local idleTime = tick() - startTime;
+		print("Idle Time:", idleTime);
+		local clickpos = Vector2.new(0,0);
+		virtualuser:Button2Down(clickpos);
+		virtualuser:Button2Up(clickpos);
+		resetTimer();
+	end);
+	print("Anti Afk enabled");
 end;
 local function rejoinGame()
 	task.wait(1);
@@ -193,7 +199,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.5.3";
+local version = "0.5.4";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -649,6 +655,7 @@ end;
 --]]
 Hub:Functions();
 Hub:Gui();
+resetTimer();
 antiAfk();
 
 if isdeveloper then
