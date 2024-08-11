@@ -83,7 +83,7 @@ local otherLocations = {
 	"Old Position"
 };
 local otherCoordinates = {
-	["Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
+	["Sword"] = Vector3.new(-5922.752930, 100.682877,-8288.595703),
 	["Lucky Spot"] = Vector3.new(-5872.769531, 965.790771, -9323.985352),
 	["Old Position"] = Vector3.new(0, 0, 0)
 };
@@ -140,7 +140,7 @@ local mobsTeleportsCoordinates = {
 };
 local areaTeleportCoordinates = {
 	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
-	["Obby Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
+	["Obby Sword"] = Vector3.new(-5922.752930, 100.682877,-8288.595703),
 	["Spawn"] = Vector3.new(-5976.900391, 164.149963,-8885.563477),
 	["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
 	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
@@ -153,10 +153,11 @@ local areaTeleportCoordinates = {
 --[[
 	Variables
 --]]
-local swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
+local swordCooldown = player.Stats:WaitForChild("SwordObbyCD").Value;
 local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
+local canGoBack = false;
 
 --[[
 	Helper Functions
@@ -190,7 +191,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, comingSoonParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.4.8";
+local version = "0.4.9";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -285,29 +286,22 @@ function Hub:Functions()
 		for _, potion in ipairs(activePotions:GetChildren()) do
 			local base = potion:FindFirstChild("Base");
 			if base and base:FindFirstChild("TouchInterest") then
-				firetouchinterest(base, humanoidRootPart, 1);
-				task.wait(0.1);
 				firetouchinterest(base, humanoidRootPart, 0);
+				task.wait(0.1);
+				firetouchinterest(base, humanoidRootPart, 1);
 				potionCount = potionCount + 1;
 			end;
 		end;
 	end;
 	self.grabSword = function()
-		local swordBlock = (workspace:WaitForChild("ObbySwordPrompt")):WaitForChild("SwordBlock");
-		local swordProximityPrompt = swordBlock:WaitForChild("ProximityPrompt");
+		self.getOldPosition();
+		local swordProximityPrompt = workspace.ObbySwordPrompt.SwordBlock.ProximityPrompt
 		if swordProximityPrompt then
-			self.getOldPosition();
+			self.characterTeleport(otherCoordinates["Sword"]);
+			task.wait(0.25);
+			fireproximityprompt(swordProximityPrompt);
 			task.wait(1);
-			self.characterTeleport(otherCoordinates.Sword);
-			swordProximityPrompt:InputHoldBegin();
-			task.wait(0.4);
-			swordProximityPrompt:InputHoldEnd();
-			task.wait(0.2)
-			swordProximityPrompt:InputHoldBegin();
-			task.wait(0.4);
-			swordProximityPrompt:InputHoldEnd();
-			task.wait(1);
-			self.characterTeleport(otherCoordinates["Old Position"]);
+			canGoBack = true;
 		end;
 	end;
 	self.rollEvent = function()
@@ -329,7 +323,15 @@ function Hub:Functions()
 		while self.autoSwordToggle.Value do
 			local swordObbyCD = swordCooldown;
 			if swordObbyCD == 0 then
+				print("Can go back: " .. tostring(canGoBack));
 				self.grabSword();
+				print("Can go back: " .. tostring(canGoBack));
+				if canGoBack then
+					print("Going back to old position");
+					self.characterTeleport(otherCoordinates["Old Position"]);
+					canGoBack = false;
+					print("Went back to old position");
+				end;
 			end;
 			task.wait(0.5);
 		end;
@@ -408,15 +410,19 @@ function Hub:Gui()
 	--]]
 	updateLogParagraph = Tabs.Main:AddParagraph({
 		Title = "Update Log\n",
-		Content = "[+] " .. "Added Main Tab"
-		.. "\n[+] " .. "Fixed Anti Afk"
-		.. "\n[+] " .. "Changed Codes Tab Layout"
+		Content = "[Added]" 
+		.. "\n[+] " .. "Added Main Tab"
+		.. "\n[Changed]"
+		.. "\n[*] " .. "Fixed Anti Afk"
+		.. "\n[*] " .. "Changed Codes Tab Layout"
+		.. "\n[Removed]"
+		.. "\n[-] "
 	});
 	comingSoonParagraph = Tabs.Main:AddParagraph({
 		Title = "Coming Soon\n",
-		Content = "[=] " .. "Working on Auto Infinite"
-		.. "\n[=] " .. "Working on Auto Repeatable Bosses"
-		.. "\n[=] " .. "Working on Configs"
+		Content = "[~] " .. "Working on Auto Infinite"
+		.. "\n[~] " .. "Working on Auto Repeatable Bosses"
+		.. "\n[~] " .. "Working on Configs"
 	});
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
