@@ -46,6 +46,62 @@ local Fluent = (loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 
 --[[
+	Variables
+--]]
+local swordCooldown = player:WaitForChild("Stats"):WaitForChild("SwordObbyCD").Value;
+local potionCount = 0;
+local autoPotionsActive = false;
+local autoSwordActive = false;
+local canGoBack = false;
+local useAntiAfk = true;
+
+--[[
+	Helper Functions
+--]]
+local function generateRandomKey(length)
+	local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	local key = "";
+	for i = 1, length do
+		local randIndex = math.random(1, #chars);
+		key = key .. string.sub(chars, randIndex, randIndex);
+		task.wait(0.1);
+	end;
+	return key;
+end;
+local function antiAfk()
+	while useAntiAfk do
+		player.Idled:Connect(function()
+			virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+			task.wait(0.1);
+			virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+		end);
+		virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+		task.wait(0.1);
+		virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+		task.wait(math.random(60, 120));
+	end;
+	print("Anti Afk enabled");
+end;
+local function rejoinGame()
+	task.wait(1);
+	teleportservice:Teleport(placeid, player);
+end;
+local isdeveloper = table.find(devid, playerid) ~= nil;
+
+--[[
+	Library Variables
+--]]
+local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
+local updatingParagraph = false;
+local version = "0.6.2";
+local devs = "Av & Hari";
+local randomKey = generateRandomKey(9);
+_G[randomKey] = {};
+_G.ahKey = randomKey;
+local guiWindow = {};
+local Hub = _G[randomKey];
+
+--[[
 	Tables
 --]]
 local devid = {
@@ -63,7 +119,6 @@ local codes = {
 	"5KLIKES!",
 	"6KLIKES!",
 	"10KLIKES!",
-	"500KVISITS!",
 	"SORRYFORSHUTDOWN!",
 	"SUB2VALK!",
 	"SUB2TOADBOI!",
@@ -73,6 +128,8 @@ local codes = {
 	"SUB2D1SGUISED!",
 	"SUB2ItsHappyYT1!",
 	"SUB2Joltzy!",
+	"FOLLOWEXVAR1",
+	"500KVISITS!",
 	"1MVISITS!",
 };
 
@@ -151,62 +208,6 @@ local areaTeleportCoordinates = {
 	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
-
---[[
-	Variables
---]]
-local swordCooldown = player:WaitForChild("Stats"):WaitForChild("SwordObbyCD").Value;
-local potionCount = 0;
-local autoPotionsActive = false;
-local autoSwordActive = false;
-local canGoBack = false;
-local useAntiAfk = true;
-
---[[
-	Helper Functions
---]]
-local function generateRandomKey(length)
-	local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	local key = "";
-	for i = 1, length do
-		local randIndex = math.random(1, #chars);
-		key = key .. string.sub(chars, randIndex, randIndex);
-		task.wait(0.1);
-	end;
-	return key;
-end;
-local function antiAfk()
-	while useAntiAfk do
-		player.Idled:Connect(function()
-			virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-			task.wait(0.1);
-			virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-		end);
-		virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-		task.wait(0.1);
-		virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-		task.wait(math.random(60, 120));
-	end;
-	print("Anti Afk enabled");
-end;
-local function rejoinGame()
-	task.wait(1);
-	teleportservice:Teleport(placeid, player);
-end;
-local isdeveloper = table.find(devid, playerid) ~= nil;
-
---[[
-	Library Variables
---]]
-local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
-local updatingParagraph = false;
-local version = "0.6.1";
-local devs = "Av & Hari";
-local randomKey = generateRandomKey(9);
-_G[randomKey] = {};
-_G.ahKey = randomKey;
-local guiWindow = {};
-local Hub = _G[randomKey];
 
 --[[
 	Hub Functions
