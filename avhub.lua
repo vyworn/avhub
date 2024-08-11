@@ -2,7 +2,7 @@ if not game:IsLoaded() then
 	game.Loaded:Wait();
 end;
 local games = {
-	[18138547215] = "https://raw.githubusercontent.com/vyworn/rng/main/acb.lua"
+	[18138547215] = "https://raw.githubusercontent.com/vyworn/avhub/main/anime-card-battles/acb.lua"
 };
 if not games[game.PlaceId] then
 	warn("Game not supported");
