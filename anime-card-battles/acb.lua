@@ -325,14 +325,10 @@ function Hub:Functions()
 		while self.autoSwordToggle.Value do
 			local swordObbyCD = swordCooldown;
 			if swordObbyCD == 0 then
-				print("Can go back: " .. tostring(canGoBack));
 				self.grabSword();
-				print("Can go back: " .. tostring(canGoBack));
 				if canGoBack then
-					print("Going back to old position");
 					self.characterTeleport(otherCoordinates["Old Position"]);
 					canGoBack = false;
-					print("Went back to old position");
 				end;
 			end;
 			task.wait(0.5);
