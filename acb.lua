@@ -76,12 +76,12 @@ local codes = {
 local otherLocations = {
 	"Sword",
 	"Lucky Spot",
-	"Old Position",
+	"Old Position"
 };
 local otherCoordinates = {
-	["Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
-	["Lucky Spot"] = Vector3.new(-5872.769531, 965.790771,-9323.985352),
-	["Old Position"] = Vector3.new(0, 0, 0),
+	Sword = Vector3.new(-5922.687012, 102.94072, -8286.416016),
+	["Lucky Spot"] = Vector3.new(-5872.769531, 965.790771, -9323.985352),
+	["Old Position"] = Vector3.new(0, 0, 0)
 };
 local npcTeleports = {
 	"Heaven Infinite",
@@ -91,7 +91,7 @@ local npcTeleports = {
 	"Card Fusion",
 	"Card Packs",
 	"Strange Trader",
-	"Luck Fountain",
+	"Luck Fountain"
 };
 local mobTeleports = {
 	"Earth's Mightiest",
@@ -121,14 +121,14 @@ local npcTeleportsCoordinates = {
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
 	["Card Packs"] = Vector3.new(-6024.296387, 152.574966, -8582.142578),
 	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
-	["Luck Fountain"] = Vector3.new(-5971.769043, 156.174988,-8725.775391),
+	["Luck Fountain"] = Vector3.new(-5971.769043, 156.174988, -8725.775391)
 };
 local mobsTeleportsCoordinates = {
 	["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169, -5141.633789),
-	["Prince"] = Vector3.new(10987.201172, 344.049896, -5241.321777),
+	Prince = Vector3.new(10987.201172, 344.049896, -5241.321777),
 	["Knucklehead Ninja"] = Vector3.new(4219.748535, 31.724997, 7506.525391),
 	["Rogue Ninja"] = Vector3.new(4306.954102, 31.724993, 7506.855469),
-	["Limitless"] = Vector3.new(-12.537902, 272.422241, 5996.07666),
+	Limitless = Vector3.new(-12.537902, 272.422241, 5996.07666),
 	["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009, 6714.296875),
 	["Rubber Boy"] = Vector3.new(13150.526367, 84.124977, 11365.570312),
 	["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391)
@@ -136,7 +136,7 @@ local mobsTeleportsCoordinates = {
 local areaTeleportCoordinates = {
 	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
 	["Obby Sword"] = Vector3.new(-5922.687012, 102.94072, -8286.416016),
-	["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225,-8551.984375),
+	["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
 	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
 	["Cifer (Boss)"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
 	["King Of Curses (Boss)"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
@@ -144,19 +144,6 @@ local areaTeleportCoordinates = {
 	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 };
 function Hub:Functions()
-	self.antiAfk = function()
-		player.Idled:connect(function()
-			virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-			task.wait(0.5);
-			virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
-		end);
-		player.Idled:connect(function()
-			virtualuser:CaptureController();
-			task.wait(0.5);
-			virtualuser:ClickButton2(Vector2.new());
-		end);
-		print('Anti Afk Is Now On')
-	end
 	self.sendMessage = function(message)
 		if textchannel then
 			local success, result = pcall(function()
@@ -274,7 +261,7 @@ function Hub:Functions()
 	end;
 	self.rejoinGame = function()
 		task.wait(1);
-		teleportservice:Teleport(placeid, player)
+		teleportservice:Teleport(placeid, player);
 	end;
 	self.reverseCodes = function()
 		local reversedCodesString = "";
@@ -345,27 +332,23 @@ function Hub:Functions()
 			end;
 		end;
 		self.clickYes = function()
-			
-		end
+		end;
 		self.testFunction = function()
-			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue")
+			local npcDialogue = player.PlayerGui:WaitForChild("NPCDialogue");
 			if not npcDialogue then
-				return false
-			end
-		
-			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
-			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-		
+				return false;
+			end;
+			local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame");
+			local responseFrame = dialogueFrame:WaitForChild("ResponseFrame");
 			for _, child in pairs(responseFrame:GetChildren()) do
 				if child:IsA("ImageButton") and child.Name == "DialogueOption" then
-					local textValue = child:FindFirstChild("Text")
+					local textValue = child:FindFirstChild("Text");
 					if textValue and textValue.Text == "Yes please!" then
 						self.clickYes();
-					end
-				end
-			end
+					end;
+				end;
+			end;
 		end;
-		self.antiAfk();
 		self.setPrimaryPart();
 		player.CharacterAdded:Connect(function(newCharacter)
 			player = game.Players.LocalPlayer;
@@ -500,7 +483,7 @@ function Hub:Gui()
 	});
 	codesParagraph = Tabs.Misc:AddParagraph({
 		Title = "Codes",
-		Content = self.reverseCodes();
+		Content = self.reverseCodes()
 	});
 	Tabs.Misc:AddButton({
 		Title = "Copy All Codes",
@@ -599,3 +582,12 @@ function Hub:Gui()
 end;
 Hub:Functions();
 Hub:Gui();
+local function antiAfk()
+	player.Idled:connect(function()
+		virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+		task.wait(0.5);
+		virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame);
+	end);
+	print("Anti-AFK enabled");
+end;
+antiAfk();
