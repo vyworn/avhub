@@ -174,17 +174,11 @@ local function generateRandomKey(length)
 	end;
 	return key;
 end;
-local function resetTimer()
-	startTime = tick();
-end;
 local function antiAfk()
 	player.Idled:Connect(function()
-		local idleTime = tick() - startTime;
-		print("Idle Time:", idleTime);
 		local clickpos = Vector2.new(0,0);
 		virtualuser:Button2Down(clickpos);
 		virtualuser:Button2Up(clickpos);
-		resetTimer();
 	end);
 	print("Anti Afk enabled");
 end;
@@ -199,7 +193,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.5.4";
+local version = "0.5.5";
 local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -655,7 +649,6 @@ end;
 --]]
 Hub:Functions();
 Hub:Gui();
-resetTimer();
 antiAfk();
 
 if isdeveloper then
