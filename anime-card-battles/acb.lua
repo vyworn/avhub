@@ -298,13 +298,13 @@ function Hub:Functions()
 			task.wait(1);
 			self.characterTeleport(otherCoordinates.Sword);
 			swordProximityPrompt:InputHoldBegin();
-			task.wait(0.1);
+			task.wait(0.4);
 			swordProximityPrompt:InputHoldEnd();
-			task.wait(0.1);
+			task.wait(0.2)
 			swordProximityPrompt:InputHoldBegin();
-			task.wait(0.1);
+			task.wait(0.4);
 			swordProximityPrompt:InputHoldEnd();
-			task.wait(2);
+			task.wait(1);
 			self.characterTeleport(otherCoordinates["Old Position"]);
 		end;
 	end;
