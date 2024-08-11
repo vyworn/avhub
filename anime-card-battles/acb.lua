@@ -425,7 +425,7 @@ function Hub:Gui()
 	notesParagraph = Tabs.Main:AddParagraph({
 		Title = "Notes\n",
 		Content = "*Coming Soon"
-		.. "->\t" .. "Working on Auto Infinite"
+		.. "\n->\t" .. "Working on Auto Infinite"
 		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
 		.. "\n->\t" .. "Working on Configs"
 	});
