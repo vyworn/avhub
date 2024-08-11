@@ -418,6 +418,10 @@ function Hub:Gui()
 	--[[
 		Auto Tab
 	--]]
+	statsParagraph = Tabs.Auto:AddParagraph({
+		Title = "Stats\n",
+		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown
+	});
 	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
 		Default = false
@@ -429,10 +433,6 @@ function Hub:Gui()
 	self.autoRollToggle = Tabs.Auto:AddToggle("AutoRoll", {
 		Title = "Auto Roll",
 		Default = false
-	});
-	statsParagraph = Tabs.Auto:AddParagraph({
-		Title = "Stats\n",
-		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown
 	});
 	self.autoPotionsToggle:OnChanged(function()
 		autoPotionsActive = self.autoPotionsToggle.Value;
