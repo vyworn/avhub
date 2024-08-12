@@ -418,7 +418,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.3";
+	local version = "0.7.4";
 	local devs = "Av & Hari";
 
 	--[[
@@ -466,7 +466,7 @@ function Hub:Gui()
 	});
 	self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
 		Title = "Auto Infinite",
-		Description = "Read the ReadMe",
+		Description = "Read the ReadMe below",
 		Default = false
 	});
 	disclaimerParagraph = Tabs.Auto:AddParagraph({
