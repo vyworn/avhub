@@ -83,8 +83,6 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.6.5";
-local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
 _G.ahKey = randomKey;
@@ -412,7 +410,10 @@ function Hub:Gui()
 		Title = "Settings",
 		Icon = "settings"
 	})
+	
 	local Options = Fluent.Options;
+	local version = "0.6.5";
+	local devs = "Av & Hari";
 
 	--[[
 		Main Tab
@@ -798,4 +799,3 @@ end;
 Hub:Functions();
 Hub:Gui();
 antiAfk();
-
