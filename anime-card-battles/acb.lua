@@ -434,7 +434,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.8";
+	local version = "0.7.9";
 	local devs = "Av & Hari";
 
 	--[[
