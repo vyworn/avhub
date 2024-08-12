@@ -347,7 +347,7 @@ function Hub:Functions()
 			if swordObbyCD == 0 then
 				self.grabSword();
 				if canGoBack then
-					self.characterTeleport(otherCoordinates["Old Position"]);
+					self.characterTeleport(otherCoordinates["Old Position Sword"]);
 					canGoBack = false;
 				end;
 			end;
@@ -434,7 +434,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.5";
+	local version = "0.7.6";
 	local devs = "Av & Hari";
 
 	--[[
