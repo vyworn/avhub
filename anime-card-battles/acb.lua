@@ -412,7 +412,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.6.5";
+	local version = "0.6.7";
 	local devs = "Av & Hari";
 
 	--[[
@@ -537,6 +537,12 @@ function Hub:Gui()
 		Title = "Rejoin game",
 		Callback = function()
 			rejoinGame();
+		end
+	});
+	Tabs.Misc:AddButton({
+		Title = "Join Public Server",
+		Callback = function()
+			self.joinPublicServer();
 		end
 	});
 	Tabs.Misc:AddButton({
