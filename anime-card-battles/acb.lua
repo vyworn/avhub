@@ -328,6 +328,7 @@ function Hub:Functions()
 				hideBattle = true
 				task.wait(1);
 			end;
+			task.wait(0.5)
 		end;
 	end;
 
