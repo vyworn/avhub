@@ -81,7 +81,7 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --[[
 	Library Variables
 --]]
-local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
+local statsParagraph, disclaimerParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -306,10 +306,14 @@ function Hub:Functions()
 			canGoBack = true;
 		end;
 	end;
-	self.rollEvent = function()
-		local success, response = pcall(function()
-			(remotes:WaitForChild("RollEvent")):FireServer();
-		end);
+	self.npcDialogue = function()
+		local npcProximityPrompt = workspace.NPCs.David.HumanoidRootPart.ProximityPrompt
+		while self.autoInfiniteToggle.Value do
+			if npcProximityPrompt then
+				fireproximityprompt(npcProximityPrompt);
+				task.wait(1);
+			end;
+		end;
 	end;
 
 	--[[
@@ -332,12 +336,6 @@ function Hub:Functions()
 				end;
 			end;
 			task.wait(0.5);
-		end;
-	end;
-	self.autoRollLoop = function()
-		while self.autoRollToggle.Value do
-			self.rollEvent();
-			task.wait(0.01);
 		end;
 	end;
 
@@ -420,7 +418,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.1";
+	local version = "0.7.3";
 	local devs = "Av & Hari";
 
 	--[[
@@ -429,9 +427,10 @@ function Hub:Gui()
 	updateLogParagraph = Tabs.Main:AddParagraph({
 		Title = "Update Log\n",
 		Content = "*Added" 
-		.. "\n->\t" .. "New Codes"
+		.. "\n->\t" .. "Auto Infinte (Read the ReadMe)"
+		.. "\n->\t" .. "Script Uptime (in Stats)"
 		.. "\n*Removed"
-		.. "\n->\t" .. "~"
+		.. "\n->\t" .. "Auto Roll (useless)"
 		.. "\n*Changed"
 		.. "\n->\t" .. "~"
 	});
@@ -446,7 +445,7 @@ function Hub:Gui()
 		Title = "Information\n",
 		Content = "*Version" 
 		.. "\n->\t" .. "v_" .. version
-		.. "\n*Made By" 
+		.. "\n" .. "*Made By" 
 		.. "\n->\t" .. devs
 	});
 
@@ -455,7 +454,7 @@ function Hub:Gui()
 	--]]
 	statsParagraph = Tabs.Auto:AddParagraph({
 		Title = "Stats\n",
-		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown .. "\n" .. tostring(tickCount)
+		Content = "Total Potions: " .. potionCount .. "\n" .. "Sword Timer: " .. swordCooldown .. "\n" .. tostring(tickCount)
 	});
 	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
@@ -465,9 +464,17 @@ function Hub:Gui()
 		Title = "Auto Sword",
 		Default = false
 	});
-	self.autoRollToggle = Tabs.Auto:AddToggle("AutoRoll", {
-		Title = "Auto Roll",
+	self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
+		Title = "Auto Infinite",
+		Description = "Read the ReadMe",
 		Default = false
+	});
+	disclaimerParagraph = Tabs.Auto:AddParagraph({
+		Title = "Read Me\n",
+		Content = "*Auto Infinite" 
+		.. "\n->\t" .. "only triggers proximity prompt for now"
+		.. "\n->\t" .. "need to be near the NPC"
+		.. "\n->\t" .. "use macro to start battle"
 	});
 	self.autoPotionsToggle:OnChanged(function()
 		autoPotionsActive = self.autoPotionsToggle.Value;
@@ -476,17 +483,17 @@ function Hub:Gui()
 		end;
 		self.updateParagraphStatus();
 	end);
-	self.autoRollToggle:OnChanged(function()
-		if self.autoRollToggle.Value then
-			task.spawn(self.autoRollLoop);
-		end;
-	end);
 	self.autoSwordToggle:OnChanged(function()
 		autoSwordActive = self.autoSwordToggle.Value;
 		if autoSwordActive then
 			task.spawn(self.autoSwordLoop);
 		end;
 		self.updateParagraphStatus();
+	end);
+	self.autoInfiniteToggle:OnChanged(function()
+		if self.autoInfiniteToggle.Value then
+			task.spawn(self.npcDialogue);
+		end;
 	end);
 
 	--[[
