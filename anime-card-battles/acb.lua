@@ -83,8 +83,6 @@ local isdeveloper = table.find(devid, playerid) ~= nil;
 --]]
 local statsParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
 local updatingParagraph = false;
-local version = "0.6.5";
-local devs = "Av & Hari";
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
 _G.ahKey = randomKey;
@@ -412,7 +410,10 @@ function Hub:Gui()
 		Title = "Settings",
 		Icon = "settings"
 	})
+	
 	local Options = Fluent.Options;
+	local version = "0.6.7";
+	local devs = "Av & Hari";
 
 	--[[
 		Main Tab
@@ -536,6 +537,12 @@ function Hub:Gui()
 		Title = "Rejoin game",
 		Callback = function()
 			rejoinGame();
+		end
+	});
+	Tabs.Misc:AddButton({
+		Title = "Join Public Server",
+		Callback = function()
+			self.joinPublicServer();
 		end
 	});
 	Tabs.Misc:AddButton({
@@ -798,4 +805,3 @@ end;
 Hub:Functions();
 Hub:Gui();
 antiAfk();
-
