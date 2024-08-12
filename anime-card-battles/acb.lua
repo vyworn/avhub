@@ -440,6 +440,13 @@ function Hub:Gui()
 	--[[
 		Main Tab
 	--]]
+	informationParagraph = Tabs.Main:AddParagraph({
+		Title = "Information\n",
+		Content = "*Version" 
+		.. "\n->\t" .. "v_" .. version
+		.. "\n" .. "*Made By" 
+		.. "\n->\t" .. devs
+	});
 	updateLogParagraph = Tabs.Main:AddParagraph({
 		Title = "Update Log\n",
 		Content = "*Added" 
@@ -456,13 +463,6 @@ function Hub:Gui()
 		.. "\n->\t" .. "Working on Auto Infinite"
 		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
 		.. "\n->\t" .. "Working on Configs"
-	});
-	informationParagraph = Tabs.Main:AddParagraph({
-		Title = "Information\n",
-		Content = "*Version" 
-		.. "\n->\t" .. "v_" .. version
-		.. "\n" .. "*Made By" 
-		.. "\n->\t" .. devs
 	});
 
 	--[[
