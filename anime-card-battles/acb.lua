@@ -199,6 +199,7 @@ local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 local canGoBack = false;
+local tickCount
 
 --[[
 	Hub Functions
@@ -348,9 +349,16 @@ function Hub:Functions()
 			swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
 			local totalPotions = potionCount;
 			local timeLeft = swordCooldown;
-			local potionText = "Total Potions: " .. totalPotions;
-			local swordText = "Sword Timer: " .. timeLeft;
-			statsParagraph:SetDesc(potionText .. "\n" .. swordText);
+
+			local uptimeInSeconds = tick() - tickCount
+			local hours = math.floor(uptimeInSeconds / 3600)
+			local minutes = math.floor((uptimeInSeconds % 3600) / 60)
+			local seconds = uptimeInSeconds % 60
+			local uptimeText = string.format("Uptime: %02d:%02d:%02d", hours, minutes, seconds)
+
+			statsParagraph:SetDesc("Total Potions: " .. totalPotions 
+				.. "\nSword Timer: " .. timeLeft 
+				.. "\nScript Uptime: " .. uptimeText);
 			task.wait(0.2);
 		end;
 	end;
@@ -412,7 +420,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.6.7";
+	local version = "0.6.8";
 	local devs = "Av & Hari";
 
 	--[[
@@ -447,7 +455,7 @@ function Hub:Gui()
 	--]]
 	statsParagraph = Tabs.Auto:AddParagraph({
 		Title = "Stats\n",
-		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown
+		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown .. "\nScript Uptime: " .. tickCount
 	});
 	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
@@ -805,3 +813,4 @@ end;
 Hub:Functions();
 Hub:Gui();
 antiAfk();
+tickCount = tick();
