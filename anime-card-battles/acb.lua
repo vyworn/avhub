@@ -420,7 +420,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.6.8";
+	local version = "0.6.9";
 	local devs = "Av & Hari";
 
 	--[[
@@ -455,7 +455,7 @@ function Hub:Gui()
 	--]]
 	statsParagraph = Tabs.Auto:AddParagraph({
 		Title = "Stats\n",
-		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown .. "\nScript Uptime: " .. tickCount
+		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown .. "\nScript Uptime: " .. tostring(tickCount)
 	});
 	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
