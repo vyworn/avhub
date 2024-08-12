@@ -328,6 +328,7 @@ function Hub:Functions()
 				hideBattle = true
 				task.wait(1);
 			end;
+			task.wait(0.5)
 		end;
 	end;
 
@@ -433,7 +434,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.8";
+	local version = "0.7.9";
 	local devs = "Av & Hari";
 
 	--[[
