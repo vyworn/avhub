@@ -354,7 +354,7 @@ function Hub:Functions()
 			local hours = math.floor(uptimeInSeconds / 3600)
 			local minutes = math.floor((uptimeInSeconds % 3600) / 60)
 			local seconds = uptimeInSeconds % 60
-			local uptimeText = string.format("Uptime: %02d:%02d:%02d", hours, minutes, seconds)
+			local uptimeText = string.format("Hours: %02d Minutes: %02d Seconds:%02d", hours, minutes, seconds)
 
 			statsParagraph:SetDesc("Total Potions: " .. totalPotions 
 				.. "\nSword Timer: " .. timeLeft 
@@ -420,7 +420,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.6.9";
+	local version = "0.7.0";
 	local devs = "Av & Hari";
 
 	--[[
