@@ -317,7 +317,6 @@ function Hub:Functions()
 	self.npcDialogue = function()
 		local stats = player:FindFirstChild("Stats")
 		local hideBattle = stats:FindFirstChild("HideBattle")
-		self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
 		task.wait(1);
 		while self.autoInfiniteToggle.Value do
 			local npcProximityPrompt = workspace.NPCs.David.HumanoidRootPart.ProximityPrompt
@@ -434,7 +433,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.6";
+	local version = "0.7.8";
 	local devs = "Av & Hari";
 
 	--[[
@@ -510,6 +509,9 @@ function Hub:Gui()
 	end);
 	self.autoInfiniteToggle:OnChanged(function()
 		if self.autoInfiniteToggle.Value then
+			task.wait(0.5);
+			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
+			task.wait(0.5);
 			task.spawn(self.npcDialogue);
 		end;
 	end);
