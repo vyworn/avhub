@@ -121,12 +121,14 @@ local codes = {
 local otherLocations = {
 	"Sword",
 	"Lucky Spot",
-	"Old Position"
+	"Old Position Sword",
+	"Old Position Infinite"
 };
 local otherCoordinates = {
 	["Sword"] = Vector3.new(-5922.752930, 100.682877,-8288.595703),
 	["Lucky Spot"] = Vector3.new(-5872.769531, 965.790771, -9323.985352),
-	["Old Position"] = Vector3.new(0, 0, 0)
+	["Old Position Sword"] = Vector3.new(0, 0, 0),
+	["Old Position Infinite"] = Vector3.new(0, 0, 0)
 };
 local npcTeleports = {
 	"Heaven Infinite",
@@ -215,10 +217,16 @@ function Hub:Functions()
 			character.PrimaryPart = character.HumanoidRootPart;
 		end;
 	end;
-	self.getOldPosition = function()
+	self.getOldPositionSword = function()
 		if character and humanoidRootPart then
 			local position = humanoidRootPart.Position;
-			otherCoordinates["Old Position"] = Vector3.new(position.X, (position.Y + 5), position.Z);
+			otherCoordinates["Old Position Sword"] = Vector3.new(position.X, (position.Y + 5), position.Z);
+		end;
+	end;
+	self.getOldPositionInfinite = function()
+		if character and humanoidRootPart then
+			local position = humanoidRootPart.Position;
+			otherCoordinates["Old Position Infinite"] = Vector3.new(position.X, (position.Y + 5), position.Z);
 		end;
 	end;
 	self.characterTeleport = function(destination)
@@ -296,7 +304,7 @@ function Hub:Functions()
 		end;
 	end;
 	self.grabSword = function()
-		self.getOldPosition();
+		self.getOldPositionSword();
 		local swordProximityPrompt = workspace.ObbySwordPrompt.SwordBlock.ProximityPrompt
 		if swordProximityPrompt then
 			self.characterTeleport(otherCoordinates["Sword"]);
@@ -307,10 +315,18 @@ function Hub:Functions()
 		end;
 	end;
 	self.npcDialogue = function()
-		local npcProximityPrompt = workspace.NPCs.David.HumanoidRootPart.ProximityPrompt
+		local stats = player:FindFirstChild("Stats")
+		local hideBattle = stats:FindFirstChild("HideBattle")
+		self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
+		task.wait(1);
 		while self.autoInfiniteToggle.Value do
+			local npcProximityPrompt = workspace.NPCs.David.HumanoidRootPart.ProximityPrompt
+			if hideBattle then
+				stats.HideBattle.Value = true
+			end
 			if npcProximityPrompt then
 				fireproximityprompt(npcProximityPrompt);
+				hideBattle = true
 				task.wait(1);
 			end;
 		end;
@@ -418,7 +434,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.4";
+	local version = "0.7.5";
 	local devs = "Av & Hari";
 
 	--[[
@@ -471,8 +487,10 @@ function Hub:Gui()
 	});
 	disclaimerParagraph = Tabs.Auto:AddParagraph({
 		Title = "Read Me\n",
-		Content = "*Auto Infinite" 
+		Content = "*Auto Infinite"
+		.. "\n->\t" .. "teleporst you once to the NPC"
 		.. "\n->\t" .. "only triggers proximity prompt for now"
+		.. "\n->\t" .. "auto toggles hides battle"
 		.. "\n->\t" .. "need to be near the NPC"
 		.. "\n->\t" .. "use macro to start battle"
 	});
@@ -750,13 +768,11 @@ if isdeveloper then
 				return false
 			end
 		
-			-- Wait until there are at least 3 children in ResponseFrame
 			while #responseFrame:GetChildren() < 3 do
 				print("Waiting for at least 3 children in ResponseFrame...")
-				responseFrame.ChildAdded:Wait() -- Wait for a child to be added
+				responseFrame.ChildAdded:Wait()
 			end
-		
-			-- Get the 2nd child (assuming it's the "Yes please!" option)
+
 			local button = responseFrame:GetChildren()[2]
 		
 			if button:IsA("ImageButton") then
@@ -798,8 +814,6 @@ if isdeveloper then
 				
 				for _, child in pairs(responseFrame:GetChildren()) do
 					print("Name: " .. child.Name .. ", Type: " .. child.ClassName)
-					
-					-- Check if the child has a Text property and print its value if it exists
 					if child:IsA("TextLabel") or child:IsA("TextButton") then
 						print("Text: " .. child.Text)
 					elseif child:FindFirstChild("Text") then
