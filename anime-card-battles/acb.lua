@@ -354,11 +354,11 @@ function Hub:Functions()
 			local hours = math.floor(uptimeInSeconds / 3600)
 			local minutes = math.floor((uptimeInSeconds % 3600) / 60)
 			local seconds = uptimeInSeconds % 60
-			local uptimeText = string.format("Hours: %02d Minutes: %02d Seconds:%02d", hours, minutes, seconds)
+			local uptimeText = string.format("Hours: %02d Minutes: %02d Seconds: %02d", hours, minutes, seconds)
 
 			statsParagraph:SetDesc("Total Potions: " .. totalPotions 
 				.. "\nSword Timer: " .. timeLeft 
-				.. "\nScript Uptime: " .. uptimeText);
+				.. "\n" .. uptimeText);
 			task.wait(0.2);
 		end;
 	end;
@@ -420,7 +420,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.0";
+	local version = "0.7.1";
 	local devs = "Av & Hari";
 
 	--[[
@@ -455,7 +455,7 @@ function Hub:Gui()
 	--]]
 	statsParagraph = Tabs.Auto:AddParagraph({
 		Title = "Stats\n",
-		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown .. "\nScript Uptime: " .. tostring(tickCount)
+		Content = "Total Potions: " .. potionCount .. "\nSword Timer: " .. swordCooldown .. "\n" .. tostring(tickCount)
 	});
 	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
