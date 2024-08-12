@@ -218,7 +218,7 @@ function Hub:Functions()
 	self.getOldPosition = function()
 		if character and humanoidRootPart then
 			local position = humanoidRootPart.Position;
-			otherCoordinates["Old Position"] = Vector3.new(position.X, position.Y, position.Z);
+			otherCoordinates["Old Position"] = Vector3.new(position.X, (position.Y + 5), position.Z);
 		end;
 	end;
 	self.characterTeleport = function(destination)
