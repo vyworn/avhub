@@ -315,20 +315,20 @@ function Hub:Functions()
 		end;
 	end;
 	self.autoInfinite = function()
-		local stats = player:FindFirstChild("Stats")
-		task.wait(1);
+		task.wait(0.5);
 		while self.autoInfiniteToggle.Value do
 			local npcProximityPrompt = workspace.NPCs.David.HumanoidRootPart.ProximityPrompt
+			task.wait(0.5);
 			if npcProximityPrompt then
 				fireproximityprompt(npcProximityPrompt);
-				task.wait(1);
 			end;
 			task.wait(0.5)
 		end;
 	end;
 	self.autoHideBattle = function()
-		local stats = player:FindFirstChild("Stats")
-		local hideBattle = stats:FindFirstChild("HideBattle")
+		task.wait(0.5);
+		local stats = player:WaitForChild("Stats")
+		local hideBattle = stats:WaitForChild("HideBattle")
 		while self.autoHideBattleToggle.Value do
 			if hideBattle then
 				hideBattle.Value = true
@@ -439,7 +439,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.8.2";
+	local version = "v_0.8.3";
 	local devs = "Av & Hari";
 
 	--[[
