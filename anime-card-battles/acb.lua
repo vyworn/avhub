@@ -315,14 +315,16 @@ function Hub:Functions()
 		end;
 	end;
 	self.autoInfinite = function()
-		task.wait(0.5);
 		while self.autoInfiniteToggle.Value do
-			local npcProximityPrompt = workspace.NPCs.David.HumanoidRootPart.ProximityPrompt
-			task.wait(0.5);
+			local npcDavid = workspace.NPCs.David;
+			task.wait(0.25);
+			local davidHRP = npcDavid:WaitForChild("HumanoidRootPart")
+			task.wait(0.25);
+			local npcProximityPrompt = davidHRP.ProximityPrompt
 			if npcProximityPrompt then
 				fireproximityprompt(npcProximityPrompt);
 			end;
-			task.wait(0.5)
+			task.wait(1)
 		end;
 	end;
 	self.autoHideBattle = function()
@@ -439,7 +441,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.8.3";
+	local version = "v_0.8.4";
 	local devs = "Av & Hari";
 
 	--[[
@@ -518,9 +520,8 @@ function Hub:Gui()
 	end);
 	self.autoInfiniteToggle:OnChanged(function()
 		if self.autoInfiniteToggle.Value then
-			task.wait(0.5);
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
-			task.wait(0.5);
+			task.wait(1);
 			task.spawn(self.autoInfinite);
 		end;
 	end);
