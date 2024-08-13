@@ -400,7 +400,7 @@ function Hub:Gui()
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
 		TabWidth = 100,
-		Size = UDim2.fromOffset(500, 300),
+		Size = UDim2.fromOffset(450, 350),
 		Acrylic = true,
 		Theme = "Dark",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -439,7 +439,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.8.0";
+	local version = "v_0.8.1";
 	local devs = "Av & Hari";
 
 	--[[
@@ -477,6 +477,15 @@ function Hub:Gui()
 		Title = "Stats\n",
 		Content = "Total Potions: " .. potionCount .. "\n" .. "Sword Timer: " .. swordCooldown .. "\n" .. tostring(tickCount)
 	});
+	self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
+		Title = "Auto Infinite (Experimental)",
+		Description = "Scroll down for the ReadMe",
+		Default = false
+	});
+	self.autoHideBattleToggle = Tabs.Auto:AddToggle("AutoHideBattle", {
+		Title = "Auto Hide Battle",
+		Default = false
+	});
 	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
 		Default = false
@@ -485,19 +494,9 @@ function Hub:Gui()
 		Title = "Auto Sword",
 		Default = false
 	});
-	self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
-		Title = "Auto Infinite",
-		Description = "Read the ReadMe below",
-		Default = false
-	});
-	self.autoHideBattleToggle = Tabs.Auto:AddToggle("AutoHideBattle", {
-		Title = "Auto Hide Battle",
-		Default = false
-	});
 	disclaimerParagraph = Tabs.Auto:AddParagraph({
 		Title = "Read Me\n",
 		Content = "*Auto Infinite"
-		.. "\n->\t" .. "toggle on below this"
 		.. "\n->\t" .. "teleports you once to the NPC"
 		.. "\n->\t" .. "only triggers proximity prompt for now"
 		.. "\n->\t" .. "need to be near the NPC"
