@@ -712,7 +712,7 @@ function Hub:Gui()
 			Title = "Infinite Yield",
 			Callback = function()
 				local infiniteYieldLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source";
-				(loadstring(game:HttpGet(infiniteyield)))();
+				(loadstring(game:HttpGet(infiniteYieldLink)))();
 			end
 		});
 		Tabs.Tools:AddButton({
