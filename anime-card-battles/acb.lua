@@ -400,7 +400,7 @@ function Hub:Gui()
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
 		TabWidth = 100,
-		Size = UDim2.fromOffset(460, 340),
+		Size = UDim2.fromOffset(450, 350),
 		Acrylic = true,
 		Theme = "Dark",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -478,7 +478,7 @@ function Hub:Gui()
 		Content = "Total Potions: " .. potionCount .. "\n" .. "Sword Timer: " .. swordCooldown .. "\n" .. tostring(tickCount)
 	});
 	self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
-		Title = "Auto Infinite",
+		Title = "Auto Infinite (Experimental)",
 		Description = "Scroll down for the ReadMe",
 		Default = false
 	});
