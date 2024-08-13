@@ -314,20 +314,25 @@ function Hub:Functions()
 			canGoBack = true;
 		end;
 	end;
-	self.npcDialogue = function()
+	self.autoInfinite = function()
 		local stats = player:FindFirstChild("Stats")
-		local hideBattle = stats:FindFirstChild("HideBattle")
 		task.wait(1);
 		while self.autoInfiniteToggle.Value do
 			local npcProximityPrompt = workspace.NPCs.David.HumanoidRootPart.ProximityPrompt
-			if hideBattle then
-				stats.HideBattle.Value = true
-			end
 			if npcProximityPrompt then
 				fireproximityprompt(npcProximityPrompt);
-				hideBattle = true
 				task.wait(1);
 			end;
+			task.wait(0.5)
+		end;
+	end;
+	self.autoHideBattle = function()
+		local stats = player:FindFirstChild("Stats")
+		local hideBattle = stats:FindFirstChild("HideBattle")
+		while self.autoHideBattleToggle.Value do
+			if hideBattle then
+				hideBattle.Value = true
+			end
 			task.wait(0.5)
 		end;
 	end;
@@ -434,7 +439,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "0.7.9";
+	local version = "v_0.8.0";
 	local devs = "Av & Hari";
 
 	--[[
@@ -443,7 +448,7 @@ function Hub:Gui()
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
 		Content = "*Version" 
-		.. "\n->\t" .. "v_" .. version
+		.. "\n->\t" .. version
 		.. "\n" .. "*Made By" 
 		.. "\n->\t" .. devs
 	});
@@ -485,12 +490,16 @@ function Hub:Gui()
 		Description = "Read the ReadMe below",
 		Default = false
 	});
+	self.autoHideBattleToggle = Tabs.Auto:AddToggle("AutoHideBattle", {
+		Title = "Auto Hide Battle",
+		Default = false
+	});
 	disclaimerParagraph = Tabs.Auto:AddParagraph({
 		Title = "Read Me\n",
 		Content = "*Auto Infinite"
-		.. "\n->\t" .. "teleporst you once to the NPC"
+		.. "\n->\t" .. "toggle on below this"
+		.. "\n->\t" .. "teleports you once to the NPC"
 		.. "\n->\t" .. "only triggers proximity prompt for now"
-		.. "\n->\t" .. "auto toggles hides battle"
 		.. "\n->\t" .. "need to be near the NPC"
 		.. "\n->\t" .. "use macro to start battle"
 	});
@@ -513,7 +522,12 @@ function Hub:Gui()
 			task.wait(0.5);
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
 			task.wait(0.5);
-			task.spawn(self.npcDialogue);
+			task.spawn(self.autoInfinite);
+		end;
+	end);
+	self.autoHideBattleToggle:OnChanged(function()
+		if self.autoHideBattleToggle.Value then
+			task.spawn(self.autoHideBattle);
 		end;
 	end);
 
