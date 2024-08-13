@@ -33,8 +33,8 @@ local userinputservice = game:GetService("UserInputService");
 local replicatedstorage = game:GetService("ReplicatedStorage");
 local remotes = replicatedstorage:WaitForChild("Remotes");
 local teleportservice = game:GetService("TeleportService");
-local textchatserivce = game:GetService("TextChatService");
-local textchannel = textchatserivce.TextChannels:WaitForChild("RBXGeneral");
+local textchatservice = game:GetService("TextChatService");
+local textchannel = textchatservice.TextChannels:WaitForChild("RBXGeneral");
 local api = "https://games.roblox.com/v1/games/";
 local http = game:GetService("HttpService");
 local proximitypromptservice = game:GetService("ProximityPromptService");
@@ -78,7 +78,7 @@ local devid = {
 	["hari2789"] = 85087803,
 	["aqreement"] = 1607510152,
 	["impeders"] = 35955366,
-	-- ["psuw"] = 417954849,
+	["psuw"] = 417954849,
 };
 local function isDeveloper(userid)
 	for _, id in pairs(devid) do
@@ -324,7 +324,7 @@ function Hub:Functions()
 			self.characterTeleport(otherCoordinates["Sword"]);
 			task.wait(0.25);
 			fireproximityprompt(swordProximityPrompt);
-			task.wait(1);
+			task.wait(0.5);
 			canGoBack = true;
 		end;
 	end;
@@ -342,7 +342,7 @@ function Hub:Functions()
 		end;
 	end;
 	self.closeResultScreen = function()
-		local davidNPC, davidHRP, inBattle, instantroll
+		local davidNPC, davidHRP, inBattle
 		local function getDavidHRP()
 			davidNPC = gamenpcs:WaitForChild("David")
 			return davidNPC:WaitForChild("HumanoidRootPart")
@@ -351,26 +351,26 @@ function Hub:Functions()
 		while self.closeResultScreenToggle.Value and self.autoInfiniteToggle.Value do
 			inBattle = stats:WaitForChild("InBattle")
 			repeat
-				instantroll = playergui:FindFirstChild("InstantRoll")
 				task.wait(0.25)
 			until not inBattle.Value
-			if instantroll then
-				instantroll:Destroy()
+			for _, instantroll in ipairs(playergui:GetChildren()) do
+				if instantroll.Name == "InstantRoll" then
+					instantroll:Destroy()
+				end
 			end
 			task.wait(0.25)
 			if not davidHRP then
 				davidHRP = getDavidHRP()
 			end
 		end
-	end
+	end	
 	self.autoHideBattle = function()
-		task.wait(0.5);
 		local hideBattle = stats:WaitForChild("HideBattle")
 		while self.autoHideBattleToggle.Value do
 			if hideBattle then
 				hideBattle.Value = true
 			end
-			task.wait(0.5)
+			task.wait(1)
 		end;
 	end;
 	
@@ -380,7 +380,7 @@ function Hub:Functions()
 	self.autoPotionsLoop = function()
 		while self.autoPotionsToggle.Value do
 			self.grabPotions();
-			task.wait(0.5);
+			task.wait(0.25);
 		end;
 	end;
 	self.autoSwordLoop = function()
@@ -393,7 +393,7 @@ function Hub:Functions()
 					canGoBack = false;
 				end;
 			end;
-			task.wait(0.5);
+			task.wait(0.25);
 		end;
 	end;
 	
@@ -448,7 +448,7 @@ function Hub:Gui()
 			Icon = "home"
 		}),
 		Farm = guiWindow[randomKey]:AddTab({
-			Title = "Farn",
+			Title = "Farm",
 			Icon = "repeat"
 		}),
 		Battle = guiWindow[randomKey]:AddTab({
@@ -484,7 +484,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.8.7";
+	local version = "v_0.8.8";
 	local devs = "Av & Hari";
 
 	--[[
