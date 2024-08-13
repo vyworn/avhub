@@ -460,7 +460,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.8.5";
+	local version = "v_0.8.6";
 	local devs = "Av & Hari";
 
 	--[[
@@ -629,6 +629,7 @@ function Hub:Gui()
 		Title = "Codes\n",
 		Content = "*Disclaimer" 
 		.. "\n->\t" .. "Not all codes are shown, use the copy button" 
+		.. "\n->\t" .. "Top code is the newest"
 		.. "\n" .. self.reverseCodes()
 	});
 
