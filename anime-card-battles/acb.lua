@@ -38,6 +38,9 @@ local textchannel = textchatserivce.TextChannels:WaitForChild("RBXGeneral");
 local api = "https://games.roblox.com/v1/games/";
 local http = game:GetService("HttpService");
 local proximitypromptservice = game:GetService("ProximityPromptService");
+local stats = player:WaitForChild("Stats")
+local playergui = player:WaitForChild("PlayerGui")
+local gamenpcs = workspace:WaitForChild("NPCs")
 
 --[[
 	Libraries
@@ -206,7 +209,7 @@ local areaTeleportCoordinates = {
 --[[
 	Variables
 --]]
-local swordCooldown = player:WaitForChild("Stats"):WaitForChild("SwordObbyCD").Value;
+local swordCooldown = stats:WaitForChild("SwordObbyCD").Value;
 local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
@@ -326,21 +329,42 @@ function Hub:Functions()
 		end;
 	end;
 	self.autoInfinite = function()
+		local davidNPC, davidHRP, davidProximityPrompt, inBattle
 		while self.autoInfiniteToggle.Value do
-			local npcDavid = workspace.NPCs.David;
-			task.wait(0.25);
-			local davidHRP = npcDavid:WaitForChild("HumanoidRootPart")
-			task.wait(0.25);
-			local npcProximityPrompt = davidHRP.ProximityPrompt
-			if npcProximityPrompt then
-				fireproximityprompt(npcProximityPrompt);
-			end;
-			task.wait(1)
+			repeat 
+				davidNPC = gamenpcs:WaitForChild("David");
+				davidHRP = davidNPC:WaitForChild("HumanoidRootPart")
+				davidProximityPrompt = davidHRP.ProximityPrompt
+				task.wait(0.25)
+			until davidProximityPrompt
+			fireproximityprompt(davidProximityPrompt);
+			task.wait(0.25)
 		end;
 	end;
+	self.closeResultScreen = function()
+		local davidNPC, davidHRP, inBattle, instantroll
+		local function getDavidHRP()
+			davidNPC = gamenpcs:WaitForChild("David")
+			return davidNPC:WaitForChild("HumanoidRootPart")
+		end
+		davidHRP = getDavidHRP()
+		while self.closeResultScreenToggle.Value and self.autoInfiniteToggle.Value do
+			inBattle = stats:WaitForChild("InBattle")
+			repeat
+				instantroll = playergui:FindFirstChild("InstantRoll")
+				task.wait(0.25)
+			until not inBattle.Value
+			if instantroll then
+				instantroll:Destroy()
+			end
+			task.wait(0.25)
+			if not davidHRP then
+				davidHRP = getDavidHRP()
+			end
+		end
+	end
 	self.autoHideBattle = function()
 		task.wait(0.5);
-		local stats = player:WaitForChild("Stats")
 		local hideBattle = stats:WaitForChild("HideBattle")
 		while self.autoHideBattleToggle.Value do
 			if hideBattle then
@@ -349,7 +373,7 @@ function Hub:Functions()
 			task.wait(0.5)
 		end;
 	end;
-
+	
 	--[[
 		Auto Loop Functions
 	--]]
@@ -378,7 +402,7 @@ function Hub:Functions()
 	--]]
 	self.updateParagraph = function()
 		while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
-			swordCooldown = (player.Stats:WaitForChild("SwordObbyCD")).Value;
+			swordCooldown = (stats:WaitForChild("SwordObbyCD")).Value;
 			local totalPotions = potionCount;
 			local timeLeft = swordCooldown;
 
@@ -413,7 +437,7 @@ function Hub:Gui()
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
 		TabWidth = 100,
-		Size = UDim2.fromOffset(430, 320),
+		Size = UDim2.fromOffset(500, 350),
 		Acrylic = true,
 		Theme = "Dark",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -460,7 +484,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.8.6";
+	local version = "v_0.8.7";
 	local devs = "Av & Hari";
 
 	--[[
@@ -471,13 +495,13 @@ function Hub:Gui()
 		Content = "*Added" 
 		.. "\n->\t" .. "Battle Tab"
 		.. "\n->\t" .. "Codes Tab"
+		.. "\n->\t" .. "Auto Close Result Screen (For Auto Infinite)"
+		.. "\n->\t" .. "Auto Hide Battle"
 		-- .. "\n*Removed"
 		-- .. "\n->\t" .. "~"
 		.. "\n*Changed"
-		.. "\n->\t" .. "Made gui window smaller"
-		.. "\n\t->\t" .. "Let me know if i should change it back"
-		.. "\n->\t" .. "Moved Auto Infinite to Battle Tab"
-		.. "\n->\t" .. "Seperated Hide Battle into a seperate toggle"
+		.. "\n->\t" .. "Changed gui window size"
+		.. "\n\t->\t" .. "Let me know if i should adjust it"
 		.. "\n*Notes"
 		.. "\n->\t" .. "Make sure to check the ReadMe before using Auto Infinite" 
 	});
@@ -534,14 +558,18 @@ function Hub:Gui()
 	disclaimerParagraph = Tabs.Battle:AddParagraph({
 		Title = "ReadMe\n",
 		Content = "*Auto Infinite"
-		.. "\n->\t" .. "teleports you once to the NPC"
+		.. "\n->\t" .. "Experimental"
 		.. "\n->\t" .. "only opens dialogue for now"
-		.. "\n->\t" .. "need to be near the NPC"
+		.. "\n->\t" .. "need to stay near the NPC"
 		.. "\n->\t" .. "use macro to start battle or click it yourself"
 	});
 	self.autoInfiniteToggle = Tabs.Battle:AddToggle("AutoInfinite", {
 		Title = "Auto Infinite",
-		Description = "*Experimental" .. "\n->\tCheck the ReadMe",
+		Default = false
+	});
+	self.closeResultScreenToggle = Tabs.Battle:AddToggle("CloseResultScreen", {
+		Title = "Auto Close Result",
+		Description = "->\t" .. "Auto Infinite must be on as well",
 		Default = false
 	});
 	self.autoHideBattleToggle = Tabs.Battle:AddToggle("AutoHideBattle", {
@@ -553,6 +581,11 @@ function Hub:Gui()
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
 			task.wait(1);
 			task.spawn(self.autoInfinite);
+		end;
+	end);
+	self.closeResultScreenToggle:OnChanged(function()
+		if self.closeResultScreenToggle.Value then
+			task.spawn(self.closeResultScreen);
 		end;
 	end);
 	self.autoHideBattleToggle:OnChanged(function()
@@ -664,19 +697,22 @@ function Hub:Gui()
 		Tabs.Tools:AddButton({
 			Title = "Remote Spy",
 			Callback = function()
-				(loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua")))();
+				local remoteSpyLink = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua";
+				(loadstring(game:HttpGet(remoteSpyLink)))();
 			end
 		});
 		Tabs.Tools:AddButton({
 			Title = "Dex",
 			Callback = function()
-				(loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua")))();
+				local dexLink = "https://raw.githubusercontent.com/infyiff/backup/main/dex.lua";
+				(loadstring(game:HttpGet(dexLink)))();
 			end
 		});
 		Tabs.Tools:AddButton({
 			Title = "Infinite Yield",
 			Callback = function()
-				(loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")))();
+				local infiniteYieldLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source";
+				(loadstring(game:HttpGet(infiniteyield)))();
 			end
 		});
 		Tabs.Tools:AddButton({
@@ -802,64 +838,14 @@ if isdeveloper then
 			teleportservice:TeleportToPlaceInstance(placeid, server.id, player);
 		end;
 		self.testFunction1 = function()
-			local player = game:GetService("Players").LocalPlayer
-			local npcDialogue = player.PlayerGui:FindFirstChild("NPCDialogue")
-			if not npcDialogue then
-				warn("NPCDialogue not found")
-				return false
-			end
-			
-			local dialogueFrame = npcDialogue:FindFirstChild("DialogueFrame")
-			if not dialogueFrame then
-				warn("DialogueFrame not found")
-				return false
-			end
-			
-			local responseFrame = dialogueFrame:FindFirstChild("ResponseFrame")
-			if not responseFrame then
-				warn("ResponseFrame not found")
-				return false
-			end
-		
-			while #responseFrame:GetChildren() < 3 do
-				print("Waiting for at least 3 children in ResponseFrame...")
-				responseFrame.ChildAdded:Wait()
-			end
-
-			local button = responseFrame:GetChildren()[2]
-		
-			if button:IsA("ImageButton") then
-				print(tostring(button))
-				print(button.Text.Text)
-				print("Creating and firing signals")
-		
-				local signals = {
-					"MouseButton1Click",
-					"Activated",
-					"MouseButton1Down",
-					"MouseButton1Up",
-					"InputBegan",
-					"InputEnded",
-					"TouchTap"
-				}
-		
-				for _, signal in ipairs(signals) do
-					local success, err = pcall(function()
-						firesignal(button[signal])
-						print("Fired signal: " .. signal)
-					end)
-					
-					if not success then
-						warn("Error during firesignal for " .. signal .. ": " .. tostring(err))
-					end
-				end
-			else
-				warn("Second child is not an ImageButton")
+			local instantroll = playergui:WaitForChild("InstantRoll")
+			local inBattle = stats:WaitForChild("InBattle").Value
+			if not inBattle and instantroll then
+				instantroll:Destroy()
 			end
 		end
 		self.testFunction2 = function()
-			local player = game:GetService("Players").LocalPlayer
-			local npcDialogue = player.PlayerGui.NPCDialogue
+			local npcDialogue = playergui.NPCDialogue
 			
 			if npcDialogue then
 				local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
