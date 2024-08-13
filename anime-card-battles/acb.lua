@@ -71,17 +71,27 @@ local function rejoinGame()
 	teleportservice:Teleport(placeid, player);
 end;
 local devid = {
-	164011583,
-	85087803,
-	1607510152,
-	417954849
+	["MintedAv"] = 164011583,
+	["hari2789"] = 85087803,
+	["aqreement"] = 1607510152,
+	["impeders"] = 35955366,
+	-- ["psuw"] = 417954849,
 };
-local isdeveloper = table.find(devid, playerid) ~= nil;
+local function isDeveloper(userid)
+	for _, id in pairs(devid) do
+		if id == userid then
+			return true
+		end
+		task.wait(0.1);
+	end
+	return nil
+end
+local isdeveloper = isDeveloper(playerid);
 
 --[[
 	Library Variables
 --]]
-local statsParagraph, disclaimerParagraph, codesParagraph, updateLogParagraph, notesParagraph, informationParagraph;
+local statsParagraph, disclaimerParagraph, codesParagraph, updateLogParagraph, extraParagraph, informationParagraph;
 local updatingParagraph = false;
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -201,7 +211,8 @@ local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 local canGoBack = false;
-local tickCount
+local tickCount, uptimeInSeconds, hours, minutes, seconds
+local uptimeText = "00 hours\n00 minutes\n00 seconds";
 
 --[[
 	Hub Functions
@@ -361,7 +372,7 @@ function Hub:Functions()
 			task.wait(0.5);
 		end;
 	end;
-
+	
 	--[[
 		Paragraph Functions
 	--]]
@@ -371,11 +382,11 @@ function Hub:Functions()
 			local totalPotions = potionCount;
 			local timeLeft = swordCooldown;
 
-			local uptimeInSeconds = tick() - tickCount
-			local hours = math.floor(uptimeInSeconds / 3600)
-			local minutes = math.floor((uptimeInSeconds % 3600) / 60)
-			local seconds = uptimeInSeconds % 60
-			local uptimeText = string.format("%02d hours, %02d minutes, %02d seconds", hours, minutes, seconds)
+			uptimeInSeconds = tick() - tickCount
+			hours = math.floor(uptimeInSeconds / 3600)
+			minutes = math.floor((uptimeInSeconds % 3600) / 60)
+			seconds = uptimeInSeconds % 60
+			uptimeText = string.format("%02d hours\n%02d minutes\n%02d seconds", hours, minutes, seconds)
 
 			statsParagraph:SetDesc("Total Potions: " .. totalPotions 
 				.. "\nSword Timer: " .. timeLeft 
@@ -402,7 +413,7 @@ function Hub:Gui()
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
 		TabWidth = 100,
-		Size = UDim2.fromOffset(450, 350),
+		Size = UDim2.fromOffset(430, 320),
 		Acrylic = true,
 		Theme = "Dark",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -412,13 +423,21 @@ function Hub:Gui()
 			Title = "Main",
 			Icon = "home"
 		}),
-		Auto = guiWindow[randomKey]:AddTab({
-			Title = "Auto",
+		Farm = guiWindow[randomKey]:AddTab({
+			Title = "Farn",
 			Icon = "repeat"
+		}),
+		Battle = guiWindow[randomKey]:AddTab({
+			Title = "Battle",
+			Icon = "sword"
 		}),
 		Teleports = guiWindow[randomKey]:AddTab({
 			Title = "Teleports",
 			Icon = "navigation"
+		}),
+		Codes = guiWindow[randomKey]:AddTab({
+			Title = "Codes",
+			Icon = "file-text"
 		}),
 		Misc = guiWindow[randomKey]:AddTab({
 			Title = "Misc",
@@ -447,6 +466,21 @@ function Hub:Gui()
 	--[[
 		Main Tab
 	--]]
+	updateLogParagraph = Tabs.Main:AddParagraph({
+		Title = "Update Log\n",
+		Content = "*Added" 
+		.. "\n->\t" .. "Battle Tab"
+		.. "\n->\t" .. "Codes Tab"
+		-- .. "\n*Removed"
+		-- .. "\n->\t" .. "~"
+		.. "\n*Changed"
+		.. "\n->\t" .. "Made gui window smaller"
+		.. "\n\t->\t" .. "Let me know if i should change it back"
+		.. "\n->\t" .. "Moved Auto Infinite to Battle Tab"
+		.. "\n->\t" .. "Seperated Hide Battle into a seperate toggle"
+		.. "\n*Notes"
+		.. "\n->\t" .. "Make sure to check the ReadMe before using Auto Infinite" 
+	});
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
 		Content = "*Version" 
@@ -454,18 +488,8 @@ function Hub:Gui()
 		.. "\n" .. "*Made By" 
 		.. "\n->\t" .. devs
 	});
-	updateLogParagraph = Tabs.Main:AddParagraph({
-		Title = "Update Log\n",
-		Content = "*Added" 
-		.. "\n->\t" .. "Auto Infinte (Read the ReadMe)"
-		.. "\n->\t" .. "Script Uptime (in Stats)"
-		.. "\n*Removed"
-		.. "\n->\t" .. "Auto Roll (useless)"
-		.. "\n*Changed"
-		.. "\n->\t" .. "~"
-	});
-	notesParagraph = Tabs.Main:AddParagraph({
-		Title = "Notes\n",
+	extraParagraph = Tabs.Main:AddParagraph({
+		Title = "Extra\n",
 		Content = "*Coming Soon"
 		.. "\n->\t" .. "Working on Auto Infinite"
 		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
@@ -475,34 +499,19 @@ function Hub:Gui()
 	--[[
 		Auto Tab
 	--]]
-	statsParagraph = Tabs.Auto:AddParagraph({
+	statsParagraph = Tabs.Farm:AddParagraph({
 		Title = "Stats\n",
-		Content = "Total Potions: " .. potionCount .. "\n" .. "Sword Timer: " .. swordCooldown .. "\n" .. tostring(tickCount)
+		Content = "Total Potions: " .. potionCount 
+		.. "\n" .. "Sword Timer: " .. swordCooldown 
+		.. "\n" .. uptimeText
 	});
-	self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
-		Title = "Auto Infinite (Experimental)",
-		Description = "Scroll down for the ReadMe",
-		Default = false
-	});
-	self.autoHideBattleToggle = Tabs.Auto:AddToggle("AutoHideBattle", {
-		Title = "Auto Hide Battle",
-		Default = false
-	});
-	self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
+	self.autoPotionsToggle = Tabs.Farm:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
 		Default = false
 	});
-	self.autoSwordToggle = Tabs.Auto:AddToggle("AutoSword", {
+	self.autoSwordToggle = Tabs.Farm:AddToggle("AutoSword", {
 		Title = "Auto Sword",
 		Default = false
-	});
-	disclaimerParagraph = Tabs.Auto:AddParagraph({
-		Title = "Read Me\n",
-		Content = "*Auto Infinite"
-		.. "\n->\t" .. "teleports you once to the NPC"
-		.. "\n->\t" .. "only triggers proximity prompt for now"
-		.. "\n->\t" .. "need to be near the NPC"
-		.. "\n->\t" .. "use macro to start battle"
 	});
 	self.autoPotionsToggle:OnChanged(function()
 		autoPotionsActive = self.autoPotionsToggle.Value;
@@ -518,6 +527,27 @@ function Hub:Gui()
 		end;
 		self.updateParagraphStatus();
 	end);
+
+	--[[
+		Battle Tab
+	--]]
+	disclaimerParagraph = Tabs.Battle:AddParagraph({
+		Title = "ReadMe\n",
+		Content = "*Auto Infinite"
+		.. "\n->\t" .. "teleports you once to the NPC"
+		.. "\n->\t" .. "only opens dialogue for now"
+		.. "\n->\t" .. "need to be near the NPC"
+		.. "\n->\t" .. "use macro to start battle or click it yourself"
+	});
+	self.autoInfiniteToggle = Tabs.Battle:AddToggle("AutoInfinite", {
+		Title = "Auto Infinite",
+		Description = "*Experimental" .. "\n->\tCheck the ReadMe",
+		Default = false
+	});
+	self.autoHideBattleToggle = Tabs.Battle:AddToggle("AutoHideBattle", {
+		Title = "Auto Hide Battle",
+		Default = false
+	});
 	self.autoInfiniteToggle:OnChanged(function()
 		if self.autoInfiniteToggle.Value then
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
@@ -581,6 +611,28 @@ function Hub:Gui()
 	});
 
 	--[[
+		Codes Tab
+	--]]
+	Tabs.Codes:AddButton({
+		Title = "Claim All Codes",
+		Callback = function()
+			self.useCodes();
+		end
+	});
+	Tabs.Codes:AddButton({
+		Title = "Copy All Codes",
+		Callback = function()
+			setclipboard(self.reverseCodesCopy());
+		end
+	});
+	codesParagraph = Tabs.Codes:AddParagraph({
+		Title = "Codes\n",
+		Content = "*Disclaimer" 
+		.. "\n->\t" .. "Not all codes are shown, use the copy button" 
+		.. "\n" .. self.reverseCodes()
+	});
+
+	--[[
 		Misc Tab
 	--]]
 	Tabs.Misc:AddButton({
@@ -590,27 +642,10 @@ function Hub:Gui()
 		end
 	});
 	Tabs.Misc:AddButton({
-		Title = "Join Public Server",
+		Title = "Join Random Public Server",
 		Callback = function()
 			self.joinPublicServer();
 		end
-	});
-	Tabs.Misc:AddButton({
-		Title = "Claim All Codes",
-		Callback = function()
-			self.useCodes();
-		end
-	});
-	Tabs.Misc:AddButton({
-		Title = "Copy All Codes",
-		Callback = function()
-			setclipboard(self.reverseCodesCopy());
-		end
-	});
-	codesParagraph = Tabs.Misc:AddParagraph({
-		Title = "Codes\n",
-		Content = "-->\tNot all codes are shown, use the button to copy all codes\n" 
-		.. self.reverseCodes()
 	});
 
 	--[[
