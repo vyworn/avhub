@@ -126,6 +126,7 @@ local codes = {
 	"1MVISITS!",
 	"FOLLOWEXVAR1",
 	"10KLIKES!",
+	"15KLIKES!",
 };
 
 --[[
