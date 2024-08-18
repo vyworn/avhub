@@ -130,6 +130,7 @@ local codes = {
 	"20KLIKES!",
 	"UPDATE2!",
 	"5MVISITS!",
+	"SORRYFORALLTHESHUTDOWNS!",
 };
 
 --[[
@@ -496,7 +497,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.3";
+	local version = "v_0.9.4";
 	local devs = "Av & Hari";
 
 	--[[
