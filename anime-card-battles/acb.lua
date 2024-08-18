@@ -496,7 +496,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.2";
+	local version = "v_0.9.3";
 	local devs = "Av & Hari";
 
 	--[[
@@ -620,6 +620,12 @@ function Hub:Gui()
 		Multi = false,
 		Default = nil
 	});
+	local bossTeleportsDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
+		Title = "Bosses",
+		Values = bossTeleports,
+		Multi = false,
+		Default = nil
+	});
 	local areaTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
 		Title = "Areas",
 		Values = areaTeleports,
@@ -638,6 +644,13 @@ function Hub:Gui()
 		if destination then
 			self.characterTeleport(destination);
 			mobTeleportDropdown:SetValue(nil);
+		end;
+	end);
+	bossTeleportsDropdown:OnChanged(function(Value)
+		local destination = bossTeleportsCoordinates[Value];
+		if destination then
+			self.characterTeleport(destination);
+			bossTeleportsDropdown:SetValue(nil);
 		end;
 	end);
 	areaTeleportDropdown:OnChanged(function(Value)
