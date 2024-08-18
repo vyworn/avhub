@@ -127,6 +127,9 @@ local codes = {
 	"FOLLOWEXVAR1",
 	"10KLIKES!",
 	"15KLIKES!",
+	"20KLIKES!",
+	"UPDATE2!",
+	"5MVISITS!",
 };
 
 --[[
@@ -134,13 +137,11 @@ local codes = {
 --]]
 local otherLocations = {
 	"Sword",
-	"Lucky Spot",
 	"Old Position Sword",
 	"Old Position Infinite"
 };
 local otherCoordinates = {
-	["Sword"] = Vector3.new(-5922.752930, 100.682877,-8288.595703),
-	["Lucky Spot"] = Vector3.new(-5872.769531, 965.790771, -9323.985352),
+	["Sword"] = Vector3.new(-7714.85205078125, 211.64096069335938, -9588.51953125),
 	["Old Position Sword"] = Vector3.new(0, 0, 0),
 	["Old Position Infinite"] = Vector3.new(0, 0, 0)
 };
@@ -149,8 +150,10 @@ local npcTeleports = {
 	"Heaven Tower",
 	"Charm Merchant",
 	"Potion Shop",
-	"Strange Trader",
 	"Card Fusion",
+	"Daily Chest",
+	"Card Index",
+	"Strange Trader",
 	"Card Packs",
 	"Luck Fountain"
 };
@@ -162,28 +165,33 @@ local mobTeleports = {
 	"Limitless",
 	"Substitute Reaper",
 	"Rubber Boy",
-	"Bald Hero"
+	"Bald Hero",
 };
+local bossTeleports = {
+	"Cifer",
+	"King Of Curses",
+	"Shinobi God",
+	"Galactic Tyrant",
+	"Wicked Weaver",
+	"Cosmic Menace"
+}
 local areaTeleports = {
 	"Heavens Arena",
-	"Obby Sword",
+	"Roll Leaderboard",
+	"Card Leaderboard",
 	"Spawn",
-	"Cosmic Menace (Boss)",
-	"Wicked Weaver (Boss)",
-	"Cifer (Boss)",
-	"King Of Curses (Boss)",
-	"Shinobi God (Boss)",
-	"Galactic Tyrant (Boss)"
 };
 local npcTeleportsCoordinates = {
 	["Heaven Infinite"] = Vector3.new(454.615417, 260.529327,5928.994629),
 	["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
-	["Charm Merchant"] = Vector3.new(-5902.000977, 158.624985, -8741.383789),
-	["Potion Shop"] = Vector3.new(-45.672028, 256.645111, 5976.190918),
-	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
+	["Charm Merchant"] = Vector3.new(-7764.36572265625, 179.71200561523438, -9194.859375),
+	["Potion Shop"] = Vector3.new(-7744.11376953125, 180.14158630371094, -9369.5908203125),
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
-	["Card Packs"] = Vector3.new(-6024.296387, 152.574966, -8582.142578),
-	["Luck Fountain"] = Vector3.new(-5971.769043, 156.174988, -8725.775391)
+	["Card Index"] = Vector3.new(-7846.603515625, 180.50991821289062, -9371.1884765625),
+	["Daily Chest"] = Vector3.new(-7785.53173828125, 180.8318634033203, -9339.9423828125),
+	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
+	["Card Packs"] = Vector3.new(-7708.05810546875, 180.46566772460938, -9310.736328125),
+	["Luck Fountain"] = Vector3.new(-7811.5751953125, 180.41331481933594, -9278.078125)
 };
 local mobsTeleportsCoordinates = {
 	["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169, -5141.633789),
@@ -193,18 +201,21 @@ local mobsTeleportsCoordinates = {
 	["Limitless"] = Vector3.new(-12.537902, 272.422241, 5996.07666),
 	["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009, 6714.296875),
 	["Rubber Boy"] = Vector3.new(13150.526367, 84.124977, 11365.570312),
-	["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391)
+	["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391),
 };
-local areaTeleportCoordinates = {
-	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
-	["Obby Sword"] = Vector3.new(-5922.752930, 100.682877,-8288.595703),
-	["Spawn"] = Vector3.new(-5976.900391, 164.149963,-8885.563477),
+local bossTeleportsCoordinates = {
 	["Cosmic Menace (Boss)"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
 	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
 	["Cifer (Boss)"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
 	["King Of Curses (Boss)"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
 	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
-	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
+	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254),
+}
+local areaTeleportCoordinates = {
+	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
+	["Roll Leaderboard"] = Vector3.new(-7920.541015625, 186.38790893554688, -9144.70703125),
+	["Card Leaderboard"] = Vector3.new(-7920.541015625, 186.38800048828125, -9170.8369140625),
+	["Spawn"] = Vector3.new(-7921.300781, 177.836029,-9143.949219),
 };
 
 --[[
@@ -485,7 +496,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.8.9";
+	local version = "v_0.9.2";
 	local devs = "Av & Hari";
 
 	--[[
@@ -493,18 +504,17 @@ function Hub:Gui()
 	--]]
 	updateLogParagraph = Tabs.Main:AddParagraph({
 		Title = "Update Log\n",
-		Content = "*Added" 
-		.. "\n->\t" .. "Battle Tab"
-		.. "\n->\t" .. "Codes Tab"
-		.. "\n->\t" .. "Auto Close Result Screen (For Auto Infinite)"
-		.. "\n->\t" .. "Auto Hide Battle"
+		Content = "*Added"
+		-- .. "\n->\t" .. "~"
+		.. "\n->\t" .. "Added new codes"
+		.. "\n->\t" .. "Added new teleports"
 		-- .. "\n*Removed"
 		-- .. "\n->\t" .. "~"
 		.. "\n*Changed"
-		.. "\n->\t" .. "Changed gui window size"
-		.. "\n\t->\t" .. "Let me know if i should adjust it"
+		-- .. "\n->\t" .. "~"
+		.. "\n->\t" .. "Moved Bosses to seperate dropdown"
 		.. "\n*Notes"
-		.. "\n->\t" .. "Make sure to check the ReadMe before using Auto Infinite" 
+		-- .. "\n->\t" .. "~"
 	});
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "Information\n",
@@ -637,12 +647,6 @@ function Hub:Gui()
 			areaTeleportDropdown:SetValue(nil);
 		end;
 	end);
-	Tabs.Teleports:AddButton({
-		Title = "God Spot",
-		Callback = function()
-			self.characterTeleport(otherCoordinates["Lucky Spot"]);
-		end
-	});
 
 	--[[
 		Codes Tab
