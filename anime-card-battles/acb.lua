@@ -139,12 +139,12 @@ local codes = {
 local otherLocations = {
 	"Sword",
 	"Old Position Sword",
-	"Old Position Infinite"
+	"Old Position"
 };
 local otherCoordinates = {
 	["Sword"] = Vector3.new(-7714.85205078125, 211.64096069335938, -9588.51953125),
 	["Old Position Sword"] = Vector3.new(0, 0, 0),
-	["Old Position Infinite"] = Vector3.new(0, 0, 0)
+	["Old Position Chest"] = Vector3.new(0, 0, 0)
 };
 local npcTeleports = {
 	"Heaven Infinite",
@@ -250,10 +250,10 @@ function Hub:Functions()
 			otherCoordinates["Old Position Sword"] = Vector3.new(position.X, (position.Y + 5), position.Z);
 		end;
 	end;
-	self.getOldPositionInfinite = function()
+	self.getOldPositionChest = function()
 		if character and humanoidRootPart then
 			local position = humanoidRootPart.Position;
-			otherCoordinates["Old Position Infinite"] = Vector3.new(position.X, (position.Y + 5), position.Z);
+			otherCoordinates["Old Position Chest"] = Vector3.new(position.X, (position.Y + 5), position.Z);
 		end;
 	end;
 	self.characterTeleport = function(destination)
@@ -330,7 +330,7 @@ function Hub:Functions()
 			end;
 		end;
 	end;
-	self.grabSword = function()
+	self.claimSword = function()
 		self.getOldPositionSword();
 		local swordProximityPrompt = workspace.ObbySwordPrompt.SwordBlock.ProximityPrompt
 		if swordProximityPrompt then
@@ -339,6 +339,17 @@ function Hub:Functions()
 			fireproximityprompt(swordProximityPrompt);
 			task.wait(0.5);
 			canGoBack = true;
+		end;
+	end;
+	self.claimDailyChest = function()
+		self.getOldPositionChest();
+		local dailyChestProximityPrompt = workspace.DailyChestPrompt.ProximityPrompt
+		if dailyChestProximityPrompt then
+			self.characterTeleport(npcTeleportsCoordinates["Daily Chest"]);
+			task.wait(0.5);
+			fireproximityprompt(dailyChestProximityPrompt);
+			task.wait(0.5);
+			self.characterTeleport(otherCoordinates["Old Position Chest"]);
 		end;
 	end;
 	self.autoInfinite = function()
@@ -400,7 +411,7 @@ function Hub:Functions()
 		while self.autoSwordToggle.Value do
 			local swordObbyCD = swordCooldown;
 			if swordObbyCD == 0 then
-				self.grabSword();
+				self.claimSword();
 				if canGoBack then
 					self.characterTeleport(otherCoordinates["Old Position Sword"]);
 					canGoBack = false;
@@ -497,7 +508,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.4";
+	local version = "v_0.9.5";
 	local devs = "Av & Hari";
 
 	--[[
@@ -548,6 +559,12 @@ function Hub:Gui()
 	self.autoSwordToggle = Tabs.Farm:AddToggle("AutoSword", {
 		Title = "Auto Sword",
 		Default = false
+	});
+	self.claimChestButton = Tabs.Farm:AddButton({
+		Title = "Claim Daily Chest",
+		Callback = function()
+			task.spawn(self.claimDailyChest);
+		end
 	});
 	self.autoPotionsToggle:OnChanged(function()
 		autoPotionsActive = self.autoPotionsToggle.Value;
@@ -665,13 +682,13 @@ function Hub:Gui()
 	--[[
 		Codes Tab
 	--]]
-	Tabs.Codes:AddButton({
+	self.claimCodesButton = Tabs.Codes:AddButton({
 		Title = "Claim All Codes",
 		Callback = function()
 			self.useCodes();
 		end
 	});
-	Tabs.Codes:AddButton({
+	self.copyCodesButton = Tabs.Codes:AddButton({
 		Title = "Copy All Codes",
 		Callback = function()
 			setclipboard(self.reverseCodesCopy());
@@ -688,13 +705,13 @@ function Hub:Gui()
 	--[[
 		Misc Tab
 	--]]
-	Tabs.Misc:AddButton({
+	self.miscRejoinGameButton = Tabs.Misc:AddButton({
 		Title = "Rejoin game",
 		Callback = function()
 			rejoinGame();
 		end
 	});
-	Tabs.Misc:AddButton({
+	self.miscJoinRandomServerButton = Tabs.Misc:AddButton({
 		Title = "Join Random Public Server",
 		Callback = function()
 			self.joinPublicServer();
@@ -713,70 +730,70 @@ function Hub:Gui()
 		--[[
 			Developer Tab
 		--]]
-		Tabs.Tools:AddButton({
+		self.toolsRemoteSpyButton = Tabs.Tools:AddButton({
 			Title = "Remote Spy",
 			Callback = function()
 				local remoteSpyLink = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua";
 				(loadstring(game:HttpGet(remoteSpyLink)))();
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsDexButton = Tabs.Tools:AddButton({
 			Title = "Dex",
 			Callback = function()
 				local dexLink = "https://raw.githubusercontent.com/infyiff/backup/main/dex.lua";
 				(loadstring(game:HttpGet(dexLink)))();
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsInfiniteYieldButton = Tabs.Tools:AddButton({
 			Title = "Infinite Yield",
 			Callback = function()
 				local infiniteYieldLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source";
 				(loadstring(game:HttpGet(infiniteYieldLink)))();
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsJoinPublicServerButton = Tabs.Tools:AddButton({
 			Title = "Join Public Server",
 			Callback = function()
 				task.spawn(self.joinPublicServer);
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsRejoinGameButton = Tabs.Tools:AddButton({
 			Title = "Rejoin Game",
 			Callback = function()
 				rejoinGame();
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsGetPositionButton = Tabs.Tools:AddButton({
 			Title = "Get Position",
 			Callback = function()
 				task.spawn(self.getPosition);
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsTeleportToPositionButton = Tabs.Tools:AddButton({
 			Title = "Teleport to Logged Position",
 			Callback = function()
 				task.spawn(self.teleportToLoggedPosition);
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsCopyPlayerIdButton = Tabs.Tools:AddButton({
 			Title = "Copy Player Id",
 			Callback = function()
 				setclipboard(tostring(playerid));
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsCopyPlaceIdButton = Tabs.Tools:AddButton({
 			Title = "Copy Place Id",
 			Callback = function()
 				setclipboard(tostring(placeid));
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsCopyJobIdButton = Tabs.Tools:AddButton({
 			Title = "Copy Job Id",
 			Callback = function()
 				setclipboard(tostring(jobid));
 			end
 		});
-		Tabs.Tools:AddButton({
+		self.toolsCopyCreatorIdButton = Tabs.Tools:AddButton({
 			Title = "Copy Creator Id",
 			Callback = function()
 				setclipboard(tostring(creatorid));
@@ -788,7 +805,7 @@ function Hub:Gui()
 			Content = infodata
 		});
 		local testdesc1 = "Fire signal on 'Yes please!' option";
-		Tabs.Test:AddButton({
+		self.toolsTestFunctionButton1 = Tabs.Test:AddButton({
 			Title = "Test Function 1",
 			Description = "Current Function:\n" .. testdesc1,
 			Callback = function()
@@ -796,7 +813,7 @@ function Hub:Gui()
 			end
 		});
 		local testdesc2 = "Iterate through ResponseFrame children";
-		Tabs.Test:AddButton({
+		self.toolsTestFunctionButton2 = Tabs.Test:AddButton({
 			Title = "Test Function 2",
 			Description = "Current Function:\n" .. testdesc2,
 			Callback = function()
