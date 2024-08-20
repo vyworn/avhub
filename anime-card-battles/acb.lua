@@ -422,12 +422,10 @@ function Hub:Functions()
 	end	
 	self.autoHideBattle = function()
 		local hideBattle = stats:WaitForChild("HideBattle")
-		while self.autoHideBattleToggle.Value do
-			if hideBattle then
-				hideBattle.Value = true
-			end
-			task.wait(1)
-		end;
+		if hideBattle then
+			hideBattle.Value = self.autoHideBattleToggle.Value
+		end
+		task.wait(1)
 	end;
 	
 	--[[
@@ -548,7 +546,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.1";
+	local version = "v_1.0.2";
 	local devs = "Av & Hari";
 
 	--[[
@@ -631,6 +629,7 @@ function Hub:Gui()
 	});
 	self.autoHideBattleToggle = Tabs.Battle:AddToggle("AutoHideBattle", {
 		Title = "Auto Hide Battle",
+		Description = "Toggles Hide Battle",
 		Default = false
 	});
 	self.autoInfiniteToggle:OnChanged(function()
