@@ -356,15 +356,16 @@ function Hub:Functions()
 	end;
 	self.autoInfinite = function()
 		while self.autoInfiniteToggle.Value do
-			local function isSwordGrabComplete()
-				return grabbedSword
-			end
 			repeat
 				task.wait(0.1)
-			until isSwordGrabComplete()
+			until grabbedSword == true
+			repeat 
+				inBattle = stats:WaitForChild("InBattle")
+				task.wait(0.1)
+			until inBattle == false
 			task.wait(0.1)
-			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 
+			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame
 	
@@ -389,8 +390,6 @@ function Hub:Functions()
 			virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 			task.wait(0.1)
 			virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-			task.wait(0.1)
-	
 			guiservice.SelectedObject = nil
 			task.wait(0.1)
 		end
@@ -440,7 +439,7 @@ function Hub:Functions()
 	self.autoSwordLoop = function()
 		while self.autoSwordToggle.Value do
 			local swordObbyCD = swordCooldown;
-			if swordObbyCD == 0 then
+			if swordObbyCD == 0 and grabbedSword == true then
 				grabbedSword = false;
 				self.claimSword();
 				if canGoBack then
@@ -545,7 +544,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.9";
+	local version = "v_1.0.0";
 	local devs = "Av & Hari";
 
 	--[[
