@@ -20,4 +20,4 @@ jobs:
         title: 'Automated Pull Request'
         body: 'This pull request was automatically created by a GitHub Actions workflow.'
         base: main
-        head: update
+        branch: update
