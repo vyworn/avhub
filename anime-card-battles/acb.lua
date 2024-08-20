@@ -75,11 +75,11 @@ local function rejoinGame()
 	teleportservice:Teleport(placeid, player);
 end;
 local devid = {
-	["MintedAv"] = 164011583,
-	["hari2789"] = 85087803,
-	["aqreement"] = 1607510152,
-	["impeders"] = 35955366,
+	-- ["MintedAv"] = 164011583,
 	["psuw"] = 417954849,
+	["impeders"] = 35955366,
+	["aqreement"] = 1607510152,
+	["hari2789"] = 85087803,
 };
 local function isDeveloper(userid)
 	for _, id in pairs(devid) do
@@ -90,8 +90,7 @@ local function isDeveloper(userid)
 	end
 	return nil
 end
-local isdeveloper = false;
--- local isdeveloper = isDeveloper(playerid);
+local isdeveloper = isDeveloper(playerid);
 
 --[[
 	Library Variables
@@ -365,7 +364,7 @@ function Hub:Functions()
 			until isSwordGrabComplete()
 			task.wait(0.1)
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-			
+
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame
 	
@@ -446,8 +445,10 @@ function Hub:Functions()
 				if canGoBack then
 					self.characterTeleport(otherCoordinates["Old Position Sword"]);
 					canGoBack = false;
-					grabbedSword = true;
+					
 				end;
+			else
+				grabbedSword = true;
 			end;
 			task.wait(0.25);
 		end;
@@ -544,7 +545,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.7";
+	local version = "v_0.9.8";
 	local devs = "Av & Hari";
 
 	--[[
