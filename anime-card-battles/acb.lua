@@ -441,13 +441,13 @@ function Hub:Functions()
 		while self.autoSwordToggle.Value do
 			local swordObbyCD = swordCooldown;
 			if swordObbyCD == 0 then
+				grabbedSword = false;
 				self.claimSword();
 				if canGoBack then
 					self.characterTeleport(otherCoordinates["Old Position Sword"]);
 					canGoBack = false;
-					
 				end;
-			else
+			elseif swordObbyCD > 0 and grabbedSword == false then
 				grabbedSword = true;
 			end;
 			task.wait(0.25);
@@ -545,7 +545,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.8";
+	local version = "v_0.9.9";
 	local devs = "Av & Hari";
 
 	--[[
