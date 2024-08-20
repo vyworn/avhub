@@ -344,13 +344,13 @@ function Hub:Functions()
 	self.claimDailyChest = function()
 		self.getOldPositionChest();
 		local dailyChestProximityPrompt = workspace.DailyChestPrompt.ProximityPrompt
+		self.characterTeleport(npcTeleportsCoordinates["Daily Chest"]);
+		task.wait(0.5);
 		if dailyChestProximityPrompt then
-			self.characterTeleport(npcTeleportsCoordinates["Daily Chest"]);
-			task.wait(0.5);
 			fireproximityprompt(dailyChestProximityPrompt);
 			task.wait(0.5);
-			self.characterTeleport(otherCoordinates["Old Position Chest"]);
-		end;
+		end
+		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
 	self.autoInfinite = function()
 		local davidNPC, davidHRP, davidProximityPrompt, inBattle
@@ -508,7 +508,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.5";
+	local version = "v_0.9.6";
 	local devs = "Av & Hari";
 
 	--[[
