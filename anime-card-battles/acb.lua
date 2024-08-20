@@ -95,7 +95,7 @@ local isdeveloper = isDeveloper(playerid);
 --[[
 	Library Variables
 --]]
-local statsParagraph, codesParagraph, updateLogParagraph, extraParagraph, informationParagraph;
+local updateLogParagraph, extraParagraph, informationParagraph, statsParagraph, disclaimerParagraph, codesParagraph
 local updatingParagraph = false;
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -367,9 +367,8 @@ function Hub:Functions()
 		end
 
 		while self.autoInfiniteToggle.Value do
-			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
-			local npcDialogue, dialogueFrame, responseFrame
-	
+			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption, inBattle
+			local npcDialogue, dialogueFrame, responseFrame	
 			repeat
 				davidNPC = gamenpcs:WaitForChild("David")
 				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
@@ -386,17 +385,20 @@ function Hub:Functions()
 			repeat
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-				dialogueOption = responseFrame:FindFirstChild("DialogueOption")
+				dialogueOption = responseFrame:WaitForChild("DialogueOption")
 				guiservice.SelectedObject = dialogueOption
 				task.wait(0.1)
 			until guiservice.SelectedObject == dialogueOption
 	
-			virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+			if dialogueOption then
+				guiservice.SelectedObject = dialogueOption
+				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+				task.wait(0.1)
+				virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+			end
 			task.wait(0.1)
-			virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-			task.wait(0.5)
 			guiservice.SelectedObject = nil
-			task.wait(0.1)
+			task.wait(0.5)
 		end
 	end
 	self.closeResultScreen = function()
@@ -548,7 +550,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.3";
+	local version = "v_1.0.4";
 	local devs = "Av & Hari";
 
 	--[[
@@ -578,6 +580,7 @@ function Hub:Gui()
 		Title = "Extra\n",
 		Content = "*Upcoming"
 		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
+		.. "\n->\t" .. "Working on Webhooks"
 	});
 
 	--[[
@@ -591,14 +594,17 @@ function Hub:Gui()
 	});
 	self.autoPotionsToggle = Tabs.Farm:AddToggle("AutoPotions", {
 		Title = "Auto Potions",
+		Description = "Auto Grabs Potions",
 		Default = false
 	});
 	self.autoSwordToggle = Tabs.Farm:AddToggle("AutoSword", {
 		Title = "Auto Sword",
+		Description = "Auto Claims Sword",
 		Default = false
 	});
 	self.claimChestButton = Tabs.Farm:AddButton({
 		Title = "Claim Daily Chest",
+		Description = "Claims Daily Chest",
 		Callback = function()
 			task.spawn(self.claimDailyChest);
 		end
@@ -623,15 +629,17 @@ function Hub:Gui()
 	--]]
 	self.autoInfiniteToggle = Tabs.Battle:AddToggle("AutoInfinite", {
 		Title = "Auto Infinite",
+		Description = "Auto Starts Infinite",
 		Default = false
 	});
 	self.closeResultScreenToggle = Tabs.Battle:AddToggle("CloseResultScreen", {
 		Title = "Auto Close Result",
+		Description = "Auto Closes Result Screen",
 		Default = false
 	});
 	self.autoHideBattleToggle = Tabs.Battle:AddToggle("AutoHideBattle", {
 		Title = "Auto Hide Battle",
-		Description = "Toggles Hide Battle",
+		Description = "Auto Hides Battle",
 		Default = false
 	});
 	self.autoInfiniteToggle:OnChanged(function()
@@ -655,24 +663,28 @@ function Hub:Gui()
 	--]]
 	local npcTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
 		Title = "Npcs",
+		Description = "Teleports to Npcs",
 		Values = npcTeleports,
 		Multi = false,
 		Default = nil
 	});
 	local mobTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
 		Title = "Repeatable Bosses",
+		Description = "Teleports to Repeatable Bosses",
 		Values = mobTeleports,
 		Multi = false,
 		Default = nil
 	});
 	local bossTeleportsDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
 		Title = "Bosses",
+		Description = "Teleports to Bosses",
 		Values = bossTeleports,
 		Multi = false,
 		Default = nil
 	});
 	local areaTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
 		Title = "Areas",
+		Description = "Teleports to Areas",
 		Values = areaTeleports,
 		Multi = false,
 		Default = nil
@@ -709,24 +721,29 @@ function Hub:Gui()
 	--[[
 		Codes Tab
 	--]]
+	disclaimerParagraph = Tabs.Codes:AddParagraph({
+		Title = "Disclaimer\n",
+		Content = "*Disclaimer" 
+		.. "\n->\t" .. "Not all codes are shown, use the copy button" 
+		.. "\n->\t" .. "Top code is the newest"
+	});
 	self.claimCodesButton = Tabs.Codes:AddButton({
 		Title = "Claim All Codes",
+		Description = "Claims all codes",
 		Callback = function()
 			self.useCodes();
 		end
 	});
 	self.copyCodesButton = Tabs.Codes:AddButton({
 		Title = "Copy All Codes",
+		Description = "Copies all codes",
 		Callback = function()
 			setclipboard(self.reverseCodesCopy());
 		end
 	});
 	codesParagraph = Tabs.Codes:AddParagraph({
-		Title = "Codes\n",
-		Content = "*Disclaimer" 
-		.. "\n->\t" .. "Not all codes are shown, use the copy button" 
-		.. "\n->\t" .. "Top code is the newest"
-		.. "\n" .. self.reverseCodes()
+		Title = "All Codes\n",
+		Content = self.reverseCodes()
 	});
 
 	--[[
@@ -734,12 +751,14 @@ function Hub:Gui()
 	--]]
 	self.miscRejoinGameButton = Tabs.Misc:AddButton({
 		Title = "Rejoin game",
+		Description = "Rejoins the game",
 		Callback = function()
 			rejoinGame();
 		end
 	});
 	self.miscJoinRandomServerButton = Tabs.Misc:AddButton({
-		Title = "Join Random Public Server",
+		Title = "Join Random Server",
+		Description = "Joins a random public server",
 		Callback = function()
 			self.joinPublicServer();
 		end
@@ -946,5 +965,5 @@ Hub:Functions();
 Hub:Gui();
 antiAfk();
 tickCount = tick();
-task.wait(1)
+task.wait(2)
 SaveManager:LoadAutoloadConfig()
