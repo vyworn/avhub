@@ -223,7 +223,7 @@ local areaTeleportCoordinates = {
 --[[
 	Variables
 --]]
-local swordCooldown = stats:WaitForChild("SwordObbyCD").Value;
+local swordCooldown = stats:FindFirstChild("SwordObbyCD").Value;
 local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
@@ -345,27 +345,28 @@ function Hub:Functions()
 	end;
 	self.claimDailyChest = function()
 		self.getOldPositionChest();
-		local dailyChestProximityPrompt = workspace.DailyChestPrompt.ProximityPrompt
+		task.wait(0.1)
 		self.characterTeleport(npcTeleportsCoordinates["Daily Chest"]);
-		task.wait(0.5);
-		if dailyChestProximityPrompt then
+		task.wait(0.4)
+		local dailyChest = workspace.DailyChestPrompt
+		if dailyChest then
+			local dailyChestProximityPrompt = dailyChest.ProximityPrompt
 			fireproximityprompt(dailyChestProximityPrompt);
-			task.wait(0.5);
 		end
+		task.wait(0.5);
 		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
 	self.autoInfinite = function()
-		repeat
-			task.wait(0.1)
-		until grabbedSword == true
-		self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-		
-		while self.autoInfiniteToggle.Value do
-			repeat 
-				local inBattle = stats:WaitForChild("InBattle").Value
+		if grabbedSword then
+			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+		else
+			repeat
 				task.wait(0.1)
-			until inBattle == false
+			until grabbedSword == true
+			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+		end
 
+		while self.autoInfiniteToggle.Value do
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame
 	
@@ -373,12 +374,13 @@ function Hub:Functions()
 				davidNPC = gamenpcs:WaitForChild("David")
 				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
 				task.wait(0.1)
-			until davidHRP and davidHRP:FindFirstChild("ProximityPrompt")
-	
+			until davidHRP
+
 			repeat 
 				davidProximityPrompt = davidHRP.ProximityPrompt
 				fireproximityprompt(davidProximityPrompt)
-				npcDialogue = playergui:WaitForChild("NPCDialogue")
+				npcDialogue = playergui:FindFirstChild("NPCDialogue")
+				task.wait(0.1)
 			until npcDialogue
 
 			repeat
@@ -401,11 +403,11 @@ function Hub:Functions()
 		local davidNPC, davidHRP, inBattle
 		local function getDavidHRP()
 			davidNPC = gamenpcs:WaitForChild("David")
-			return davidNPC:WaitForChild("HumanoidRootPart")
+			return davidNPC:FindFirstChild("HumanoidRootPart")
 		end
 		davidHRP = getDavidHRP()
 		while self.closeResultScreenToggle.Value do
-			inBattle = stats:WaitForChild("InBattle")
+			inBattle = stats:FindFirstChild("InBattle")
 			repeat
 				task.wait(0.25)
 			until not inBattle.Value
@@ -421,11 +423,11 @@ function Hub:Functions()
 		end
 	end	
 	self.autoHideBattle = function()
-		local hideBattle = stats:WaitForChild("HideBattle")
-		if hideBattle then
-			hideBattle.Value = self.autoHideBattleToggle.Value
+		local hideBattle = stats:FindFirstChild("HideBattle")
+		while self.autoHideBattleToggle.Value do
+			hideBattle.Value = true
+			task.wait(1)
 		end
-		task.wait(1)
 	end;
 	
 	--[[
@@ -460,7 +462,7 @@ function Hub:Functions()
 	--]]
 	self.updateParagraph = function()
 		while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
-			swordCooldown = (stats:WaitForChild("SwordObbyCD")).Value;
+			swordCooldown = (stats:FindFirstChild("SwordObbyCD")).Value;
 			local totalPotions = potionCount;
 			local timeLeft = swordCooldown;
 
@@ -546,7 +548,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.2";
+	local version = "v_1.0.3";
 	local devs = "Av & Hari";
 
 	--[[
@@ -909,7 +911,7 @@ if isdeveloper then
 		end;
 		self.testFunction1 = function()
 			local instantroll = playergui:WaitForChild("InstantRoll")
-			local inBattle = stats:WaitForChild("InBattle").Value
+			local inBattle = stats:FindFirstChild("InBattle").Value
 			if not inBattle and instantroll then
 				instantroll:Destroy()
 			end
@@ -944,4 +946,5 @@ Hub:Functions();
 Hub:Gui();
 antiAfk();
 tickCount = tick();
+task.wait(2)
 SaveManager:LoadAutoloadConfig()
