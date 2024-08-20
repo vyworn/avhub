@@ -946,5 +946,5 @@ Hub:Functions();
 Hub:Gui();
 antiAfk();
 tickCount = tick();
-task.wait(2)
+task.wait(1)
 SaveManager:LoadAutoloadConfig()
