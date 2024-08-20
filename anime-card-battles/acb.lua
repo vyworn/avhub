@@ -355,17 +355,17 @@ function Hub:Functions()
 		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
 	self.autoInfinite = function()
+		repeat
+			task.wait(0.1)
+		until grabbedSword == true
+		self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+		
 		while self.autoInfiniteToggle.Value do
-			repeat
-				task.wait(0.1)
-			until grabbedSword == true
 			repeat 
-				inBattle = stats:WaitForChild("InBattle")
+				local inBattle = stats:WaitForChild("InBattle").Value
 				task.wait(0.1)
 			until inBattle == false
-			task.wait(0.1)
 
-			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame
 	
@@ -375,11 +375,13 @@ function Hub:Functions()
 				task.wait(0.1)
 			until davidHRP and davidHRP:FindFirstChild("ProximityPrompt")
 	
-			davidProximityPrompt = davidHRP.ProximityPrompt
-			fireproximityprompt(davidProximityPrompt)
-	
-			repeat
+			repeat 
+				davidProximityPrompt = davidHRP.ProximityPrompt
+				fireproximityprompt(davidProximityPrompt)
 				npcDialogue = playergui:WaitForChild("NPCDialogue")
+			until npcDialogue
+
+			repeat
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
 				dialogueOption = responseFrame:FindFirstChild("DialogueOption")
@@ -390,6 +392,7 @@ function Hub:Functions()
 			virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 			task.wait(0.1)
 			virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+			task.wait(0.5)
 			guiservice.SelectedObject = nil
 			task.wait(0.1)
 		end
@@ -439,9 +442,10 @@ function Hub:Functions()
 	self.autoSwordLoop = function()
 		while self.autoSwordToggle.Value do
 			local swordObbyCD = swordCooldown;
-			if swordObbyCD == 0 and grabbedSword == true then
+			if swordObbyCD == 0 then
 				grabbedSword = false;
 				self.claimSword();
+				grabbedSword = true;
 				if canGoBack then
 					self.characterTeleport(otherCoordinates["Old Position Sword"]);
 					canGoBack = false;
@@ -544,7 +548,7 @@ function Hub:Gui()
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.0";
+	local version = "v_1.0.1";
 	local devs = "Av & Hari";
 
 	--[[
