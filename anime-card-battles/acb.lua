@@ -5,39 +5,39 @@ if not game:IsLoaded() then
 	game.Loaded:Wait();
 end;
 local waitplayer = game.Players.LocalPlayer;
-if waitplayer.Character then
-	local waithrp = waitplayer.Character:WaitForChild("HumanoidRootPart");
-else
-    waitplayer.CharacterAdded:Wait()
-    local waithrp = waitplayer.Character:WaitForChild("HumanoidRootPart")
-end
+local character = waitplayer.Character or waitplayer.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 --[[
 	Roblox Services & Variables
 --]]
-local workspace = game:GetService("Workspace");
-local player = game.Players.LocalPlayer;
-local placeid = game.PlaceId;
-local playerid = player.UserId;
-local character = player.Character;
-local username = player.Name;
-local displayname = player.DisplayName;
-local playerage = player.AccountAge;
-local creatorid = game.CreatorId;
-local creatortype = game.CreatorType;
-local jobid = game.JobId;
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart");
-local virtualinput = game:GetService("VirtualInputManager");
-local virtualuser = game:GetService("VirtualUser");
-local userinputservice = game:GetService("UserInputService");
-local replicatedstorage = game:GetService("ReplicatedStorage");
-local remotes = replicatedstorage:WaitForChild("Remotes");
-local teleportservice = game:GetService("TeleportService");
-local textchatservice = game:GetService("TextChatService");
-local textchannel = textchatservice.TextChannels:WaitForChild("RBXGeneral");
-local api = "https://games.roblox.com/v1/games/";
-local http = game:GetService("HttpService");
-local proximitypromptservice = game:GetService("ProximityPromptService");
+local workspace = game:GetService("Workspace")
+local players = game:GetService("Players")
+local virtualinput = game:GetService("VirtualInputManager")
+local virtualuser = game:GetService("VirtualUser")
+local guiservice = game:GetService("GuiService")
+local userinputservice = game:GetService("UserInputService")
+local replicatedstorage = game:GetService("ReplicatedStorage")
+local remotes = replicatedstorage:WaitForChild("Remotes")
+local teleportservice = game:GetService("TeleportService")
+local textchatservice = game:GetService("TextChatService")
+local textchannel = textchatservice.TextChannels:WaitForChild("RBXGeneral")
+local http = game:GetService("HttpService")
+local proximitypromptservice = game:GetService("ProximityPromptService")
+
+local player = players.LocalPlayer
+local playerid = player.UserId
+local character = player.Character
+local username = player.Name
+local displayname = player.DisplayName
+local playerage = player.AccountAge
+
+local placeid = game.PlaceId
+local creatorid = game.CreatorId
+local creatortype = game.CreatorType
+local jobid = game.JobId
+local api = "https://games.roblox.com/v1/games/"
+
 local stats = player:WaitForChild("Stats")
 local playergui = player:WaitForChild("PlayerGui")
 local gamenpcs = workspace:WaitForChild("NPCs")
@@ -47,6 +47,7 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 --]]
 local Fluent = (loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua")))();
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
+local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
 
 --[[
 	Helper Functions
@@ -89,12 +90,13 @@ local function isDeveloper(userid)
 	end
 	return nil
 end
-local isdeveloper = isDeveloper(playerid);
+local isdeveloper = false;
+-- local isdeveloper = isDeveloper(playerid);
 
 --[[
 	Library Variables
 --]]
-local statsParagraph, disclaimerParagraph, codesParagraph, updateLogParagraph, extraParagraph, informationParagraph;
+local statsParagraph, codesParagraph, updateLogParagraph, extraParagraph, informationParagraph;
 local updatingParagraph = false;
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -227,6 +229,7 @@ local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
 local canGoBack = false;
+local grabbedSword = false;
 local tickCount, uptimeInSeconds, hours, minutes, seconds
 local uptimeText = "00 hours\n00 minutes\n00 seconds";
 
@@ -353,18 +356,46 @@ function Hub:Functions()
 		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
 	self.autoInfinite = function()
-		local davidNPC, davidHRP, davidProximityPrompt, inBattle
 		while self.autoInfiniteToggle.Value do
-			repeat 
-				davidNPC = gamenpcs:WaitForChild("David");
-				davidHRP = davidNPC:WaitForChild("HumanoidRootPart")
-				davidProximityPrompt = davidHRP.ProximityPrompt
-				task.wait(0.25)
-			until davidProximityPrompt
-			fireproximityprompt(davidProximityPrompt);
-			task.wait(0.25)
-		end;
-	end;
+			local function isSwordGrabComplete()
+				return grabbedSword
+			end
+			repeat
+				task.wait(0.1)
+			until isSwordGrabComplete()
+			task.wait(0.1)
+			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+			
+			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
+			local npcDialogue, dialogueFrame, responseFrame
+	
+			repeat
+				davidNPC = gamenpcs:WaitForChild("David")
+				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
+				task.wait(0.1)
+			until davidHRP and davidHRP:FindFirstChild("ProximityPrompt")
+	
+			davidProximityPrompt = davidHRP.ProximityPrompt
+			fireproximityprompt(davidProximityPrompt)
+	
+			repeat
+				npcDialogue = playergui:WaitForChild("NPCDialogue")
+				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+				dialogueOption = responseFrame:FindFirstChild("DialogueOption")
+				guiservice.SelectedObject = dialogueOption
+				task.wait(0.1)
+			until guiservice.SelectedObject == dialogueOption
+	
+			virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+			task.wait(0.1)
+			virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+			task.wait(0.1)
+	
+			guiservice.SelectedObject = nil
+			task.wait(0.1)
+		end
+	end
 	self.closeResultScreen = function()
 		local davidNPC, davidHRP, inBattle
 		local function getDavidHRP()
@@ -372,7 +403,7 @@ function Hub:Functions()
 			return davidNPC:WaitForChild("HumanoidRootPart")
 		end
 		davidHRP = getDavidHRP()
-		while self.closeResultScreenToggle.Value and self.autoInfiniteToggle.Value do
+		while self.closeResultScreenToggle.Value do
 			inBattle = stats:WaitForChild("InBattle")
 			repeat
 				task.wait(0.25)
@@ -415,6 +446,7 @@ function Hub:Functions()
 				if canGoBack then
 					self.characterTeleport(otherCoordinates["Old Position Sword"]);
 					canGoBack = false;
+					grabbedSword = true;
 				end;
 			end;
 			task.wait(0.25);
@@ -502,13 +534,17 @@ function Hub:Gui()
 			Icon = "code"
 		});
 	end
-	Tabs.Settings = guiWindow[randomKey]:AddTab({
-		Title = "Settings",
-		Icon = "settings"
+	Tabs.Interface = guiWindow[randomKey]:AddTab({
+		Title = "Interface",
+		Icon = "paintbrush"
+	})
+	Tabs.Configs = guiWindow[randomKey]:AddTab({
+		Title = "Configs",
+		Icon = "save"
 	})
 	
 	local Options = Fluent.Options;
-	local version = "v_0.9.6";
+	local version = "v_0.9.7";
 	local devs = "Av & Hari";
 
 	--[[
@@ -518,14 +554,13 @@ function Hub:Gui()
 		Title = "Update Log\n",
 		Content = "*Added"
 		-- .. "\n->\t" .. "~"
-		.. "\n->\t" .. "Added new codes"
-		.. "\n->\t" .. "Added new teleports"
+		.. "\n->\t" .. "Auto Infinite fully working!!"
+		.. "\n->\t" .. "Added Configs"
 		-- .. "\n*Removed"
 		-- .. "\n->\t" .. "~"
-		.. "\n*Changed"
+		-- .. "\n*Changed"
 		-- .. "\n->\t" .. "~"
-		.. "\n->\t" .. "Moved Bosses to seperate dropdown"
-		.. "\n*Notes"
+		-- .. "\n*Notes"
 		-- .. "\n->\t" .. "~"
 	});
 	informationParagraph = Tabs.Main:AddParagraph({
@@ -537,10 +572,8 @@ function Hub:Gui()
 	});
 	extraParagraph = Tabs.Main:AddParagraph({
 		Title = "Extra\n",
-		Content = "*Coming Soon"
-		.. "\n->\t" .. "Working on Auto Infinite"
+		Content = "*Upcoming"
 		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
-		.. "\n->\t" .. "Working on Configs"
 	});
 
 	--[[
@@ -584,21 +617,12 @@ function Hub:Gui()
 	--[[
 		Battle Tab
 	--]]
-	disclaimerParagraph = Tabs.Battle:AddParagraph({
-		Title = "ReadMe\n",
-		Content = "*Auto Infinite"
-		.. "\n->\t" .. "Experimental"
-		.. "\n->\t" .. "only opens dialogue for now"
-		.. "\n->\t" .. "need to stay near the NPC"
-		.. "\n->\t" .. "use macro to start battle or click it yourself"
-	});
 	self.autoInfiniteToggle = Tabs.Battle:AddToggle("AutoInfinite", {
 		Title = "Auto Infinite",
 		Default = false
 	});
 	self.closeResultScreenToggle = Tabs.Battle:AddToggle("CloseResultScreen", {
 		Title = "Auto Close Result",
-		Description = "->\t" .. "Auto Infinite must be on as well",
 		Default = false
 	});
 	self.autoHideBattleToggle = Tabs.Battle:AddToggle("AutoHideBattle", {
@@ -607,8 +631,6 @@ function Hub:Gui()
 	});
 	self.autoInfiniteToggle:OnChanged(function()
 		if self.autoInfiniteToggle.Value then
-			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"]);
-			task.wait(1);
 			task.spawn(self.autoInfinite);
 		end;
 	end);
@@ -719,11 +741,20 @@ function Hub:Gui()
 	});
 
 	--[[
-		Settings Tab
+		Interface Tab
 	--]]
 	InterfaceManager:SetLibrary(Fluent);
 	InterfaceManager:SetFolder("UK1");
-	InterfaceManager:BuildInterfaceSection(Tabs.Settings);
+	InterfaceManager:BuildInterfaceSection(Tabs.Interface);
+
+	--[[
+		Configs Tab
+	--]]
+	SaveManager:SetLibrary(Fluent);
+	SaveManager:IgnoreThemeSettings()
+	SaveManager:SetFolder("UK1/acb");
+	SaveManager:BuildConfigSection(Tabs.Configs);
+	
 	guiWindow[randomKey]:SelectTab(1);
 
 	if isdeveloper then
@@ -910,3 +941,4 @@ Hub:Functions();
 Hub:Gui();
 antiAfk();
 tickCount = tick();
+SaveManager:LoadAutoloadConfig()
