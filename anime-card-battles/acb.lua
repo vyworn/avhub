@@ -358,16 +358,12 @@ function Hub:Functions()
 		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
 	self.autoRanked = function()
-		-- if self.autoInfinite.Toggle.Value then
-		-- 	repeat 
-		-- 		if not self.autoRankedToggle.Value then return end
-		-- 		task.wait(0.1)
-		-- 	until inBattle == true
-		-- end
 		while self.autoRankedToggle.Value do
 			local rankedRemote = remotes:FindFirstChild("RankedMenuEvents");
-			rankedRemote:FireServer("Queue");
-			task.wait(0.1)	
+			local success, result = pcall(function()
+				return rankedRemote:FireServer("Queue");
+			end);
+			task.wait(1)	
 		end
 	end;
 	self.autoInfinite = function()
@@ -384,7 +380,6 @@ function Hub:Functions()
 		else
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 		end
-
 		while self.autoInfiniteToggle.Value do
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame	
@@ -564,7 +559,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.1.0";
+	local version = "v_1.1.1";
 	local devs = "Av & Hari";
 
 	--[[
