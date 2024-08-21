@@ -224,6 +224,7 @@ local areaTeleportCoordinates = {
 	Variables
 --]]
 local swordCooldown = stats:FindFirstChild("SwordObbyCD").Value;
+local inBattle = stats:FindFirstChild("InBattle").Value;
 local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
@@ -357,6 +358,12 @@ function Hub:Functions()
 		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
 	self.autoRanked = function()
+		-- if self.autoInfinite.Toggle.Value then
+		-- 	repeat 
+		-- 		if not self.autoRankedToggle.Value then return end
+		-- 		task.wait(0.1)
+		-- 	until inBattle == true
+		-- end
 		while self.autoRankedToggle.Value do
 			local rankedRemote = remotes:FindFirstChild("RankedMenuEvents");
 			rankedRemote:FireServer("Queue");
@@ -379,7 +386,7 @@ function Hub:Functions()
 		end
 
 		while self.autoInfiniteToggle.Value do
-			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption, inBattle
+			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame	
 			repeat
 				if not self.autoInfiniteToggle.Value then return end
@@ -418,7 +425,7 @@ function Hub:Functions()
 		end
 	end
 	self.closeResultScreen = function()
-		local davidNPC, davidHRP, inBattle
+		local davidNPC, davidHRP
 		local function getDavidHRP()
 			davidNPC = gamenpcs:WaitForChild("David")
 			return davidNPC:FindFirstChild("HumanoidRootPart")
@@ -556,7 +563,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.6";
+	local version = "v_1.0.8";
 	local devs = "Av & Hari";
 
 	--[[
@@ -872,7 +879,6 @@ function Hub:Gui()
 			end;
 			self.testFunction1 = function()
 				local instantroll = playergui:WaitForChild("InstantRoll")
-				local inBattle = stats:FindFirstChild("InBattle").Value
 				if not inBattle and instantroll then
 					instantroll:Destroy()
 				end
@@ -1023,8 +1029,6 @@ function Hub:Gui()
 	SaveManager:IgnoreThemeSettings()
 	SaveManager:SetFolder("UK1/acb");
 	SaveManager:BuildConfigSection(Tabs.Configs);
-	
-	guiWindow[randomKey]:SelectTab(1);
 end;
 
 --[[
@@ -1034,5 +1038,16 @@ Hub:Functions();
 Hub:Gui();
 antiAfk();
 tickCount = tick();
+if _G.isAutoExec then
+	_G.isAutoExec = nil
+	task.wait(0.1)
+	guiWindow[randomKey]:SelectTab(2);
+	task.wait(0.1)
+	local deck = playergui.Menu.CardLibrary
+	task.wait(0.1)
+	firesignal(deck["MouseButton1Click"])
+else
+	guiWindow[randomKey]:SelectTab(1);
+end;
 task.wait(2)
 SaveManager:LoadAutoloadConfig()
