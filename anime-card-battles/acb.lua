@@ -1,3 +1,4 @@
+_G.isAutoExec = true;
 --[[
 	Loaded Check
 --]]
@@ -45,7 +46,7 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 --[[
 	Libraries
 --]]
-local Fluent = (loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua")))();
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/avhub.lua/fluent-library.lua"))();
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
 
@@ -206,12 +207,12 @@ local mobsTeleportsCoordinates = {
 	["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391),
 };
 local bossTeleportsCoordinates = {
-	["Cosmic Menace (Boss)"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
-	["Wicked Weaver (Boss)"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
-	["Cifer (Boss)"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
-	["King Of Curses (Boss)"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
-	["Shinobi God (Boss)"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
-	["Galactic Tyrant (Boss)"] = Vector3.new(10927.65918, 352.19986, -5072.885254),
+	["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
+	["Wicked Weaver"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
+	["Cifer"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
+	["King Of Curses"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
+	["Shinobi God"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
+	["Galactic Tyrant"] = Vector3.new(10927.65918, 352.19986, -5072.885254),
 }
 local areaTeleportCoordinates = {
 	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
@@ -518,13 +519,14 @@ function Hub:Gui()
 	--[[
 		Gui Init
 	--]]
+	
 	guiWindow[randomKey] = Fluent:CreateWindow({
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
 		TabWidth = 100,
 		Size = UDim2.fromOffset(500, 350),
 		Acrylic = true,
-		Theme = "Dark",
+		Theme = "Sakura",
 		MinimizeKey = Enum.KeyCode.LeftControl
 	});
 	local Tabs = {
@@ -563,7 +565,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.8";
+	local version = "v_1.0.9";
 	local devs = "Av & Hari";
 
 	--[[
@@ -1029,6 +1031,8 @@ function Hub:Gui()
 	SaveManager:IgnoreThemeSettings()
 	SaveManager:SetFolder("UK1/acb");
 	SaveManager:BuildConfigSection(Tabs.Configs);
+
+	
 end;
 
 --[[
@@ -1038,16 +1042,13 @@ Hub:Functions();
 Hub:Gui();
 antiAfk();
 tickCount = tick();
+guiWindow[randomKey]:SelectTab(1);
 if _G.isAutoExec then
 	_G.isAutoExec = nil
-	task.wait(0.1)
 	guiWindow[randomKey]:SelectTab(2);
-	task.wait(0.1)
-	local deck = playergui.Menu.CardLibrary
-	task.wait(0.1)
+	local menu = playergui:WaitForChild("Menu")
+	local deck = menu:WaitForChild("CardLibrary")
 	firesignal(deck["MouseButton1Click"])
-else
-	guiWindow[randomKey]:SelectTab(1);
 end;
 task.wait(2)
 SaveManager:LoadAutoloadConfig()
