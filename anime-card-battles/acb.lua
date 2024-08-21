@@ -1,4 +1,3 @@
-_G.isAutoExec = true;
 --[[
 	Loaded Check
 --]]
@@ -46,7 +45,7 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 --[[
 	Libraries
 --]]
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/avhub.lua/fluent-library.lua"))();
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/fluent-library.lua"))();
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
 
@@ -565,7 +564,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.9";
+	local version = "v_1.1.0";
 	local devs = "Av & Hari";
 
 	--[[
@@ -575,6 +574,8 @@ function Hub:Gui()
 		Title = "Update Log\n",
 		Content = "*Added"
 		-- .. "\n->\t" .. "~"
+		.. "\n->\t" .. "New Theme (Sakura)"
+		.. "\n->\t" .. "Open and Close button at top"
 		.. "\n->\t" .. "Auto Infinite fully working!!"
 		.. "\n->\t" .. "Added Configs"
 		.. "\n->\t" .. "Added Auto Ranked"
