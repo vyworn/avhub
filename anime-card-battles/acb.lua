@@ -401,7 +401,6 @@ function Hub:Functions()
 				else
 					timeEmpty = 0
 				end
-				print("Time Empty: " .. timeEmpty)
 			until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
 			self.checkToggle()
 
