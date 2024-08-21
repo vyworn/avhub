@@ -75,7 +75,7 @@ local function rejoinGame()
 	teleportservice:Teleport(placeid, player);
 end;
 local devid = {
-	-- ["MintedAv"] = 164011583,
+	["MintedAv"] = 164011583,
 	["psuw"] = 417954849,
 	["impeders"] = 35955366,
 	["aqreement"] = 1607510152,
@@ -556,7 +556,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.0.4";
+	local version = "v_1.0.6";
 	local devs = "Av & Hari";
 
 	--[[
