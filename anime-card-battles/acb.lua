@@ -363,16 +363,21 @@ function Hub:Functions()
 			local success, result = pcall(function()
 				return rankedRemote:FireServer("Queue");
 			end);
-			task.wait(1)	
+			task.wait(5)
 		end
 	end;
 	self.autoInfinite = function()
+		self.checkToggle = function()
+			if not self.autoInfiniteToggle.Value then 
+				return
+			end
+		end
 		if self.autoSwordToggle.Value then
 			if grabbedSword then
 				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			else
 				repeat
-					if not self.autoInfiniteToggle.Value then return end
+					self.checkToggle()
 					task.wait(0.1)
 				until grabbedSword == true
 				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
@@ -381,17 +386,36 @@ function Hub:Functions()
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 		end
 		while self.autoInfiniteToggle.Value do
+			local battleLabel = playergui:WaitForChild("HideBattle"):WaitForChild("BATTLE")
+			local BATTLETOWERUI
+			local timeEmpty = 0
+			repeat
+				task.wait(1)
+				BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
+				if not BATTLETOWERUI then
+					if battleLabel.Text == "" then
+						timeEmpty = timeEmpty + 1
+					else
+						timeEmpty = 0
+					end
+				else
+					timeEmpty = 0
+				end
+				print("Time Empty: " .. timeEmpty)
+			until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
+			self.checkToggle()
+
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame	
 			repeat
-				if not self.autoInfiniteToggle.Value then return end
+				self.checkToggle()
 				davidNPC = gamenpcs:WaitForChild("David")
 				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
 				task.wait(0.1)
 			until davidHRP
 
 			repeat 
-				if not self.autoInfiniteToggle.Value then return end
+				self.checkToggle()
 				davidProximityPrompt = davidHRP.ProximityPrompt
 				fireproximityprompt(davidProximityPrompt)
 				npcDialogue = playergui:FindFirstChild("NPCDialogue")
@@ -399,7 +423,7 @@ function Hub:Functions()
 			until npcDialogue
 
 			repeat
-				if not self.autoInfiniteToggle.Value then return end
+				self.checkToggle()
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
 				dialogueOption = responseFrame:WaitForChild("DialogueOption")
@@ -408,7 +432,7 @@ function Hub:Functions()
 			until guiservice.SelectedObject == dialogueOption
 	
 			if dialogueOption then
-				if not self.autoInfiniteToggle.Value then return end
+				self.checkToggle()
 				guiservice.SelectedObject = dialogueOption
 				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 				task.wait(0.1)
@@ -559,7 +583,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.1.1";
+	local version = "v_1.1.2";
 	local devs = "Av & Hari";
 
 	--[[
