@@ -356,13 +356,25 @@ function Hub:Functions()
 		task.wait(0.5);
 		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
+	self.autoRanked = function()
+		while self.autoRankedToggle.Value do
+			local rankedRemote = remotes:FindFirstChild("RankedMenuEvents");
+			rankedRemote:FireServer("Queue");
+			task.wait(0.1)	
+		end
+	end;
 	self.autoInfinite = function()
-		if grabbedSword then
-			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+		if self.autoSwordToggle.Value then
+			if grabbedSword then
+				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+			else
+				repeat
+					if not self.autoInfiniteToggle.Value then return end
+					task.wait(0.1)
+				until grabbedSword == true
+				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+			end
 		else
-			repeat
-				task.wait(0.1)
-			until grabbedSword == true
 			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 		end
 
@@ -370,12 +382,14 @@ function Hub:Functions()
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption, inBattle
 			local npcDialogue, dialogueFrame, responseFrame	
 			repeat
+				if not self.autoInfiniteToggle.Value then return end
 				davidNPC = gamenpcs:WaitForChild("David")
 				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
 				task.wait(0.1)
 			until davidHRP
 
 			repeat 
+				if not self.autoInfiniteToggle.Value then return end
 				davidProximityPrompt = davidHRP.ProximityPrompt
 				fireproximityprompt(davidProximityPrompt)
 				npcDialogue = playergui:FindFirstChild("NPCDialogue")
@@ -383,6 +397,7 @@ function Hub:Functions()
 			until npcDialogue
 
 			repeat
+				if not self.autoInfiniteToggle.Value then return end
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
 				dialogueOption = responseFrame:WaitForChild("DialogueOption")
@@ -391,6 +406,7 @@ function Hub:Functions()
 			until guiservice.SelectedObject == dialogueOption
 	
 			if dialogueOption then
+				if not self.autoInfiniteToggle.Value then return end
 				guiservice.SelectedObject = dialogueOption
 				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 				task.wait(0.1)
@@ -529,25 +545,15 @@ function Hub:Gui()
 			Title = "Misc",
 			Icon = "circle-ellipsis"
 		}),
+		Interface = guiWindow[randomKey]:AddTab({
+			Title = "Interface",
+			Icon = "paintbrush"
+		}),
+		Configs = guiWindow[randomKey]:AddTab({
+			Title = "Configs",
+			Icon = "save"
+		}),
 	};
-	if isdeveloper then
-		Tabs.Tools = guiWindow[randomKey]:AddTab({
-			Title = "Tools",
-			Icon = "wrench"
-		});
-		Tabs.Test = guiWindow[randomKey]:AddTab({
-			Title = "Test",
-			Icon = "code"
-		});
-	end
-	Tabs.Interface = guiWindow[randomKey]:AddTab({
-		Title = "Interface",
-		Icon = "paintbrush"
-	})
-	Tabs.Configs = guiWindow[randomKey]:AddTab({
-		Title = "Configs",
-		Icon = "save"
-	})
 	
 	local Options = Fluent.Options;
 	local version = "v_1.0.4";
@@ -562,6 +568,8 @@ function Hub:Gui()
 		-- .. "\n->\t" .. "~"
 		.. "\n->\t" .. "Auto Infinite fully working!!"
 		.. "\n->\t" .. "Added Configs"
+		.. "\n->\t" .. "Added Auto Ranked"
+		.. "\n\t\t->" .. "You wont see the ranked fight but it will start"
 		-- .. "\n*Removed"
 		-- .. "\n->\t" .. "~"
 		-- .. "\n*Changed"
@@ -627,6 +635,11 @@ function Hub:Gui()
 	--[[
 		Battle Tab
 	--]]
+	self.autoRankedToggle = Tabs.Battle:AddToggle("AutoRanked", {
+		Title = "Auto Ranked",
+		Description = "Auto Starts Ranked",
+		Default = false
+	});
 	self.autoInfiniteToggle = Tabs.Battle:AddToggle("AutoInfinite", {
 		Title = "Auto Infinite",
 		Description = "Auto Starts Infinite",
@@ -642,6 +655,12 @@ function Hub:Gui()
 		Description = "Auto Hides Battle",
 		Default = false
 	});
+
+	self.autoRankedToggle:OnChanged(function()
+		if self.autoRankedToggle.Value then
+			task.spawn(self.autoRanked);
+		end;
+	end);
 	self.autoInfiniteToggle:OnChanged(function()
 		if self.autoInfiniteToggle.Value then
 			task.spawn(self.autoInfinite);
@@ -724,8 +743,10 @@ function Hub:Gui()
 	disclaimerParagraph = Tabs.Codes:AddParagraph({
 		Title = "Disclaimer\n",
 		Content = "*Disclaimer" 
-		.. "\n->\t" .. "Not all codes are shown, use the copy button" 
-		.. "\n->\t" .. "Top code is the newest"
+		.. "\n->\t" .. "15 Codes per page"
+		.. "\n->\t" .. "Top code is newest"
+		.. "\n->\t" .. "Some may be expired"
+		.. "\n->\t" .. "Copy and Claim all combines both of the sections"
 	});
 	self.claimCodesButton = Tabs.Codes:AddButton({
 		Title = "Claim All Codes",
@@ -741,10 +762,46 @@ function Hub:Gui()
 			setclipboard(self.reverseCodesCopy());
 		end
 	});
-	codesParagraph = Tabs.Codes:AddParagraph({
-		Title = "All Codes\n",
-		Content = self.reverseCodes()
-	});
+	-- codesParagraph = Tabs.Codes:AddParagraph({
+	-- 	Title = "All Codes",
+	-- 	Content = self.reverseCodes()
+	-- });
+	-- Define the maximum number of codes to display per paragraph
+	-- Define the maximum number of codes to display per paragraph
+	local MAX_CODES_PER_PARAGRAPH = 15
+
+	-- Function to split the codes into chunks and add paragraphs, starting from the last code
+	self.displayCodesInParagraphs = function()
+		local codeCount = #codes
+		local startIndex = codeCount
+
+		while startIndex > 0 do
+			-- Determine the start index for the current chunk
+			local endIndex = math.max(startIndex - MAX_CODES_PER_PARAGRAPH + 1, 1)
+
+			-- Create the content string for the current chunk
+			local codesChunk = ""
+			for i = startIndex, endIndex, -1 do
+				codesChunk = codesChunk .. codes[i]
+				if i > endIndex then
+					codesChunk = codesChunk .. "\n"
+				end
+			end
+
+			-- Add the paragraph with the current chunk of codes
+			Tabs.Codes:AddParagraph({
+				Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH)),
+				Content = codesChunk
+			})
+
+			-- Move to the previous chunk
+			startIndex = endIndex - 1
+		end
+	end
+
+	-- Call the function to display the codes in paragraphs
+	self.displayCodesInParagraphs()
+
 
 	--[[
 		Misc Tab
@@ -763,6 +820,194 @@ function Hub:Gui()
 			self.joinPublicServer();
 		end
 	});
+	if isdeveloper then
+		self.showDeveloper = function()
+			--[[
+				Developer Functions
+			--]]
+			self.teleportToPosition = function(x, y, z)
+				if character and character.PrimaryPart then
+					local pos = Vector3.new(x, y, z);
+					character:SetPrimaryPartCFrame(CFrame.new(pos));
+				else
+					character = player.Character;
+					self.setPrimaryPart();
+				end;
+			end;
+			local loggedPositionX, loggedPositionY, loggedPositionZ;
+			self.getPosition = function()
+				if character and humanoidRootPart then
+					local position = humanoidRootPart.Position;
+					loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z;
+					local dataString = string.format("%.6f, %.6f,%.6f", position.X, position.Y, position.Z);
+					setclipboard(dataString);
+					return loggedPositionX, loggedPositionY, loggedPositionZ;
+				else
+					if not character then
+						warn("Character not found for player:", player.Name);
+					end;
+					if not humanoidRootPart then
+						warn("HumanoidRootPart not found for player:", player.Name);
+					end;
+					return nil, nil, nil;
+				end;
+			end;
+			self.teleportToLoggedPosition = function()
+				if loggedPositionX and loggedPositionY and loggedPositionZ then
+					self.teleportToPosition(loggedPositionX, loggedPositionY, loggedPositionZ);
+				else
+					warn("Logged position is not set.");
+				end;
+			end;
+			self.joinPublicServer = function()
+				task.wait(1);
+				local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
+				local function listServers(cursor)
+					local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
+					return http:JSONDecode(raw);
+				end;
+				local servers = listServers();
+				local server = servers.data[math.random(1, #servers.data)];
+				teleportservice:TeleportToPlaceInstance(placeid, server.id, player);
+			end;
+			self.testFunction1 = function()
+				local instantroll = playergui:WaitForChild("InstantRoll")
+				local inBattle = stats:FindFirstChild("InBattle").Value
+				if not inBattle and instantroll then
+					instantroll:Destroy()
+				end
+			end
+			self.testFunction2 = function()
+				local npcDialogue = playergui.NPCDialogue
+				
+				if npcDialogue then
+					local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+					local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+					
+					for _, child in pairs(responseFrame:GetChildren()) do
+						print("Name: " .. child.Name .. ", Type: " .. child.ClassName)
+						if child:IsA("TextLabel") or child:IsA("TextButton") then
+							print("Text: " .. child.Text)
+						elseif child:FindFirstChild("Text") then
+							print("Text: " .. child.Text.Text)
+						end
+					end
+				else
+					print("NPCDialogue not found.")
+				end
+			end;
+			
+			--[[
+				Developer Tab
+			--]]
+			Tabs.Tools = guiWindow[randomKey]:AddTab({
+				Title = "Tools",
+				Icon = "wrench"
+			});
+			Tabs.Test = guiWindow[randomKey]:AddTab({
+				Title = "Test",
+				Icon = "code"
+			});
+			self.toolsRemoteSpyButton = Tabs.Tools:AddButton({
+				Title = "Remote Spy",
+				Callback = function()
+					local remoteSpyLink = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua";
+					(loadstring(game:HttpGet(remoteSpyLink)))();
+				end
+			});
+			self.toolsDexButton = Tabs.Tools:AddButton({
+				Title = "Dex",
+				Callback = function()
+					local dexLink = "https://raw.githubusercontent.com/infyiff/backup/main/dex.lua";
+					(loadstring(game:HttpGet(dexLink)))();
+				end
+			});
+			self.toolsInfiniteYieldButton = Tabs.Tools:AddButton({
+				Title = "Infinite Yield",
+				Callback = function()
+					local infiniteYieldLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source";
+					(loadstring(game:HttpGet(infiniteYieldLink)))();
+				end
+			});
+			self.toolsJoinPublicServerButton = Tabs.Tools:AddButton({
+				Title = "Join Public Server",
+				Callback = function()
+					task.spawn(self.joinPublicServer);
+				end
+			});
+			self.toolsRejoinGameButton = Tabs.Tools:AddButton({
+				Title = "Rejoin Game",
+				Callback = function()
+					rejoinGame();
+				end
+			});
+			self.toolsGetPositionButton = Tabs.Tools:AddButton({
+				Title = "Get Position",
+				Callback = function()
+					task.spawn(self.getPosition);
+				end
+			});
+			self.toolsTeleportToPositionButton = Tabs.Tools:AddButton({
+				Title = "Teleport to Logged Position",
+				Callback = function()
+					task.spawn(self.teleportToLoggedPosition);
+				end
+			});
+			self.toolsCopyPlayerIdButton = Tabs.Tools:AddButton({
+				Title = "Copy Player Id",
+				Callback = function()
+					setclipboard(tostring(playerid));
+				end
+			});
+			self.toolsCopyPlaceIdButton = Tabs.Tools:AddButton({
+				Title = "Copy Place Id",
+				Callback = function()
+					setclipboard(tostring(placeid));
+				end
+			});
+			self.toolsCopyJobIdButton = Tabs.Tools:AddButton({
+				Title = "Copy Job Id",
+				Callback = function()
+					setclipboard(tostring(jobid));
+				end
+			});
+			self.toolsCopyCreatorIdButton = Tabs.Tools:AddButton({
+				Title = "Copy Creator Id",
+				Callback = function()
+					setclipboard(tostring(creatorid));
+				end
+			});
+			local infodata = "User: " .. username .. " (" .. displayname .. ")" .. "\nPlayer Id: " .. playerid .. "\nAccount Age: " .. playerage .. "\nPlace Id: " .. placeid .. "\nJob Id: " .. jobid .. "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
+			Tabs.Tools:AddParagraph({
+				Title = "Info",
+				Content = infodata
+			});
+			local testdesc1 = "Fire signal on 'Yes please!' option";
+			self.toolsTestFunctionButton1 = Tabs.Test:AddButton({
+				Title = "Test Function 1",
+				Description = "Current Function:\n" .. testdesc1,
+				Callback = function()
+					self.testFunction1();
+				end
+			});
+			local testdesc2 = "Iterate through ResponseFrame children";
+			self.toolsTestFunctionButton2 = Tabs.Test:AddButton({
+				Title = "Test Function 2",
+				Description = "Current Function:\n" .. testdesc2,
+				Callback = function()
+					self.testFunction2();
+				end
+			});
+		end
+		self.showDeveloperButton = Tabs.Misc:AddButton({
+			Title = "Add Developer Tools",
+			Description = "Adds Developer Tools",
+			Callback = function()
+				self.showDeveloper();
+			end
+		});
+
+	end
 
 	--[[
 		Interface Tab
@@ -780,182 +1025,6 @@ function Hub:Gui()
 	SaveManager:BuildConfigSection(Tabs.Configs);
 	
 	guiWindow[randomKey]:SelectTab(1);
-
-	if isdeveloper then
-		--[[
-			Developer Tab
-		--]]
-		self.toolsRemoteSpyButton = Tabs.Tools:AddButton({
-			Title = "Remote Spy",
-			Callback = function()
-				local remoteSpyLink = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua";
-				(loadstring(game:HttpGet(remoteSpyLink)))();
-			end
-		});
-		self.toolsDexButton = Tabs.Tools:AddButton({
-			Title = "Dex",
-			Callback = function()
-				local dexLink = "https://raw.githubusercontent.com/infyiff/backup/main/dex.lua";
-				(loadstring(game:HttpGet(dexLink)))();
-			end
-		});
-		self.toolsInfiniteYieldButton = Tabs.Tools:AddButton({
-			Title = "Infinite Yield",
-			Callback = function()
-				local infiniteYieldLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source";
-				(loadstring(game:HttpGet(infiniteYieldLink)))();
-			end
-		});
-		self.toolsJoinPublicServerButton = Tabs.Tools:AddButton({
-			Title = "Join Public Server",
-			Callback = function()
-				task.spawn(self.joinPublicServer);
-			end
-		});
-		self.toolsRejoinGameButton = Tabs.Tools:AddButton({
-			Title = "Rejoin Game",
-			Callback = function()
-				rejoinGame();
-			end
-		});
-		self.toolsGetPositionButton = Tabs.Tools:AddButton({
-			Title = "Get Position",
-			Callback = function()
-				task.spawn(self.getPosition);
-			end
-		});
-		self.toolsTeleportToPositionButton = Tabs.Tools:AddButton({
-			Title = "Teleport to Logged Position",
-			Callback = function()
-				task.spawn(self.teleportToLoggedPosition);
-			end
-		});
-		self.toolsCopyPlayerIdButton = Tabs.Tools:AddButton({
-			Title = "Copy Player Id",
-			Callback = function()
-				setclipboard(tostring(playerid));
-			end
-		});
-		self.toolsCopyPlaceIdButton = Tabs.Tools:AddButton({
-			Title = "Copy Place Id",
-			Callback = function()
-				setclipboard(tostring(placeid));
-			end
-		});
-		self.toolsCopyJobIdButton = Tabs.Tools:AddButton({
-			Title = "Copy Job Id",
-			Callback = function()
-				setclipboard(tostring(jobid));
-			end
-		});
-		self.toolsCopyCreatorIdButton = Tabs.Tools:AddButton({
-			Title = "Copy Creator Id",
-			Callback = function()
-				setclipboard(tostring(creatorid));
-			end
-		});
-		local infodata = "User: " .. username .. " (" .. displayname .. ")" .. "\nPlayer Id: " .. playerid .. "\nAccount Age: " .. playerage .. "\nPlace Id: " .. placeid .. "\nJob Id: " .. jobid .. "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
-		Tabs.Tools:AddParagraph({
-			Title = "Info",
-			Content = infodata
-		});
-		local testdesc1 = "Fire signal on 'Yes please!' option";
-		self.toolsTestFunctionButton1 = Tabs.Test:AddButton({
-			Title = "Test Function 1",
-			Description = "Current Function:\n" .. testdesc1,
-			Callback = function()
-				self.testFunction1();
-			end
-		});
-		local testdesc2 = "Iterate through ResponseFrame children";
-		self.toolsTestFunctionButton2 = Tabs.Test:AddButton({
-			Title = "Test Function 2",
-			Description = "Current Function:\n" .. testdesc2,
-			Callback = function()
-				self.testFunction2();
-			end
-		});
-	end;
-end;
-
-if isdeveloper then
-	function Hub:DevFunctions()
-		--[[
-			Developer Functions
-		--]]
-		self.teleportToPosition = function(x, y, z)
-			if character and character.PrimaryPart then
-				local pos = Vector3.new(x, y, z);
-				character:SetPrimaryPartCFrame(CFrame.new(pos));
-			else
-				character = player.Character;
-				self.setPrimaryPart();
-			end;
-		end;
-		local loggedPositionX, loggedPositionY, loggedPositionZ;
-		self.getPosition = function()
-			if character and humanoidRootPart then
-				local position = humanoidRootPart.Position;
-				loggedPositionX, loggedPositionY, loggedPositionZ = position.X, position.Y, position.Z;
-				local dataString = string.format("%.6f, %.6f,%.6f", position.X, position.Y, position.Z);
-				setclipboard(dataString);
-				return loggedPositionX, loggedPositionY, loggedPositionZ;
-			else
-				if not character then
-					warn("Character not found for player:", player.Name);
-				end;
-				if not humanoidRootPart then
-					warn("HumanoidRootPart not found for player:", player.Name);
-				end;
-				return nil, nil, nil;
-			end;
-		end;
-		self.teleportToLoggedPosition = function()
-			if loggedPositionX and loggedPositionY and loggedPositionZ then
-				self.teleportToPosition(loggedPositionX, loggedPositionY, loggedPositionZ);
-			else
-				warn("Logged position is not set.");
-			end;
-		end;
-		self.joinPublicServer = function()
-			task.wait(1);
-			local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
-			local function listServers(cursor)
-				local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
-				return http:JSONDecode(raw);
-			end;
-			local servers = listServers();
-			local server = servers.data[math.random(1, #servers.data)];
-			teleportservice:TeleportToPlaceInstance(placeid, server.id, player);
-		end;
-		self.testFunction1 = function()
-			local instantroll = playergui:WaitForChild("InstantRoll")
-			local inBattle = stats:FindFirstChild("InBattle").Value
-			if not inBattle and instantroll then
-				instantroll:Destroy()
-			end
-		end
-		self.testFunction2 = function()
-			local npcDialogue = playergui.NPCDialogue
-			
-			if npcDialogue then
-				local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
-				local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-				
-				for _, child in pairs(responseFrame:GetChildren()) do
-					print("Name: " .. child.Name .. ", Type: " .. child.ClassName)
-					if child:IsA("TextLabel") or child:IsA("TextButton") then
-						print("Text: " .. child.Text)
-					elseif child:FindFirstChild("Text") then
-						print("Text: " .. child.Text.Text)
-					end
-				end
-			else
-				print("NPCDialogue not found.")
-			end
-		end;
-	end;
-	Hub:DevFunctions();
 end;
 
 --[[
