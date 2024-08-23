@@ -358,14 +358,24 @@ function Hub:Functions()
 		self.characterTeleport(otherCoordinates["Old Position Chest"]);
 	end;
 	self.autoRanked = function()
-		while self.autoRankedToggle.Value do
-			local rankedRemote = remotes:FindFirstChild("RankedMenuEvents");
-			local success, result = pcall(function()
-				return rankedRemote:FireServer("Queue");
-			end);
-			task.wait(5)
+		local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
+		if not rankedRemote then
+			rankedRemote = remotes:WaitForChild("RankedMenuEvents")
 		end
-	end;
+		while self.autoRankedToggle.Value do
+			local BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
+			if not BATTLETOWERUI then
+				local success, result = pcall(function()
+					return rankedRemote:FireServer("Queue")
+				end)
+				task.wait(0.1)
+			else
+				task.wait(1)
+			end
+			task.wait(0.1)
+		end
+	end
+	
 	self.autoInfinite = function()
 		self.checkToggle = function()
 			if not self.autoInfiniteToggle.Value then 
@@ -582,7 +592,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.1.2";
+	local version = "v_1.1.4";
 	local devs = "Av & Hari";
 
 	--[[
