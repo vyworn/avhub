@@ -378,7 +378,8 @@ function Hub:Functions()
 	
 	self.autoInfinite = function()
 		self.checkToggle = function()
-			if not self.autoInfiniteToggle.Value then 
+			local toggled = self.autoInfiniteToggle.Value
+			if not toggled then 
 				return
 			end
 		end
@@ -546,14 +547,13 @@ function Hub:Gui()
 	--[[
 		Gui Init
 	--]]
-	
 	guiWindow[randomKey] = Fluent:CreateWindow({
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
 		TabWidth = 100,
 		Size = UDim2.fromOffset(500, 350),
 		Acrylic = true,
-		Theme = "Sakura",
+		Theme = "TestTheme",
 		MinimizeKey = Enum.KeyCode.LeftControl
 	});
 	local Tabs = {
