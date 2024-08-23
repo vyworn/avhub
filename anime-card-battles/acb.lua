@@ -45,7 +45,7 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 --[[
 	Libraries
 --]]
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/fluent-library.lua"))();
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/update/fluent-library.lua"))();
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
 
