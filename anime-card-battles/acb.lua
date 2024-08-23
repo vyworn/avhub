@@ -378,6 +378,7 @@ function AvHub:Functions()
 	self.autoInfinite = function()
 		self.checkToggle = function()
 			local toggled = self.autoInfiniteToggle.Value
+			toggled = self.autoInfiniteToggle.Value
 			if not toggled then 
 				return
 			end
@@ -399,6 +400,11 @@ function AvHub:Functions()
 			local battleLabel = playergui:WaitForChild("HideBattle"):WaitForChild("BATTLE")
 			local BATTLETOWERUI
 			local timeEmpty = 0
+			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
+			local npcDialogue, dialogueFrame, responseFrame	
+			
+			self.checkToggle()
+
 			repeat
 				task.wait(1)
 				BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
@@ -412,16 +418,17 @@ function AvHub:Functions()
 					timeEmpty = 0
 				end
 			until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
+
 			self.checkToggle()
 
-			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
-			local npcDialogue, dialogueFrame, responseFrame	
 			repeat
 				self.checkToggle()
 				davidNPC = gamenpcs:WaitForChild("David")
 				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
 				task.wait(0.1)
 			until davidHRP
+
+			self.checkToggle()
 
 			repeat 
 				self.checkToggle()
@@ -431,6 +438,8 @@ function AvHub:Functions()
 				task.wait(0.1)
 			until npcDialogue
 
+			self.checkToggle()
+
 			repeat
 				self.checkToggle()
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
@@ -439,10 +448,13 @@ function AvHub:Functions()
 				guiservice.SelectedObject = dialogueOption
 				task.wait(0.1)
 			until guiservice.SelectedObject == dialogueOption
-	
+
+			self.checkToggle()
+
 			if dialogueOption then
 				self.checkToggle()
 				guiservice.SelectedObject = dialogueOption
+				self.checkToggle()
 				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 				task.wait(0.1)
 				virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
