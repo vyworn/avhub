@@ -553,7 +553,7 @@ function Hub:Gui()
 		TabWidth = 100,
 		Size = UDim2.fromOffset(500, 350),
 		Acrylic = true,
-		Theme = "TestTheme",
+		Theme = "Sakura",
 		MinimizeKey = Enum.KeyCode.LeftControl
 	});
 	local Tabs = {
