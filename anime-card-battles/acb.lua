@@ -22,7 +22,7 @@ local remotes = replicatedstorage:WaitForChild("Remotes")
 local teleportservice = game:GetService("TeleportService")
 local textchatservice = game:GetService("TextChatService")
 local textchannel = textchatservice.TextChannels:WaitForChild("RBXGeneral")
-local http = game:GetService("HttpService")
+local httpservice = game:GetService("HttpService")
 local proximitypromptservice = game:GetService("ProximityPromptService")
 
 local player = players.LocalPlayer
@@ -75,11 +75,9 @@ local function rejoinGame()
 	teleportservice:Teleport(placeid, player);
 end;
 local devid = {
-	["MintedAv"] = 164011583,
+	["av"] = 164011583,
 	["psuw"] = 417954849,
-	["impeders"] = 35955366,
-	["aqreement"] = 1607510152,
-	["hari2789"] = 85087803,
+	["hari"] = 85087803,
 };
 local function isDeveloper(userid)
 	for _, id in pairs(devid) do
@@ -592,7 +590,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.1.4";
+	local version = "v_1.1.6";
 	local devs = "Av & Hari";
 
 	--[[
@@ -902,36 +900,11 @@ function Hub:Gui()
 				local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
 				local function listServers(cursor)
 					local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
-					return http:JSONDecode(raw);
+					return httpservice:JSONDecode(raw);
 				end;
 				local servers = listServers();
 				local server = servers.data[math.random(1, #servers.data)];
 				teleportservice:TeleportToPlaceInstance(placeid, server.id, player);
-			end;
-			self.testFunction1 = function()
-				local instantroll = playergui:WaitForChild("InstantRoll")
-				if not inBattle and instantroll then
-					instantroll:Destroy()
-				end
-			end
-			self.testFunction2 = function()
-				local npcDialogue = playergui.NPCDialogue
-				
-				if npcDialogue then
-					local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
-					local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-					
-					for _, child in pairs(responseFrame:GetChildren()) do
-						print("Name: " .. child.Name .. ", Type: " .. child.ClassName)
-						if child:IsA("TextLabel") or child:IsA("TextButton") then
-							print("Text: " .. child.Text)
-						elseif child:FindFirstChild("Text") then
-							print("Text: " .. child.Text.Text)
-						end
-					end
-				else
-					print("NPCDialogue not found.")
-				end
 			end;
 			
 			--[[
@@ -940,10 +913,6 @@ function Hub:Gui()
 			Tabs.Tools = guiWindow[randomKey]:AddTab({
 				Title = "Tools",
 				Icon = "wrench"
-			});
-			Tabs.Test = guiWindow[randomKey]:AddTab({
-				Title = "Test",
-				Icon = "code"
 			});
 			self.toolsRemoteSpyButton = Tabs.Tools:AddButton({
 				Title = "Remote Spy",
@@ -1018,22 +987,6 @@ function Hub:Gui()
 			Tabs.Tools:AddParagraph({
 				Title = "Info",
 				Content = infodata
-			});
-			local testdesc1 = "Fire signal on 'Yes please!' option";
-			self.toolsTestFunctionButton1 = Tabs.Test:AddButton({
-				Title = "Test Function 1",
-				Description = "Current Function:\n" .. testdesc1,
-				Callback = function()
-					self.testFunction1();
-				end
-			});
-			local testdesc2 = "Iterate through ResponseFrame children";
-			self.toolsTestFunctionButton2 = Tabs.Test:AddButton({
-				Title = "Test Function 2",
-				Description = "Current Function:\n" .. testdesc2,
-				Callback = function()
-					self.testFunction2();
-				end
 			});
 		end
 		self.showDeveloperButton = Tabs.Misc:AddButton({
