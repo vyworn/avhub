@@ -378,10 +378,10 @@ local Themes = {
 	
 		SliderRail = Color3.fromRGB(255, 230, 217),
 	
-		DropdownFrame = Color3.fromRGB(250, 208, 196),
-		DropdownHolder = Color3.fromRGB(255, 209, 186),
-		DropdownBorder = Color3.fromRGB(255, 230, 217),
-		DropdownOption = Color3.fromRGB(255, 230, 217),
+		DropdownFrame = Color3.fromRGB(255, 209, 186),  -- Soft Peach
+		DropdownHolder = Color3.fromRGB(240, 180, 150), -- Deeper Peach
+		DropdownBorder = Color3.fromRGB(230, 160, 130), -- Muted Peach
+		DropdownOption = Color3.fromRGB(250, 200, 170), -- Subtle Peach
 	
 		Keybind = Color3.fromRGB(250, 208, 196),
 	
@@ -433,10 +433,10 @@ local Themes = {
 	
 		SliderRail = Color3.fromRGB(240, 244, 255),
 	
-		DropdownFrame = Color3.fromRGB(208, 201, 247),
-		DropdownHolder = Color3.fromRGB(200, 225, 255),
-		DropdownBorder = Color3.fromRGB(240, 244, 255),
-		DropdownOption = Color3.fromRGB(240, 244, 255),
+		DropdownFrame = Color3.fromRGB(200, 225, 255),  -- Soft Sky Blue
+		DropdownHolder = Color3.fromRGB(170, 200, 230), -- Deeper Sky Blue
+		DropdownBorder = Color3.fromRGB(150, 180, 210), -- Muted Sky Blue
+		DropdownOption = Color3.fromRGB(190, 215, 240), -- Subtle Sky Blue
 	
 		Keybind = Color3.fromRGB(208, 201, 247),
 	
@@ -488,10 +488,10 @@ local Themes = {
 	
 		SliderRail = Color3.fromRGB(224, 247, 245),
 	
-		DropdownFrame = Color3.fromRGB(198, 247, 226),
-		DropdownHolder = Color3.fromRGB(172, 231, 224),
-		DropdownBorder = Color3.fromRGB(224, 247, 245),
-		DropdownOption = Color3.fromRGB(224, 247, 245),
+		DropdownFrame = Color3.fromRGB(172, 231, 224),  -- Softer Aqua
+		DropdownHolder = Color3.fromRGB(140, 200, 190), -- Deeper Mint
+		DropdownBorder = Color3.fromRGB(130, 180, 170), -- Muted Mint
+		DropdownOption = Color3.fromRGB(198, 247, 226), -- Soft Mint
 	
 		Keybind = Color3.fromRGB(198, 247, 226),
 	
@@ -543,10 +543,10 @@ local Themes = {
 	
 		SliderRail = Color3.fromRGB(255, 245, 241),
 	
-		DropdownFrame = Color3.fromRGB(250, 217, 217),
-		DropdownHolder = Color3.fromRGB(255, 232, 232),
-		DropdownBorder = Color3.fromRGB(255, 245, 241),
-		DropdownOption = Color3.fromRGB(255, 245, 241),
+		DropdownFrame = Color3.fromRGB(250, 217, 217),  -- Soft Rose
+		DropdownHolder = Color3.fromRGB(230, 180, 180), -- Deeper Rose
+		DropdownBorder = Color3.fromRGB(220, 160, 160), -- Muted Rose
+		DropdownOption = Color3.fromRGB(240, 200, 200), -- Subtle Rose
 	
 		Keybind = Color3.fromRGB(250, 217, 217),
 	
