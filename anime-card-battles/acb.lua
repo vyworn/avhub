@@ -378,6 +378,7 @@ function AvHub:Functions()
 	self.autoInfinite = function()
 		self.checkToggle = function()
 			local toggled = self.autoInfiniteToggle.Value
+			toggled = self.autoInfiniteToggle.Value
 			if not toggled then 
 				return
 			end
