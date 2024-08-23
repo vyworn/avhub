@@ -99,7 +99,7 @@ local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
 _G.ahKey = randomKey;
 local guiWindow = {};
-local Hub = _G[randomKey];
+local AvHub = _G[randomKey];
 
 --[[
 	Tables
@@ -130,6 +130,7 @@ local codes = {
 	"UPDATE2!",
 	"5MVISITS!",
 	"SORRYFORALLTHESHUTDOWNS!",
+	"DAVIDSTHEBEST!",
 };
 
 --[[
@@ -234,7 +235,7 @@ local uptimeText = "00 hours\n00 minutes\n00 seconds";
 --[[
 	Hub Functions
 --]]
-function Hub:Functions()
+function AvHub:Functions()
 	--[[
 		Character & Position Functions
 	--]]
@@ -541,7 +542,7 @@ function Hub:Functions()
 		end;
 	end;
 end;
-function Hub:Gui()
+function AvHub:Gui()
 	--[[
 		Gui Init
 	--]]
@@ -590,7 +591,7 @@ function Hub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.1.6";
+	local version = "v_1.1.7";
 	local devs = "Av & Hari";
 
 	--[[
@@ -1020,8 +1021,8 @@ end;
 --[[
 	Main
 --]]
-Hub:Functions();
-Hub:Gui();
+AvHub:Functions();
+AvHub:Gui();
 antiAfk();
 tickCount = tick();
 guiWindow[randomKey]:SelectTab(1);
