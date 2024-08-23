@@ -45,7 +45,7 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 --[[
 	Libraries
 --]]
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/fluent-library.lua"))();
+local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/fluent-library.lua")))();
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
 
@@ -378,7 +378,8 @@ function Hub:Functions()
 	
 	self.autoInfinite = function()
 		self.checkToggle = function()
-			if not self.autoInfiniteToggle.Value then 
+			local toggled = self.autoInfiniteToggle.Value
+			if not toggled then 
 				return
 			end
 		end
@@ -546,7 +547,6 @@ function Hub:Gui()
 	--[[
 		Gui Init
 	--]]
-	
 	guiWindow[randomKey] = Fluent:CreateWindow({
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
