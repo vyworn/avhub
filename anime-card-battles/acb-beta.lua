@@ -22,7 +22,7 @@ local remotes = replicatedstorage:WaitForChild("Remotes")
 local teleportservice = game:GetService("TeleportService")
 local textchatservice = game:GetService("TextChatService")
 local textchannel = textchatservice.TextChannels:WaitForChild("RBXGeneral")
-local httpservice = game:GetService("HttpService")
+local http = game:GetService("HttpService")
 local proximitypromptservice = game:GetService("ProximityPromptService")
 
 local player = players.LocalPlayer
@@ -6257,9 +6257,11 @@ local function rejoinGame()
 	teleportservice:Teleport(placeid, player);
 end;
 local devid = {
-	["av"] = 164011583,
+	["MintedAv"] = 164011583,
 	["psuw"] = 417954849,
-	["hari"] = 85087803,
+	["impeders"] = 35955366,
+	["aqreement"] = 1607510152,
+	["hari2789"] = 85087803,
 };
 local function isDeveloper(userid)
 	for _, id in pairs(devid) do
@@ -6275,13 +6277,13 @@ local isdeveloper = isDeveloper(playerid);
 --[[
 	Library Variables
 --]]
-local informationParagraph, latestParagraph, plannedParagraph, statsParagraph, disclaimerParagraph, codesParagraph
+local updateLogParagraph, extraParagraph, informationParagraph, statsParagraph, disclaimerParagraph, codesParagraph
 local updatingParagraph = false;
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
 _G.ahKey = randomKey;
 local guiWindow = {};
-local AvHub = _G[randomKey];
+local Hub = _G[randomKey];
 
 --[[
 	Tables
@@ -6312,7 +6314,6 @@ local codes = {
 	"UPDATE2!",
 	"5MVISITS!",
 	"SORRYFORALLTHESHUTDOWNS!",
-	"DAVIDSTHEBEST!",
 };
 
 --[[
@@ -6413,12 +6414,11 @@ local canGoBack = false;
 local grabbedSword = false;
 local tickCount, uptimeInSeconds, hours, minutes, seconds
 local uptimeText = "00 hours\n00 minutes\n00 seconds";
-local autoPotionsTask, autoSwordTask, updateParagraphTask, autoRankedTask, autoInfiniteTask, closeResultScreenTask, autoHideBattleTask
 
 --[[
 	Hub Functions
 --]]
-function AvHub:Functions()
+function Hub:Functions()
 	--[[
 		Character & Position Functions
 	--]]
@@ -6526,6 +6526,19 @@ function AvHub:Functions()
 			canGoBack = true;
 		end;
 	end;
+	self.claimDailyChest = function()
+		self.getOldPositionChest();
+		task.wait(0.1)
+		self.characterTeleport(npcTeleportsCoordinates["Daily Chest"]);
+		task.wait(0.4)
+		local dailyChest = workspace.DailyChestPrompt
+		if dailyChest then
+			local dailyChestProximityPrompt = dailyChest.ProximityPrompt
+			fireproximityprompt(dailyChestProximityPrompt);
+		end
+		task.wait(0.5);
+		self.characterTeleport(otherCoordinates["Old Position Chest"]);
+	end;
 	self.autoRanked = function()
 		local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 		if not rankedRemote then
@@ -6544,15 +6557,12 @@ function AvHub:Functions()
 			task.wait(0.1)
 		end
 	end
+	
 	self.autoInfinite = function()
-		self.checkToggleWhile = function()
-			if not self.autoInfiniteToggle.Value then 
+		self.checkToggle = function()
+			local toggled = self.autoInfiniteToggle.Value
+			if not toggled then 
 				return
-			end
-		end
-		self.checkToggleRepeat = function()
-			if not self.autoInfiniteToggle.Value then 
-				break
 			end
 		end
 		if self.autoSwordToggle.Value then
@@ -6560,7 +6570,7 @@ function AvHub:Functions()
 				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			else
 				repeat
-					self.checkToggleRepeat()
+					self.checkToggle()
 					task.wait(0.1)
 				until grabbedSword == true
 				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
@@ -6572,9 +6582,6 @@ function AvHub:Functions()
 			local battleLabel = playergui:WaitForChild("HideBattle"):WaitForChild("BATTLE")
 			local BATTLETOWERUI
 			local timeEmpty = 0
-			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
-			local npcDialogue, dialogueFrame, responseFrame	
-			self.checkToggleWhile()
 			repeat
 				task.wait(1)
 				BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
@@ -6588,33 +6595,36 @@ function AvHub:Functions()
 					timeEmpty = 0
 				end
 			until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
+			self.checkToggle()
+
+			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
+			local npcDialogue, dialogueFrame, responseFrame	
 			repeat
-				self.checkToggleRepeat()
+				self.checkToggle()
 				davidNPC = gamenpcs:WaitForChild("David")
 				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
 				task.wait(0.1)
-			until davidHRP or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
+			until davidHRP
+
 			repeat 
-				self.checkToggleRepeat()
+				self.checkToggle()
 				davidProximityPrompt = davidHRP.ProximityPrompt
 				fireproximityprompt(davidProximityPrompt)
 				npcDialogue = playergui:FindFirstChild("NPCDialogue")
 				task.wait(0.1)
-			until npcDialogue or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
+			until npcDialogue
+
 			repeat
-				self.checkToggleRepeat()
+				self.checkToggle()
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
 				dialogueOption = responseFrame:WaitForChild("DialogueOption")
 				guiservice.SelectedObject = dialogueOption
 				task.wait(0.1)
-			until guiservice.SelectedObject == dialogueOption or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
-			if dialogueOption and self.autoInfiniteToggle.Value then
-				self.checkToggleRepeat()
+			until guiservice.SelectedObject == dialogueOption
+	
+			if dialogueOption then
+				self.checkToggle()
 				guiservice.SelectedObject = dialogueOption
 				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 				task.wait(0.1)
@@ -6660,8 +6670,8 @@ function AvHub:Functions()
 		Auto Loop Functions
 	--]]
 	self.autoPotionsLoop = function()
-		self.grabPotions();
 		while self.autoPotionsToggle.Value do
+			self.grabPotions();
 			task.wait(0.25);
 		end;
 	end;
@@ -6682,28 +6692,11 @@ function AvHub:Functions()
 			task.wait(0.25);
 		end;
 	end;
-
-	--[[
-		Other Functions
-	--]]
-	self.claimDailyChest = function()
-		self.getOldPositionChest();
-		task.wait(0.1)
-		self.characterTeleport(npcTeleportsCoordinates["Daily Chest"]);
-		task.wait(0.4)
-		local dailyChest = workspace.DailyChestPrompt
-		if dailyChest then
-			local dailyChestProximityPrompt = dailyChest.ProximityPrompt
-			fireproximityprompt(dailyChestProximityPrompt);
-		end
-		task.wait(0.5);
-		self.characterTeleport(otherCoordinates["Old Position Chest"]);
-	end;
 	
 	--[[
 		Paragraph Functions
 	--]]
-	self.updateStatsParagraph = function()
+	self.updateParagraph = function()
 		while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
 			swordCooldown = (stats:FindFirstChild("SwordObbyCD")).Value;
 			local totalPotions = potionCount;
@@ -6721,21 +6714,18 @@ function AvHub:Functions()
 			task.wait(0.2);
 		end;
 	end;
-	self.manageUpdateParagraphTask = function()
+	self.updateParagraphStatus = function()
 		if autoPotionsActive or autoSwordActive then
-			if not updateParagraphTask then
-				updateParagraphTask = task.spawn(self.updateStatsParagraph)
-			end
-		else
-			if updateParagraphTask then
-				task.cancel(updateParagraphTask)
-				updateParagraphTask = nil
-			end
-		end
-	end
+			if not updatingParagraph then
+				updatingParagraph = true;
+				task.spawn(self.updateParagraph);
+			end;
+		elseif updatingParagraph then
+			updatingParagraph = false;
+		end;
+	end;
 end;
-
-function AvHub:Gui()
+function Hub:Gui()
 	--[[
 		Gui Init
 	--]]
@@ -6784,29 +6774,22 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.1.9";
+	local version = "v_1.1.4";
 	local devs = "Av & Hari";
 
 	--[[
 		Main Tab
 	--]]
-	informationParagraph = Tabs.Main:AddParagraph({
-		Title = "Information\n",
-		Content = "*Version" 
-		.. "\n->\t" .. version
-		.. "\n" .. "*Made By" 
-		.. "\n->\t" .. devs
-	});
-	latestParagraph = Tabs.Main:AddParagraph({
-		Title = "Latest\n",
+	updateLogParagraph = Tabs.Main:AddParagraph({
+		Title = "Update Log\n",
 		Content = "*Added"
 		-- .. "\n->\t" .. "~"
-		.. "\n->\t" .. "Minimize button at top"
-		.. "\n->\t" .. "New Theme"
-		.. "\n->\t" .. "Configs (autoload)"
-		.. "\n->\t" .. "Auto Infinite"
-		.. "\n->\t" .. "Auto Ranked"
-		.. "\n\t\t->" .. "Starts in background if doing Infinite"
+		.. "\n->\t" .. "New Theme (Sakura)"
+		.. "\n->\t" .. "Open and Close button at top"
+		.. "\n->\t" .. "Auto Infinite fully working!!"
+		.. "\n->\t" .. "Added Configs"
+		.. "\n->\t" .. "Added Auto Ranked"
+		.. "\n\t\t->" .. "You wont see the ranked fight but it will start"
 		-- .. "\n*Removed"
 		-- .. "\n->\t" .. "~"
 		-- .. "\n*Changed"
@@ -6814,15 +6797,18 @@ function AvHub:Gui()
 		-- .. "\n*Notes"
 		-- .. "\n->\t" .. "~"
 	});
-	plannedParagraph = Tabs.Main:AddParagraph({
-		Title = "Planned\n",
-		Content = "*Coming Soon"
-		.. "\n->\t" .. "Auto Use Potions"
-		.. "\n->\t" .. "Webhooks"
-		.. "\n->\t" .. "More Stats"
-		.. "\n->\t" .. "More Themes"
-		.. "*Future"
-		.. "\n->\t" .. "Auto Repeatable Bosses"
+	informationParagraph = Tabs.Main:AddParagraph({
+		Title = "Information\n",
+		Content = "*Version" 
+		.. "\n->\t" .. version
+		.. "\n" .. "*Made By" 
+		.. "\n->\t" .. devs
+	});
+	extraParagraph = Tabs.Main:AddParagraph({
+		Title = "Extra\n",
+		Content = "*Upcoming"
+		.. "\n->\t" .. "Working on Auto Repeatable Bosses"
+		.. "\n->\t" .. "Working on Webhooks"
 	});
 
 	--[[
@@ -6851,35 +6837,20 @@ function AvHub:Gui()
 			task.spawn(self.claimDailyChest);
 		end
 	});
-
 	self.autoPotionsToggle:OnChanged(function()
-		autoPotionsActive = self.autoPotionsToggle.Value
+		autoPotionsActive = self.autoPotionsToggle.Value;
 		if autoPotionsActive then
-			if not autoPotionsTask then
-				autoPotionsTask = task.spawn(self.autoPotionsLoop)
-			end
-		else 
-			if autoPotionsTask then
-				task.cancel(autoPotionsTask)
-				autoPotionsTask = nil
-			end
-		end
-		self.manageUpdateParagraphTask()
-	end)
+			task.spawn(self.autoPotionsLoop);
+		end;
+		self.updateParagraphStatus();
+	end);
 	self.autoSwordToggle:OnChanged(function()
-		autoSwordActive = self.autoSwordToggle.Value
+		autoSwordActive = self.autoSwordToggle.Value;
 		if autoSwordActive then
-			if not autoSwordTask then
-				autoSwordTask = task.spawn(self.autoSwordLoop)
-			end
-		else 
-			if autoSwordTask then
-				task.cancel(autoSwordTask)
-				autoSwordTask = nil
-			end
-		end
-		self.manageUpdateParagraphTask()
-	end)
+			task.spawn(self.autoSwordLoop);
+		end;
+		self.updateParagraphStatus();
+	end);
 
 	--[[
 		Battle Tab
@@ -6907,42 +6878,22 @@ function AvHub:Gui()
 
 	self.autoRankedToggle:OnChanged(function()
 		if self.autoRankedToggle.Value then
-			autoRankedTask = task.spawn(self.autoRanked);
-		else
-			if autoRankedTask then
-				task.cancel(autoRankedTask)
-				autoRankedTask = nil
-			end
+			task.spawn(self.autoRanked);
 		end;
 	end);
 	self.autoInfiniteToggle:OnChanged(function()
 		if self.autoInfiniteToggle.Value then
-			autoInfiniteTask = task.spawn(self.autoInfinite);
-		else
-			if autoInfiniteTask then
-				task.cancel(autoInfiniteTask)
-				autoInfiniteTask = nil
-			end
+			task.spawn(self.autoInfinite);
 		end;
 	end);
 	self.closeResultScreenToggle:OnChanged(function()
 		if self.closeResultScreenToggle.Value then
-			closeResultScreenTask = task.spawn(self.closeResultScreen);
-		else
-			if closeResultScreenTask then
-				task.cancel(closeResultScreenTask)
-				closeResultScreenTask = nil
-			end
+			task.spawn(self.closeResultScreen);
 		end;
 	end);
 	self.autoHideBattleToggle:OnChanged(function()
 		if self.autoHideBattleToggle.Value then
-			autoHideBattleTask = task.spawn(self.autoHideBattle);
-		else
-			if autoHideBattleTask then
-				task.cancel(autoHideBattleTask)
-				autoHideBattleTask = nil
-			end
+			task.spawn(self.autoHideBattle);
 		end;
 	end);
 
@@ -7031,16 +6982,24 @@ function AvHub:Gui()
 			setclipboard(self.reverseCodesCopy());
 		end
 	});
-	Tabs.Codes:AddParagraph({
-		Title = "SCROLL DOWN",
-	});
+	-- codesParagraph = Tabs.Codes:AddParagraph({
+	-- 	Title = "All Codes",
+	-- 	Content = self.reverseCodes()
+	-- });
+	-- Define the maximum number of codes to display per paragraph
+	-- Define the maximum number of codes to display per paragraph
 	local MAX_CODES_PER_PARAGRAPH = 15
+
+	-- Function to split the codes into chunks and add paragraphs, starting from the last code
 	self.displayCodesInParagraphs = function()
 		local codeCount = #codes
 		local startIndex = codeCount
 
 		while startIndex > 0 do
+			-- Determine the start index for the current chunk
 			local endIndex = math.max(startIndex - MAX_CODES_PER_PARAGRAPH + 1, 1)
+
+			-- Create the content string for the current chunk
 			local codesChunk = ""
 			for i = startIndex, endIndex, -1 do
 				codesChunk = codesChunk .. codes[i]
@@ -7048,14 +7007,21 @@ function AvHub:Gui()
 					codesChunk = codesChunk .. "\n"
 				end
 			end
+
+			-- Add the paragraph with the current chunk of codes
 			Tabs.Codes:AddParagraph({
 				Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH)),
 				Content = codesChunk
 			})
+
+			-- Move to the previous chunk
 			startIndex = endIndex - 1
 		end
 	end
+
+	-- Call the function to display the codes in paragraphs
 	self.displayCodesInParagraphs()
+
 
 	--[[
 		Misc Tab
@@ -7118,11 +7084,36 @@ function AvHub:Gui()
 				local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10";
 				local function listServers(cursor)
 					local raw = game:HttpGet(serversurl .. (cursor and "&cursor=" .. cursor or ""));
-					return httpservice:JSONDecode(raw);
+					return http:JSONDecode(raw);
 				end;
 				local servers = listServers();
 				local server = servers.data[math.random(1, #servers.data)];
 				teleportservice:TeleportToPlaceInstance(placeid, server.id, player);
+			end;
+			self.testFunction1 = function()
+				local instantroll = playergui:WaitForChild("InstantRoll")
+				if not inBattle and instantroll then
+					instantroll:Destroy()
+				end
+			end
+			self.testFunction2 = function()
+				local npcDialogue = playergui.NPCDialogue
+				
+				if npcDialogue then
+					local dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+					local responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+					
+					for _, child in pairs(responseFrame:GetChildren()) do
+						print("Name: " .. child.Name .. ", Type: " .. child.ClassName)
+						if child:IsA("TextLabel") or child:IsA("TextButton") then
+							print("Text: " .. child.Text)
+						elseif child:FindFirstChild("Text") then
+							print("Text: " .. child.Text.Text)
+						end
+					end
+				else
+					print("NPCDialogue not found.")
+				end
 			end;
 			
 			--[[
@@ -7131,6 +7122,10 @@ function AvHub:Gui()
 			Tabs.Tools = guiWindow[randomKey]:AddTab({
 				Title = "Tools",
 				Icon = "wrench"
+			});
+			Tabs.Test = guiWindow[randomKey]:AddTab({
+				Title = "Test",
+				Icon = "code"
 			});
 			self.toolsRemoteSpyButton = Tabs.Tools:AddButton({
 				Title = "Remote Spy",
@@ -7206,6 +7201,22 @@ function AvHub:Gui()
 				Title = "Info",
 				Content = infodata
 			});
+			local testdesc1 = "Fire signal on 'Yes please!' option";
+			self.toolsTestFunctionButton1 = Tabs.Test:AddButton({
+				Title = "Test Function 1",
+				Description = "Current Function:\n" .. testdesc1,
+				Callback = function()
+					self.testFunction1();
+				end
+			});
+			local testdesc2 = "Iterate through ResponseFrame children";
+			self.toolsTestFunctionButton2 = Tabs.Test:AddButton({
+				Title = "Test Function 2",
+				Description = "Current Function:\n" .. testdesc2,
+				Callback = function()
+					self.testFunction2();
+				end
+			});
 		end
 		self.showDeveloperButton = Tabs.Misc:AddButton({
 			Title = "Add Developer Tools",
@@ -7214,6 +7225,7 @@ function AvHub:Gui()
 				self.showDeveloper();
 			end
 		});
+
 	end
 
 	--[[
@@ -7237,8 +7249,8 @@ end;
 --[[
 	Main
 --]]
-AvHub:Functions();
-AvHub:Gui();
+Hub:Functions();
+Hub:Gui();
 antiAfk();
 tickCount = tick();
 guiWindow[randomKey]:SelectTab(1);
