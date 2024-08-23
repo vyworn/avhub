@@ -20,6 +20,7 @@ local Themes = {
 		"Amethyst",
 		"Rose",
 		"Sakura",
+		"SakuraV2",
 		"TestTheme1",
 		"TestTheme2",
 		"TestTheme3",
@@ -349,6 +350,61 @@ local Themes = {
 		Hover = Color3.fromRGB(200, 120, 170),
 		HoverChange = 0.04,
 	},
+	SakuraV2 = {
+		Name = "SakuraV2",
+		Accent = Color3.fromRGB(232, 189, 195), -- Slightly Darker
+	
+		AcrylicMain = Color3.fromRGB(40, 40, 40),
+		AcrylicBorder = Color3.fromRGB(150, 110, 130), -- Darker Border
+		AcrylicGradient = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(232, 189, 195)),
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(235, 211, 202)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(213, 157, 185)), -- Slightly Darker Pink
+			ColorSequenceKeypoint.new(0.75, Color3.fromRGB(175, 110, 138)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(106, 53, 73)),
+		},
+		AcrylicNoise = 0.92,
+	
+		TitleBarLine = Color3.fromRGB(150, 110, 130),
+		Tab = Color3.fromRGB(140, 99, 105),
+	
+		Element = Color3.fromRGB(232, 189, 195),
+		ElementBorder = Color3.fromRGB(150, 110, 130),
+		InElementBorder = Color3.fromRGB(160, 130, 130),
+		ElementTransparency = 0.9,
+	
+		ToggleSlider = Color3.fromRGB(232, 189, 195),
+		ToggleToggled = Color3.fromRGB(232, 189, 195),
+		TransparenToggle = 0.7,
+	
+		SliderRail = Color3.fromRGB(232, 189, 195),
+	
+		DropdownFrame = Color3.fromRGB(213, 157, 185),  -- Slightly Darker Pink
+		DropdownHolder = Color3.fromRGB(156, 103, 123),
+		DropdownBorder = Color3.fromRGB(130, 70, 85),
+		DropdownOption = Color3.fromRGB(213, 157, 185), -- Slightly Darker Pink
+	
+		Keybind = Color3.fromRGB(200, 120, 170),
+	
+		Input = Color3.fromRGB(200, 120, 170),
+		InputFocused = Color3.fromRGB(200, 200, 200),
+		InputIndicator = Color3.fromRGB(170, 150, 190),
+		InputIndicatorFocus = Color3.fromRGB(232, 189, 195),
+	
+		Dialog = Color3.fromRGB(140, 80, 105),
+		DialogHolder = Color3.fromRGB(115, 60, 80),
+		DialogHolderLine = Color3.fromRGB(105, 45, 65),
+		DialogButton = Color3.fromRGB(140, 80, 105),
+		DialogButtonBorder = Color3.fromRGB(175, 100, 125),
+		DialogBorder = Color3.fromRGB(120, 90, 110),
+		DialogInput = Color3.fromRGB(155, 75, 100),
+		DialogInputLine = Color3.fromRGB(210, 180, 200),
+	
+		Text = Color3.fromRGB(240, 240, 240),
+		SubText = Color3.fromRGB(220, 220, 220),
+		Hover = Color3.fromRGB(200, 120, 170),
+		HoverChange = 0.04,
+	},
 	TestTheme1 = {
 		Name = "TestTheme1",
 		Accent = Color3.fromRGB(250, 208, 196), -- Blush Pink
@@ -461,59 +517,59 @@ local Themes = {
 	},
 	TestTheme3 = {
 		Name = "TestTheme3",
-		Accent = Color3.fromRGB(198, 247, 226), -- Soft Mint
+		Accent = Color3.fromRGB(158, 217, 196), -- Darker Mint
 	
-		AcrylicMain = Color3.fromRGB(40, 40, 40),
-		AcrylicBorder = Color3.fromRGB(172, 231, 224), -- Light Aqua
+		AcrylicMain = Color3.fromRGB(30, 30, 30),
+		AcrylicBorder = Color3.fromRGB(142, 201, 194), -- Darker Aqua
 		AcrylicGradient = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(198, 247, 226)),
-			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(172, 231, 224)),
-			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(224, 247, 245)), -- Very Light Aqua
-			ColorSequenceKeypoint.new(0.75, Color3.fromRGB(172, 231, 224)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(198, 247, 226)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(158, 217, 196)),
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(142, 201, 194)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(194, 217, 215)), -- Light Aqua
+			ColorSequenceKeypoint.new(0.75, Color3.fromRGB(142, 201, 194)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(158, 217, 196)),
 		},
 		AcrylicNoise = 0.92,
 	
-		TitleBarLine = Color3.fromRGB(198, 247, 226),
-		Tab = Color3.fromRGB(172, 231, 224),
+		TitleBarLine = Color3.fromRGB(142, 201, 194),
+		Tab = Color3.fromRGB(142, 201, 194),
 	
-		Element = Color3.fromRGB(198, 247, 226),
-		ElementBorder = Color3.fromRGB(172, 231, 224),
-		InElementBorder = Color3.fromRGB(224, 247, 245),
-		ElementTransparency = 0.9,
+		Element = Color3.fromRGB(158, 217, 196),
+		ElementBorder = Color3.fromRGB(142, 201, 194),
+		InElementBorder = Color3.fromRGB(194, 217, 215),
+		ElementTransparency = 0.8, -- Slightly reduced transparency
 	
-		ToggleSlider = Color3.fromRGB(198, 247, 226),
-		ToggleToggled = Color3.fromRGB(172, 231, 224),
+		ToggleSlider = Color3.fromRGB(158, 217, 196),
+		ToggleToggled = Color3.fromRGB(142, 201, 194),
 		TransparenToggle = 0.7,
 	
-		SliderRail = Color3.fromRGB(224, 247, 245),
+		SliderRail = Color3.fromRGB(194, 217, 215),
 	
-		DropdownFrame = Color3.fromRGB(172, 231, 224),  -- Softer Aqua
-		DropdownHolder = Color3.fromRGB(140, 200, 190), -- Deeper Mint
-		DropdownBorder = Color3.fromRGB(130, 180, 170), -- Muted Mint
-		DropdownOption = Color3.fromRGB(198, 247, 226), -- Soft Mint
+		DropdownFrame = Color3.fromRGB(142, 201, 194),  -- Darker Aqua
+		DropdownHolder = Color3.fromRGB(130, 180, 170), -- Darker Mint
+		DropdownBorder = Color3.fromRGB(120, 160, 150), -- Darker Aqua
+		DropdownOption = Color3.fromRGB(158, 217, 196), -- Darker Mint
 	
-		Keybind = Color3.fromRGB(198, 247, 226),
+		Keybind = Color3.fromRGB(158, 217, 196),
 	
-		Input = Color3.fromRGB(172, 231, 224),
-		InputFocused = Color3.fromRGB(224, 247, 245),
-		InputIndicator = Color3.fromRGB(198, 247, 226),
-		InputIndicatorFocus = Color3.fromRGB(172, 231, 224),
+		Input = Color3.fromRGB(142, 201, 194),
+		InputFocused = Color3.fromRGB(194, 217, 215),
+		InputIndicator = Color3.fromRGB(158, 217, 196),
+		InputIndicatorFocus = Color3.fromRGB(142, 201, 194),
 	
-		Dialog = Color3.fromRGB(198, 247, 226),
-		DialogHolder = Color3.fromRGB(172, 231, 224),
-		DialogHolderLine = Color3.fromRGB(224, 247, 245),
-		DialogButton = Color3.fromRGB(198, 247, 226),
-		DialogButtonBorder = Color3.fromRGB(172, 231, 224),
-		DialogBorder = Color3.fromRGB(224, 247, 245),
-		DialogInput = Color3.fromRGB(172, 231, 224),
-		DialogInputLine = Color3.fromRGB(224, 247, 245),
+		Dialog = Color3.fromRGB(158, 217, 196),
+		DialogHolder = Color3.fromRGB(142, 201, 194),
+		DialogHolderLine = Color3.fromRGB(194, 217, 215),
+		DialogButton = Color3.fromRGB(158, 217, 196),
+		DialogButtonBorder = Color3.fromRGB(142, 201, 194),
+		DialogBorder = Color3.fromRGB(194, 217, 215),
+		DialogInput = Color3.fromRGB(142, 201, 194),
+		DialogInputLine = Color3.fromRGB(194, 217, 215),
 	
 		Text = Color3.fromRGB(240, 240, 240),
-		SubText = Color3.fromRGB(220, 220, 220),
-		Hover = Color3.fromRGB(172, 231, 224),
+		SubText = Color3.fromRGB(210, 210, 210), -- Slightly darker subtext
+		Hover = Color3.fromRGB(142, 201, 194),
 		HoverChange = 0.04,
-	},
+	},	
 	TestTheme4 = {
 		Name = "TestTheme4",
 		Accent = Color3.fromRGB(250, 217, 217), -- Soft Rose
