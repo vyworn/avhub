@@ -5896,7 +5896,7 @@ local Dragging, DragInput, MousePos, StartPos = false
 
 local MinimizeButton = New("TextButton", {
     BackgroundTransparency = 1,
-    Size = UDim2.new(0, 300, 0, 300),  -- Increase size to test visibility
+    Size = UDim2.new(0, 1, 0, 1),
     BorderSizePixel = 2,
     BorderColor3 = Color3.fromRGB(150, 150, 150),
 }, {
@@ -5907,14 +5907,14 @@ local MinimizeButton = New("TextButton", {
         PaddingTop = UDim.new(0, 2),
     }),
     New("ImageLabel", {
-        Image = "rbxassetid://12934082876",  -- Use rbxthumb for specific size
+        Image = "rbxassetid://125973583706257",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
-        ScaleType = Enum.ScaleType.Fit,  -- Ensure image scales correctly
+        ScaleType = Enum.ScaleType.Fit,
     }, {
         New("UIAspectRatioConstraint", {
-            AspectRatio = 1,  -- Adjust as needed for your image's aspect ratio
-            AspectType = Enum.AspectType.FitWithinMaxSize,  -- Maintain aspect ratio while fitting
+            AspectRatio = 1,
+            AspectType = Enum.AspectType.FitWithinMaxSize,
         })
     })
 })
