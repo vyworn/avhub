@@ -384,7 +384,9 @@ function AvHub:Functions()
 			if currentRaid:match("Adaptive Titan") then
 				return true
 			elseif currentRaid:match("") then
-				playergui.RaidBar.RaidBar.Visible = false
+				if playergui.RaidBar.RaidBar.Visible == true
+					playergui.RaidBar.RaidBar.Visible = false
+				end
 				return false
 			end
 		end
