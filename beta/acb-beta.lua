@@ -48,7 +48,9 @@ local gamebosses = workspace:WaitForChild("Bosses")
 --]]
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
-local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/beta/fluent-library-beta.lua")))();
+-- local originUpdateLink = "https://raw.githubusercontent.com/vyworn/avhub/update/beta/fluent-library-beta.lua"
+-- local originMasterLink = "https://raw.githubusercontent.com/vyworn/avhub/main/beta/fluent-library-beta.lua"
+local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/update/beta/fluent-library-beta.lua")))();
 
 --[[
 	Helper Functions

@@ -1382,10 +1382,7 @@ Components.Element = (function()
         local Element = {}
         local Options = Options or {}
 
-        -- Default to left alignment if not specified
         local TextAlign = Options.TextAlign or "Left"
-
-        -- Determine the Enum for TextXAlignment based on the TextAlign option
         local TextXAlignmentEnum
         if TextAlign == "Center" then
             TextXAlignmentEnum = Enum.TextXAlignment.Center
@@ -1399,7 +1396,7 @@ Components.Element = (function()
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
             Text = Title,
             TextColor3 = Color3.fromRGB(240, 240, 240),
-            TextSize = 13,
+            TextSize = 16,
             TextXAlignment = TextXAlignmentEnum,  -- Use the determined alignment
             Size = UDim2.new(1, 0, 0, 14),
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1413,9 +1410,9 @@ Components.Element = (function()
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
             Text = Desc,
             TextColor3 = Color3.fromRGB(200, 200, 200),
-            TextSize = 12,
+            TextSize = 14,
             TextWrapped = true,
-            TextXAlignment = TextXAlignmentEnum,  -- Use the determined alignment
+            TextXAlignment = TextXAlignmentEnum,
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             AutomaticSize = Enum.AutomaticSize.Y,
             BackgroundTransparency = 1,
