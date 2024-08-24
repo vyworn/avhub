@@ -5894,9 +5894,10 @@ end
 
 local Dragging, DragInput, MousePos, StartPos = false
 
+-- Define the MinimizeButton with increased size
 local MinimizeButton = New("TextButton", {
     BackgroundTransparency = 1,
-    Size = UDim2.new(1, 0, 1, 0),
+    Size = UDim2.new(0, 300, 0, 300),  -- Increase size to 300x300 pixels
     BorderSizePixel = 2,
     BorderColor3 = Color3.fromRGB(150, 150, 150),
 }, {
@@ -5907,25 +5908,26 @@ local MinimizeButton = New("TextButton", {
         PaddingTop = UDim.new(0, 2),
     }),
     New("ImageLabel", {
-        Image = "https://www.roblox.com/library/18975757099" or "rbxassetid://1897575709",
+        Image = "rbxassetid://18975757099",  -- Corrected Image Asset ID
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
+        ScaleType = Enum.ScaleType.Fit,  -- Ensure image scales to fit within ImageLabel
     }, {
         New("UIAspectRatioConstraint", {
-            AspectRatio = 1,
-            AspectType = Enum.AspectType.FitWithinMaxSize,
+            AspectRatio = 1,  -- Adjust as needed for your image's aspect ratio
+            AspectType = Enum.AspectType.FitWithinMaxSize,  -- Maintain aspect ratio while fitting
         })
     })
 })
 
+-- Define the Minimizer frame
 local Minimizer = New("Frame", {
     Parent = GUI,
-    Size = UDim2.new(0, 32, 0, 32),
+    Size = UDim2.new(0, 300, 0, 300),  -- Increase size to match MinimizeButton
     Position = UDim2.new(0.45, 0, 0.025, 0),
     BackgroundTransparency = 1,
     ZIndex = 999999999,
-},
-{
+}, {
     New("Frame", {
         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
         Size = UDim2.new(1, 0, 1, 0),
@@ -5938,6 +5940,7 @@ local Minimizer = New("Frame", {
         MinimizeButton
     })
 })
+
 
 Creator.AddSignal(Minimizer.InputBegan, function(Input)
     if
