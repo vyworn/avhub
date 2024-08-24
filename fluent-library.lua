@@ -5921,7 +5921,7 @@ local MinimizeButton = New("TextButton", {
 
 local Minimizer = New("Frame", {
     Parent = GUI,
-    Size = UDim2.new(0, 300, 0, 300),  -- Match size of MinimizeButton
+    Size = UDim2.new(0, 1, 0, 1),
     Position = UDim2.new(0.45, 0, 0.025, 0),
     BackgroundTransparency = 1,
     ZIndex = 999999999,
