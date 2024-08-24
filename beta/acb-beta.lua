@@ -48,9 +48,9 @@ local gamebosses = workspace:WaitForChild("Bosses")
 --]]
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
--- local originUpdateLink = "https://raw.githubusercontent.com/vyworn/avhub/update/beta/fluent-library-beta.lua"
--- local originMasterLink = "https://raw.githubusercontent.com/vyworn/avhub/main/beta/fluent-library-beta.lua"
-local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/update/beta/fluent-library-beta.lua")))();
+local betaLibrary = "https://raw.githubusercontent.com/vyworn/avhub/update/beta/fluent-library-beta.lua"
+local mainLibrary = "https://raw.githubusercontent.com/vyworn/avhub/update/fluent-library.lua"
+local Fluent = (loadstring(game:HttpGet(betaLibrary)))();
 
 --[[
 	Helper Functions
@@ -901,8 +901,7 @@ function AvHub:Gui()
 		.. "\n" .. "*Made By" 
 		.. "\n->\t" .. devs
 
-		.. "\n",
-		TextAlign = "Center"
+		.. "\n"
 	});
 	local latestSection = Tabs.Main:AddSection("Latest");
 	latestParagraph = Tabs.Main:AddParagraph({

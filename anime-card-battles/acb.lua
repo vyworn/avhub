@@ -46,9 +46,9 @@ local gamebosses = workspace:WaitForChild("Bosses")
 --[[
 	Libraries
 --]]
-local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/fluent-library.lua")))();
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
+local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/fluent-library.lua")))();
 
 --[[
 	Helper Functions
@@ -885,7 +885,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.3.0";
+	local version = "v_1.3.1";
 	local devs = "Av";
 
 	--[[
@@ -899,7 +899,7 @@ function AvHub:Gui()
 		.. "\n" .. "*Made By" 
 		.. "\n->\t" .. devs
 
-		.. "\n",
+		.. "\n"
 	});
 	local latestSection = Tabs.Main:AddSection("Latest");
 	latestParagraph = Tabs.Main:AddParagraph({
