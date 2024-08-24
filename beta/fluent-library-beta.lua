@@ -5898,8 +5898,8 @@ local MinimizeButton = New("TextButton", {
     BackgroundTransparency = 1,
     Size = UDim2.new(1, 0, 1, 0),
     BorderSizePixel = 2,
-    BorderColor3 = Color3.fromRGB(150, 150, 150)
-    }, {
+    BorderColor3 = Color3.fromRGB(150, 150, 150),
+}, {
     New("UIPadding", {
         PaddingBottom = UDim.new(0, 2),
         PaddingLeft = UDim.new(0, 2),
@@ -5907,7 +5907,7 @@ local MinimizeButton = New("TextButton", {
         PaddingTop = UDim.new(0, 2),
     }),
     New("ImageLabel", {
-        Image = "rbxassetid://18975757099",
+        Image = "https://www.roblox.com/library/18975757099" or "rbxassetid://1897575709",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
     }, {
