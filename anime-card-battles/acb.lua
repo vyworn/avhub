@@ -369,7 +369,6 @@ function AvHub:Functions()
 		return value
 	end
 	self.autoRaid = function()
-		print ("Auto Raid started")
 		while self.autoRaidToggle.Value do
 			if isRaidActive() then
 				if self.autoSwordToggle.Value then
@@ -386,7 +385,7 @@ function AvHub:Functions()
 				else
 					self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
 				end
-	
+				playergui.RaidBar.RaidBar.Visible = true
 				while self.autoRaidToggle.Value and isRaidActive() do
 					local titanBoss, titanHRP, titanProximityPrompt, dialogueOption
 					local npcDialogue, dialogueFrame, responseFrame
@@ -431,17 +430,14 @@ function AvHub:Functions()
 						task.wait(0.1)
 						virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
 					end
-					task.wait(0.1)
 					guiservice.SelectedObject = nil
-					task.wait(0.5)
+					task.wait(1.5)
 				end
 			else
-				-- Pause autoRaid when raid is not active
 				if autoRaidTask then
 					task.cancel(autoRaidTask)
 					autoRaidTask = nil
 				end
-				-- Restart autoInfinite if it's toggled on
 				if self.autoInfiniteToggle.Value and not autoInfiniteTask then
 					autoInfiniteTask = task.spawn(self.autoInfinite)
 				end
@@ -453,8 +449,6 @@ function AvHub:Functions()
 	self.autoInfinite = function()
 		while self.autoInfiniteToggle.Value do
 			if isRaidActive() and self.autoRaidToggle.Value then
-				print("Auto Infinite paused due to raid activation")
-				-- Give up auto infinite if it's running
 				local BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
 				if BATTLETOWERUI then
 					local giveUpButton = BATTLETOWERUI:FindFirstChild("Background"):FindFirstChild("GiveUp")
@@ -465,7 +459,6 @@ function AvHub:Functions()
 						virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
 					end
 				end
-				-- Pause autoInfinite and start autoRaid
 				if autoInfiniteTask then
 					task.cancel(autoInfiniteTask)
 					autoInfiniteTask = nil
@@ -473,7 +466,6 @@ function AvHub:Functions()
 				if not autoRaidTask then
 					autoRaidTask = task.spawn(self.autoRaid)
 				end
-				-- Wait until raid is no longer active
 				repeat
 					task.wait(1)
 				until not isRaidActive()
@@ -481,8 +473,7 @@ function AvHub:Functions()
 				autoInfiniteTask = task.spawn(self.autoInfinite)
 				return
 			end
-	
-			-- Existing autoInfinite code starts here
+
 			if self.autoSwordToggle.Value then
 				if grabbedSword then
 					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
@@ -497,7 +488,7 @@ function AvHub:Functions()
 				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			end
 			while self.autoInfiniteToggle.Value do
-				if isRaidActive() then break end  -- Check for raid activation
+				if isRaidActive() then break end
 				local battleLabel = playergui:WaitForChild("HideBattle"):WaitForChild("BATTLE")
 				local BATTLETOWERUI
 				local timeEmpty = 0
@@ -506,7 +497,7 @@ function AvHub:Functions()
 				if not self.autoInfiniteToggle.Value then return end
 				repeat
 					if not self.autoInfiniteToggle.Value then break end
-					if isRaidActive() then break end  -- Check for raid activation
+					if isRaidActive() then break end
 					BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
 					if not BATTLETOWERUI then
 						if battleLabel.Text == "" then
@@ -520,29 +511,29 @@ function AvHub:Functions()
 					task.wait(1)
 				until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
 				if not self.autoInfiniteToggle.Value then return end
-				if isRaidActive() then break end  -- Check for raid activation
+				if isRaidActive() then break end
 				repeat
 					if not self.autoInfiniteToggle.Value then break end
-					if isRaidActive() then break end  -- Check for raid activation
+					if isRaidActive() then break end
 					davidNPC = gamenpcs:WaitForChild("David")
 					davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
 					task.wait(0.1)
 				until davidHRP or not self.autoInfiniteToggle.Value
 				if not self.autoInfiniteToggle.Value then return end
-				if isRaidActive() then break end  -- Check for raid activation
+				if isRaidActive() then break end
 				repeat 
 					if not self.autoInfiniteToggle.Value then break end
-					if isRaidActive() then break end  -- Check for raid activation
+					if isRaidActive() then break end
 					davidProximityPrompt = davidHRP.ProximityPrompt
 					fireproximityprompt(davidProximityPrompt)
 					npcDialogue = playergui:FindFirstChild("NPCDialogue")
 					task.wait(0.1)
 				until npcDialogue or not self.autoInfiniteToggle.Value
 				if not self.autoInfiniteToggle.Value then return end
-				if isRaidActive() then break end  -- Check for raid activation
+				if isRaidActive() then break end
 				repeat
 					if not self.autoInfiniteToggle.Value then return end
-					if isRaidActive() then break end  -- Check for raid activation
+					if isRaidActive() then break end
 					dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 					responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
 					dialogueOption = responseFrame:WaitForChild("DialogueOption")
@@ -550,18 +541,17 @@ function AvHub:Functions()
 					task.wait(0.1)
 				until guiservice.SelectedObject == dialogueOption or not self.autoInfiniteToggle.Value
 				if not self.autoInfiniteToggle.Value then return end
-				if isRaidActive() then break end  -- Check for raid activation
+				if isRaidActive() then break end
 				if dialogueOption and self.autoInfiniteToggle.Value then
 					if not self.autoInfiniteToggle.Value then return end
-					if isRaidActive() then break end  -- Check for raid activation
+					if isRaidActive() then break end
 					guiservice.SelectedObject = dialogueOption
 					virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 					task.wait(0.1)
 					virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
 				end
-				task.wait(0.1)
 				guiservice.SelectedObject = nil
-				task.wait(0.5)
+				task.wait(1.5)
 			end
 			task.wait(0.1)
 		end
@@ -779,8 +769,8 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.5";
-	local devs = "Av & Hari";
+	local version = "v_1.2.6";
+	local devs = "Av";
 
 	--[[
 		Main Tab
