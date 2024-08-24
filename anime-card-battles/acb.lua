@@ -131,6 +131,10 @@ local codes = {
 	"5MVISITS!",
 	"SORRYFORALLTHESHUTDOWNS!",
 	"DAVIDSTHEBEST!",
+	"25KLIKES!",
+	"30KLIKES!",
+	"10MVISITS!",
+	"UPDATE3!",
 };
 
 --[[
@@ -167,14 +171,16 @@ local mobTeleports = {
 	"Substitute Reaper",
 	"Rubber Boy",
 	"Bald Hero",
+	"Infernal Pugilist",
 };
 local bossTeleports = {
-	"Cifer",
-	"King Of Curses",
-	"Shinobi God",
 	"Galactic Tyrant",
+	"Shinobi God",
+	"King Of Curses",
+	"Cifer",
 	"Wicked Weaver",
-	"Cosmic Menace"
+	"Cosmic Menace",
+	"Immortal Demon",
 }
 local areaTeleports = {
 	"Heavens Arena",
@@ -182,11 +188,16 @@ local areaTeleports = {
 	"Card Leaderboard",
 	"Spawn",
 };
+local raidTeleports = {
+	"Adaptive Titan",
+	"Raid Shop",
+};
 local npcTeleportsCoordinates = {
 	["Heaven Infinite"] = Vector3.new(454.615417, 260.529327,5928.994629),
 	["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
 	["Charm Merchant"] = Vector3.new(-7764.36572265625, 179.71200561523438, -9194.859375),
 	["Potion Shop"] = Vector3.new(-7744.11376953125, 180.14158630371094, -9369.5908203125),
+	["Raid Shop"] = Vector3.new(-7930.668457, 179.798950,-9347.118164),
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
 	["Card Index"] = Vector3.new(-7846.603515625, 180.50991821289062, -9371.1884765625),
 	["Daily Chest"] = Vector3.new(-7785.53173828125, 180.8318634033203, -9339.9423828125),
@@ -203,20 +214,26 @@ local mobsTeleportsCoordinates = {
 	["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009, 6714.296875),
 	["Rubber Boy"] = Vector3.new(13150.526367, 84.124977, 11365.570312),
 	["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391),
+	["Infernal Pugilist"] = Vector3.new(-13618.935547, 249.765564,8330.528320),
 };
 local bossTeleportsCoordinates = {
-	["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
-	["Wicked Weaver"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
-	["Cifer"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
-	["King Of Curses"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
-	["Shinobi God"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
 	["Galactic Tyrant"] = Vector3.new(10927.65918, 352.19986, -5072.885254),
+	["Shinobi God"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
+	["King Of Curses"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
+	["Cifer"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
+	["Wicked Weaver"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
+	["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
+	["Immortal Demon"] = Vector3.new(-13607.038086, 249.765564,8309.548828),
 }
 local areaTeleportCoordinates = {
 	["Heavens Arena"] = Vector3.new(461.994751, 247.374268, 5954.683105),
 	["Roll Leaderboard"] = Vector3.new(-7920.541015625, 186.38790893554688, -9144.70703125),
 	["Card Leaderboard"] = Vector3.new(-7920.541015625, 186.38800048828125, -9170.8369140625),
 	["Spawn"] = Vector3.new(-7921.300781, 177.836029,-9143.949219),
+};
+local raidTeleportCoordinates = {
+	["Adaptive Titan"] = Vector3.new(-11600.375000, 250.031403,-11486.458984),
+	["Raid Shop"] = Vector3.new(-7930.668457, 179.798950,-9347.118164),
 };
 
 --[[
@@ -603,7 +620,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.1.7";
+	local version = "v_1.2.1";
 	local devs = "Av & Hari";
 
 	--[[
@@ -757,6 +774,13 @@ function AvHub:Gui()
 		Multi = false,
 		Default = nil
 	});
+	local raidTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
+		Title = "Raids",
+		Description = "Teleports to Raids",
+		Values = raidTeleports,
+		Multi = false,
+		Default = nil
+	});
 	npcTeleportDropdown:OnChanged(function(Value)
 		local destination = npcTeleportsCoordinates[Value];
 		if destination then
@@ -783,6 +807,13 @@ function AvHub:Gui()
 		if destination then
 			self.characterTeleport(destination);
 			areaTeleportDropdown:SetValue(nil);
+		end;
+	end);
+	raidTeleportDropdown:OnChanged(function(Value)
+		local destination = raidTeleportCoordinates[Value];
+		if destination then
+			self.characterTeleport(destination);
+			raidTeleportDropdown:SetValue(nil);
 		end;
 	end);
 
