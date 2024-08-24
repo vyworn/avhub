@@ -346,6 +346,11 @@ function AvHub:Functions()
 		Auto Functions
 	--]]
 	self.grabPotions = function()
+		players = game:GetService("Players")
+		player = players.LocalPlayer
+		character = player.Character or player.CharacterAdded:Wait()
+		humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+		workspace = game:GetService("Workspace")
 		local activePotions = workspace:FindFirstChild("ActivePotions")
 		local potionCount = 0
 
@@ -358,7 +363,7 @@ function AvHub:Functions()
 		
 		for _, potion in ipairs(activePotions:GetChildren()) do
 			local base = potion:FindFirstChild("Base")
-			if base and base:FindFirstChild("TouchInterest") then
+			if base then
 				firetouchinterest(base, humanoidRootPart, 0)
 				task.wait(0.1)
 				firetouchinterest(base, humanoidRootPart, 1)

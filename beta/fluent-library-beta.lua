@@ -5894,10 +5894,9 @@ end
 
 local Dragging, DragInput, MousePos, StartPos = false
 
--- Define the MinimizeButton with increased size
 local MinimizeButton = New("TextButton", {
     BackgroundTransparency = 1,
-    Size = UDim2.new(0, 300, 0, 300),  -- Increase size to 300x300 pixels
+    Size = UDim2.new(0, 300, 0, 300),  -- Increase size to test visibility
     BorderSizePixel = 2,
     BorderColor3 = Color3.fromRGB(150, 150, 150),
 }, {
@@ -5908,10 +5907,10 @@ local MinimizeButton = New("TextButton", {
         PaddingTop = UDim.new(0, 2),
     }),
     New("ImageLabel", {
-        Image = "rbxassetid://18975757099",  -- Corrected Image Asset ID
+        Image = "rbxthumb://type=Asset&id=18975757099&w=300&h=300",  -- Use rbxthumb for specific size
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
-        ScaleType = Enum.ScaleType.Fit,  -- Ensure image scales to fit within ImageLabel
+        ScaleType = Enum.ScaleType.Fit,  -- Ensure image scales correctly
     }, {
         New("UIAspectRatioConstraint", {
             AspectRatio = 1,  -- Adjust as needed for your image's aspect ratio
@@ -5920,10 +5919,9 @@ local MinimizeButton = New("TextButton", {
     })
 })
 
--- Define the Minimizer frame
 local Minimizer = New("Frame", {
     Parent = GUI,
-    Size = UDim2.new(0, 300, 0, 300),  -- Increase size to match MinimizeButton
+    Size = UDim2.new(0, 300, 0, 300),  -- Match size of MinimizeButton
     Position = UDim2.new(0.45, 0, 0.025, 0),
     BackgroundTransparency = 1,
     ZIndex = 999999999,
@@ -5940,7 +5938,6 @@ local Minimizer = New("Frame", {
         MinimizeButton
     })
 })
-
 
 Creator.AddSignal(Minimizer.InputBegan, function(Input)
     if

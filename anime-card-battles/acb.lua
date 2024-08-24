@@ -4,8 +4,9 @@
 if not game:IsLoaded() then
 	game.Loaded:Wait();
 end;
-local waitplayer = game.Players.LocalPlayer;
-local character = waitplayer.Character or waitplayer.CharacterAdded:Wait()
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 --[[
@@ -25,7 +26,6 @@ local textchannel = textchatservice.TextChannels:WaitForChild("RBXGeneral")
 local httpservice = game:GetService("HttpService")
 local proximitypromptservice = game:GetService("ProximityPromptService")
 
-local player = players.LocalPlayer
 local playerid = player.UserId
 local character = player.Character
 local username = player.Name
@@ -344,6 +344,11 @@ function AvHub:Functions()
 		Auto Functions
 	--]]
 	self.grabPotions = function()
+		players = game:GetService("Players")
+		player = players.LocalPlayer
+		character = player.Character or player.CharacterAdded:Wait()
+		humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+		workspace = game:GetService("Workspace")
 		local activePotions = workspace:FindFirstChild("ActivePotions")
 		local potionCount = 0
 
@@ -356,7 +361,7 @@ function AvHub:Functions()
 		
 		for _, potion in ipairs(activePotions:GetChildren()) do
 			local base = potion:FindFirstChild("Base")
-			if base and base:FindFirstChild("TouchInterest") then
+			if base then
 				firetouchinterest(base, humanoidRootPart, 0)
 				task.wait(0.1)
 				firetouchinterest(base, humanoidRootPart, 1)
