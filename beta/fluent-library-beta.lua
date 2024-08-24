@@ -1452,7 +1452,7 @@ Components.Element = (function()
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
             Text = Title,
             TextColor3 = Color3.fromRGB(240, 240, 240),
-            TextSize = 16,
+            TextSize = 15,
             TextXAlignment = TextXAlignmentEnum,  -- Use the determined alignment
             Size = UDim2.new(1, 0, 0, 14),
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -5907,7 +5907,7 @@ local MinimizeButton = New("TextButton", {
         PaddingTop = UDim.new(0, 2),
     }),
     New("ImageLabel", {
-        Image = "rbxthumb://type=Asset&id=18975757099&w=300&h=300",  -- Use rbxthumb for specific size
+        Image = "rbxassetid://12934082876",  -- Use rbxthumb for specific size
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
         ScaleType = Enum.ScaleType.Fit,  -- Ensure image scales correctly

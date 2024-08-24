@@ -1210,7 +1210,7 @@ function AvHub:Gui()
 				end
 			end
 			Tabs.Codes:AddParagraph({
-				Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH)),
+				Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH)) .. "\n",
 				Content = codesChunk
 			})
 			startIndex = endIndex - 1
