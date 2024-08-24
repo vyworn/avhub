@@ -5894,50 +5894,42 @@ end
 
 local Dragging, DragInput, MousePos, StartPos = false
 
-local MinimizeButton = New("TextButton", {
-    BackgroundTransparency = 1,
-    Size = UDim2.new(0, 1, 0, 1),
-    BorderSizePixel = 2,
-    BorderColor3 = Color3.fromRGB(150, 150, 150),
-}, {
-    New("UIPadding", {
-        PaddingBottom = UDim.new(0, 2),
-        PaddingLeft = UDim.new(0, 2),
-        PaddingRight = UDim.new(0, 2),
-        PaddingTop = UDim.new(0, 2),
-    }),
-    New("ImageLabel", {
-        Image = "rbxassetid://5093811309",
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 1,
-        ScaleType = Enum.ScaleType.Fit,
-    }, {
-        New("UIAspectRatioConstraint", {
-            AspectRatio = 1,
-            AspectType = Enum.AspectType.FitWithinMaxSize,
-        })
-    })
-})
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.BackgroundTransparency = 1
+MinimizeButton.Size = UDim2.new(0, 2, 0, 2)  -- Set the button size to 2x2 pixels
+MinimizeButton.BorderSizePixel = 2
+MinimizeButton.BorderColor3 = Color3.fromRGB(150, 150, 150)
 
-local Minimizer = New("Frame", {
-    Parent = GUI,
-    Size = UDim2.new(0, 1, 0, 1),
-    Position = UDim2.new(0.45, 0, 0.025, 0),
-    BackgroundTransparency = 1,
-    ZIndex = 999999999,
-}, {
-    New("Frame", {
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 0.5,
-        BorderSizePixel = 0
-    }, {
-        New("UICorner", {
-            CornerRadius = UDim.new(0.25, 0),
-        }),
-        MinimizeButton
-    })
-})
+-- Create the ImageLabel
+local ImageLabel = Instance.new("ImageLabel")
+ImageLabel.Image = "rbxassetid://18975757099"  -- Replace with your image asset ID
+ImageLabel.Size = UDim2.new(1, 0, 1, 0)  -- Make the image fill the entire button
+ImageLabel.BackgroundTransparency = 1
+ImageLabel.ScaleType = Enum.ScaleType.Fit  -- Adjust scaling to fit the image within the label
+ImageLabel.Parent = MinimizeButton
+
+-- Set up the parent frame
+local MinimizerFrame = Instance.new("Frame")
+MinimizerFrame.Parent = script.Parent  -- Assuming script.Parent is a valid parent for the button
+MinimizerFrame.Size = UDim2.new(0, 32, 0, 32)  -- Example size of the parent frame
+MinimizerFrame.Position = UDim2.new(0.45, 0, 0.025, 0)
+MinimizerFrame.BackgroundTransparency = 1
+MinimizerFrame.ZIndex = 999999999
+
+-- Add the UI elements to the Frame
+local BackgroundFrame = Instance.new("Frame")
+BackgroundFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BackgroundFrame.Size = UDim2.new(1, 0, 1, 0)
+BackgroundFrame.BackgroundTransparency = 0.5
+BackgroundFrame.BorderSizePixel = 0
+BackgroundFrame.Parent = MinimizerFrame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.25, 0)
+UICorner.Parent = BackgroundFrame
+
+MinimizeButton.Parent = BackgroundFrame
+
 
 Creator.AddSignal(Minimizer.InputBegan, function(Input)
     if
