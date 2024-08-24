@@ -885,7 +885,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.3.2";
+	local version = "v_1.3.4";
 	local devs = "Av";
 
 	--[[

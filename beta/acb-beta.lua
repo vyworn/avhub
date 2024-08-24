@@ -386,11 +386,11 @@ function AvHub:Functions()
 		return grabbedSword
 	end
 	local function isRaidActive()
-		local currentRaid = replicatedstorage.RaidActive.CurrentRaid.Value
+		local currentRaid = replicatedstorage.RaidActive.CurrentRaid.Raids.Text
 		if currentRaid then 
-			if currentRaid:match("Adaptive Titan") then
-				return true
-			elseif currentRaid:match("") then
+			if currentRaid:match("") then
+				return false
+			elseif not currentRaid:match("") then
 				local raidBar = playergui:FindFirstChild("RaidBar"):FindFirstChild("RaidBar")
 				if raidBar.Visible then
 					raidBar.Visible = false
@@ -788,12 +788,10 @@ function AvHub:Functions()
 			end
 		end
 	end
-	-- Function to format numbers with commas
+
 	local function formatNumberWithCommas(number)
 		return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):gsub(",%-$", ""):reverse()
 	end
-
-	-- Updated self.updateBattleStatsParagraph function
 	self.updateBattleStatsParagraph = function()
 		while self.autoRankedToggle.Value or self.autoInfiniteToggle.Value do
 			repeat
@@ -830,8 +828,6 @@ function AvHub:Functions()
 		if isAutoRaidActive() or isAutoInfiniteActive() then
 			if not updateBattleParagraphTask then
 				updateBattleParagraphTask = task.spawn(self.updateBattleStatsParagraph)
-			else 
-				return
 			end
 		elseif not isAutoRaidActive() and not isAutoInfiniteActive() then
 			if updateBattleParagraphTask then
@@ -891,7 +887,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.3.1";
+	local version = "v_1.3.4";
 	local devs = "Av";
 
 	--[[
@@ -997,11 +993,11 @@ function AvHub:Gui()
 	--]]
 	battleStatsParagraph = Tabs.Battle:AddParagraph({
 		Title = "Stats\n",
-		Content = "Raids: " .. "nil"
-				.. "\n" .. "Raid Damage Tracker: " .. "nil"
-				.. "\n" .. "Highest Floor: " .. "nil"
-				.. "\n" .. "Close Result Screen: " .. "nil"
-				.. "\n" .. "Hide Battle: " .. "nil"
+		Content = "Raids: "
+				.. "\n" .. "Raid Damage Tracker: "
+				.. "\n" .. "Highest Floor: "
+				.. "\n" .. "Close Result Screen: "
+				.. "\n" .. "Hide Battle: "
 	});
 	self.autoRaidToggle = Tabs.Battle:AddToggle("AutoRaid", {
 		Title = "Auto Raid",
