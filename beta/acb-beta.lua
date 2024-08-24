@@ -352,21 +352,21 @@ function AvHub:Functions()
 		humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 		workspace = game:GetService("Workspace")
 		local activePotions = workspace:FindFirstChild("ActivePotions")
-		local potionCount = 0
-
-		local function onPotionGrabbed(child)
-			potionCount = potionCount + 1
-			print("Potion grabbed, total count:", potionCount)
+		local function onPotionAdded(child)
+			if child:IsA("Model") and child:FindFirstChild("Base") then
+				potionCount = potionCount + 1
+				local base = child:FindFirstChild("Base")
+				if base then
+					firetouchinterest(base, humanoidRootPart, 0)
+					task.wait(0.1)
+					firetouchinterest(base, humanoidRootPart, 1)
+				end
+			end
 		end
-
-		activePotions.ChildRemoved:Connect(onPotionGrabbed)
-		
-		for _, potion in ipairs(activePotions:GetChildren()) do
-			local base = potion:FindFirstChild("Base")
-			if base then
-				firetouchinterest(base, humanoidRootPart, 0)
-				task.wait(0.1)
-				firetouchinterest(base, humanoidRootPart, 1)
+		if activePotions then
+			activePotions.ChildAdded:Connect(onPotionAdded)
+			for _, potion in ipairs(activePotions:GetChildren()) do
+				onPotionAdded(potion)
 			end
 		end
 	end	
@@ -469,38 +469,44 @@ function AvHub:Functions()
 		end
 	end
 	self.canTeleportToInfinite = function()
-		if isInInfiniteVicinity() then return end
-		if (not isRaidActive() or isRaidComplete()) then
-			if self.autoSwordToggle.Value then
-				if hasGrabbedSword() then
-					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+		if isInInfiniteVicinity() then 
+			return 
+		elseif not isInInfiniteVicinity then
+			if (not isRaidActive() or isRaidComplete()) then
+				if self.autoSwordToggle.Value then
+					if hasGrabbedSword() then
+						self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+					else
+						repeat 
+							hasGrabbedSword()
+							task.wait(0.2)
+						until hasGrabbedSword()
+						self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+					end
 				else
-					repeat 
-						hasGrabbedSword()
-						task.wait(0.2)
-					until hasGrabbedSword()
 					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 				end
-			else
-				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			end
 		end
 	end
 	self.canTeleportToRaid = function()
-		if isInRaidVicinity() then return end
-		if (isRaidActive() and not isRaidComplete()) then
-			if self.autoSwordToggle.Value then
-				if hasGrabbedSword() then
-					self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+		if isInRaidVicinity() then 
+			return 
+		elseif not isInRaidVicinity() then
+			if (isRaidActive() and not isRaidComplete()) then
+				if self.autoSwordToggle.Value then
+					if hasGrabbedSword() then
+						self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+					else
+						repeat 
+							hasGrabbedSword()
+							task.wait(0.2)
+						until hasGrabbedSword()
+						self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+					end
 				else
-					repeat 
-						hasGrabbedSword()
-						task.wait(0.2)
-					until hasGrabbedSword()
 					self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
 				end
-			else
-				self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
 			end
 		end
 	end
@@ -521,7 +527,9 @@ function AvHub:Functions()
 		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
 		while self.autoRaidToggle.Value and isRaidActive() and not isRaidComplete() do
 			if not isAutoRaidActive() then break end
-			self.canTeleportToRaid()
+			if not isInRaidVicinity() then
+				self.canTeleportToRaid()
+			end
 			playergui.RaidBar.RaidBar.Visible = true
 			
 			repeat
@@ -572,7 +580,9 @@ function AvHub:Functions()
 		local npcDialogue, dialogueFrame, responseFrame
 		while self.autoInfiniteToggle.Value and (not isRaidActive() or isRaidComplete()) do
 			if not isAutoInfiniteActive() then break end
-			self.canTeleportToInfinite()
+			if not isInInfiniteVicinity() then
+				self.canTeleportToInfinite()
+			end
 			if isInInfiniteBattle() then
 				repeat 
 					if not isAutoInfiniteActive() then break end
@@ -711,12 +721,6 @@ function AvHub:Functions()
 	--[[
 		Auto Loop Functions
 	--]]
-	self.autoPotionsLoop = function()
-		self.grabPotions();
-		while self.autoPotionsToggle.Value do
-			task.wait(0.25);
-		end;
-	end;
 	self.autoSwordLoop = function()
 		while self.autoSwordToggle.Value do
 			local swordObbyCD = swordCooldown;
@@ -792,30 +796,32 @@ function AvHub:Functions()
 	-- Updated self.updateBattleStatsParagraph function
 	self.updateBattleStatsParagraph = function()
 		while self.autoRankedToggle.Value or self.autoInfiniteToggle.Value do
-			local hideBattle = self.autoHideBattleToggle.Value
-			local closeResultScreen = self.closeResultScreenToggle.Value
-			local highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
-			local raidDamageTracker = formatNumberWithCommas(stats:FindFirstChild("RaidDamageTracker").Value)
-			local raidText
-			
-			if isRaidActive() then
-				raidText = "Open"
-			else
-				raidText = "Closed"
-			end
-			if isRaidComplete() then
-				raidText = raidText .. " (completed)"
-			else
-				raidText = raidText .. " (in progress)"
-			end
-
-			battleStatsParagraph:SetDesc("Raid: " .. raidText ..
-				"\nRaid Damage Tracker: " .. raidDamageTracker ..
-				"\nHighest Floor: " .. highestFloor ..
-				"\nClose Result Screen: " .. tostring(closeResultScreen) ..
-				"\nHide Battle: " .. tostring(hideBattle)
-			)
-
+			repeat
+				local hideBattle = self.autoHideBattleToggle.Value
+				local closeResultScreen = self.closeResultScreenToggle.Value
+				local highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
+				local raidDamageTracker = formatNumberWithCommas(stats:FindFirstChild("RaidDamageTracker").Value)
+				local raidText
+				
+				if isRaidActive() then
+					raidText = "Open"
+				else
+					raidText = "Closed"
+				end
+				if isRaidComplete() then
+					raidText = raidText .. " (completed)"
+				else
+					raidText = raidText .. " (in progress)"
+				end
+				
+				battleStatsParagraph:SetDesc("Raid: " .. raidText ..
+					"\nRaid Damage Tracker: " .. raidDamageTracker ..
+					"\nHighest Floor: " .. highestFloor ..
+					"\nClose Result Screen: " .. tostring(closeResultScreen) ..
+					"\nHide Battle: " .. tostring(hideBattle)
+				)
+				task.wait(0.2)
+			until not self.autoRankedToggle.Value or not self.autoInfiniteToggle.Value
 			task.wait(0.2)
 		end
 	end
@@ -834,13 +840,6 @@ function AvHub:Functions()
 			end
 		end
 	end;
-	self.startManageUpdateBattleParagraph = function()
-		if not manageUpdateBattleParagraphTask then
-			manageUpdateBattleParagraphTask = task.spawn(self.manageUpdateBattleParagraphTask)
-		else 
-			return
-		end
-	end
 end;
 
 function AvHub:Gui()
@@ -968,7 +967,7 @@ function AvHub:Gui()
 		autoPotionsActive = self.autoPotionsToggle.Value
 		if autoPotionsActive then
 			if not autoPotionsTask then
-				autoPotionsTask = task.spawn(self.autoPotionsLoop)
+				autoPotionsTask = task.spawn(self.grabPotions)
 			end
 		else 
 			if autoPotionsTask then
@@ -1033,8 +1032,8 @@ function AvHub:Gui()
 
 	self.autoRaidToggle:OnChanged(function()
 		if self.autoRaidToggle.Value then
+			self.manageUpdateBattleParagraphTask()
 			self.startManagePriority()
-			self.startManageUpdateBattleParagraph()
 		elseif not self.autoInfiniteToggle.Value then
 			if managePriorityTask and not self.autoInfiniteToggle.Value then
 				task.cancel(autoRaidTask)
@@ -1052,8 +1051,8 @@ function AvHub:Gui()
 	self.autoInfiniteToggle:OnChanged(function()
 		task.wait(1)
 		if self.autoInfiniteToggle.Value then
+			self.manageUpdateBattleParagraphTask()
 			self.startManagePriority()
-			self.startManageUpdateBattleParagraph()
 		elseif not self.autoRaidToggle.Value then
 			if managePriorityTask and not self.autoRaidToggle.Value then
 				task.cancel(autoInfiniteTask)
