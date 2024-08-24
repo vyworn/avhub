@@ -5841,8 +5841,9 @@ local Dragging, DragInput, MousePos, StartPos = false
 local MinimizeButton = New("TextButton", {
     BackgroundTransparency = 1,
     Size = UDim2.new(1, 0, 1, 0),
-    BorderSizePixel = 0
-}, {
+    BorderSizePixel = 2,
+    BorderColor3 = Color3.fromRGB(100, 100, 100)
+    }, {
     New("UIPadding", {
         PaddingBottom = UDim.new(0, 2),
         PaddingLeft = UDim.new(0, 2),
