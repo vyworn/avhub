@@ -5824,7 +5824,7 @@ function Library:CreateWindow(Config)
     Library.MinimizeKey = Config.MinimizeKey or Enum.KeyCode.LeftControl
     Library.UseAcrylic = Config.Acrylic or false
     Library.Acrylic = Config.Acrylic or false
-    Library.Theme = Config.Theme or "Dark"
+    Library.Theme = Config.Theme or "Avalanche"
     if Config.Acrylic then
         Acrylic.init()
     end
@@ -5907,7 +5907,7 @@ local MinimizeButton = New("TextButton", {
         PaddingTop = UDim.new(0, 2),
     }),
     New("ImageLabel", {
-        Image = "rbxassetid://17071506793",
+        Image = "rbxassetid://18975757099",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
     }, {
