@@ -5842,7 +5842,7 @@ local MinimizeButton = New("TextButton", {
     BackgroundTransparency = 1,
     Size = UDim2.new(1, 0, 1, 0),
     BorderSizePixel = 2,
-    BorderColor3 = Color3.fromRGB(100, 100, 100)
+    BorderColor3 = Color3.fromRGB(150, 150, 150)
     }, {
     New("UIPadding", {
         PaddingBottom = UDim.new(0, 2),
