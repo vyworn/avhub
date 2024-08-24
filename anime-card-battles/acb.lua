@@ -371,11 +371,14 @@ function AvHub:Functions()
 	self.autoRaid = function()
 		while self.autoRaidToggle.Value do
 			if isRaidActive() then
+				local damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+				local damageThreshold = 1000000
 				if self.autoSwordToggle.Value then
 					if grabbedSword then
 						self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
 					else
 						repeat
+							if damageTracker > damageThreshold then break end
 							if not self.autoRaidToggle.Value then break end
 							if not isRaidActive() then break end
 							task.wait(0.1)
@@ -389,8 +392,10 @@ function AvHub:Functions()
 				while self.autoRaidToggle.Value and isRaidActive() do
 					local titanBoss, titanHRP, titanProximityPrompt, dialogueOption
 					local npcDialogue, dialogueFrame, responseFrame
+					if damageTracker > damageThreshold then return end
 					if not self.autoRaidToggle.Value then return end
-					repeat 
+					repeat
+						if damageTracker > damageThreshold then break end
 						if not self.autoRaidToggle.Value then break end
 						if not isRaidActive() then break end
 						titanBoss = gamebosses:WaitForChild("Adaptive Titan")
@@ -398,8 +403,10 @@ function AvHub:Functions()
 						task.wait(0.1)
 					until titanHRP or not self.autoRaidToggle.Value
 	
+					if damageTracker > damageThreshold then return end
 					if not self.autoRaidToggle.Value then return end
 					repeat
+						if damageTracker > damageThreshold then break end
 						if not self.autoRaidToggle.Value then break end
 						if not isRaidActive() then break end
 						titanProximityPrompt = titanHRP.ProximityPrompt
@@ -408,8 +415,10 @@ function AvHub:Functions()
 						task.wait(0.1)
 					until npcDialogue or not self.autoRaidToggle.Value
 	
+					if damageTracker > damageThreshold then return end
 					if not self.autoRaidToggle.Value then return end
 					repeat
+						if damageTracker > damageThreshold then break end
 						if not self.autoRaidToggle.Value then break end
 						if not isRaidActive() then break end
 						dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
@@ -419,6 +428,7 @@ function AvHub:Functions()
 						task.wait(0.1)
 					until guiservice.SelectedObject == dialogueOption or not self.autoRaidToggle.Value or not isRaidActive()
 	
+					if damageTracker > damageThreshold then return end
 					if not self.autoRaidToggle.Value then return end
 					if dialogueOption and self.autoRaidToggle.Value then
 						guiservice.SelectedObject = dialogueOption
@@ -469,23 +479,22 @@ function AvHub:Functions()
 				repeat
 					task.wait(1)
 				until not isRaidActive()
-				-- Restart autoInfinite
 				autoInfiniteTask = task.spawn(self.autoInfinite)
 				return
-			end
-
-			if self.autoSwordToggle.Value then
-				if grabbedSword then
-					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+			else
+				if self.autoSwordToggle.Value then
+					if grabbedSword then
+						self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+					else
+						repeat
+							if not self.autoInfiniteToggle.Value then return end
+							task.wait(0.1)
+						until grabbedSword == true
+						self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+					end
 				else
-					repeat
-						if not self.autoInfiniteToggle.Value then return end
-						task.wait(0.1)
-					until grabbedSword == true
 					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 				end
-			else
-				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			end
 			while self.autoInfiniteToggle.Value do
 				if isRaidActive() then break end
@@ -769,7 +778,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.6";
+	local version = "v_1.2.7";
 	local devs = "Av";
 
 	--[[
