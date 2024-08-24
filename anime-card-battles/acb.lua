@@ -363,19 +363,32 @@ function AvHub:Functions()
 		end;
 	end;
 	self.autoRaid = function()
+		if self.autoSwordToggle.Value then
+			if grabbedSword then
+				self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+			else
+				repeat
+					if not self.autoInfiniteToggle.Value then return end
+					task.wait(0.1)
+				until grabbedSword == true
+				self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+			end
+		else
+			self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+		end
 		while self.autoRaidToggle.Value do
-			local titanBOSS, titanHRP, titanProximityPrompt, dialogueOption
+			local titanBoss, titanHRP, titanProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame
 			if not self.autoRaidToggle.Value then return end
 			repeat 
-				if not self.autoRaidToggle.Value then return end
-				titanBOSS = gamebosses:WaitForChild("Adaptive Titan")
-				titanHRP = titanBOSS:FindFirstChild("HumanoidRootPart")
+				if not self.autoRaidToggle.Value then break end
+				titanBoss = gamebosses:WaitForChild("Adaptive Titan")
+				titanHRP = titanBoss:FindFirstChild("HumanoidRootPart")
 				task.wait(0.1)
 			until titanHRP or not self.autoRaidToggle.Value
 			if not self.autoRaidToggle.Value then return end
 			repeat
-				if not self.autoRaidToggle.Value then return end
+				if not self.autoRaidToggle.Value then break end
 				titanProximityPrompt = titanHRP.ProximityPrompt
 				fireproximityprompt(titanProximityPrompt)
 				npcDialogue = playergui:FindFirstChild("NPCDialogue")
@@ -383,7 +396,7 @@ function AvHub:Functions()
 			until npcDialogue or not self.autoRaidToggle.Value
 			if not self.autoRaidToggle.Value then return end
 			repeat
-				if not self.autoRaidToggle.Value then return end
+				if not self.autoRaidToggle.Value then break end
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
 				dialogueOption = responseFrame:WaitForChild("DialogueOption")
@@ -392,6 +405,10 @@ function AvHub:Functions()
 			until guiservice.SelectedObject == dialogueOption or not self.autoRaidToggle.Value
 			if dialogueOption and self.autoRaidToggle.Value then
 				guiservice.SelectedObject = dialogueOption
+				if not self.autoRaidToggle.Value then 
+					guiservice.SelectedObject = nil
+					return 
+				end
 				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 				task.wait(0.1)
 				virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
@@ -420,22 +437,12 @@ function AvHub:Functions()
 		end
 	end
 	self.autoInfinite = function()
-		self.checkToggleWhile = function()
-			if not self.autoInfiniteToggle.Value then 
-				return
-			end
-		end
-		self.checkToggleRepeat = function()
-			if not self.autoInfiniteToggle.Value then 
-				break
-			end
-		end
 		if self.autoSwordToggle.Value then
 			if grabbedSword then
 				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
 			else
 				repeat
-					self.checkToggleRepeat()
+					if not self.autoInfiniteToggle.Value then return end
 					task.wait(0.1)
 				until grabbedSword == true
 				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
@@ -449,9 +456,9 @@ function AvHub:Functions()
 			local timeEmpty = 0
 			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
 			local npcDialogue, dialogueFrame, responseFrame	
-			self.checkToggleWhile()
+			if not self.autoInfiniteToggle.Value then return end
 			repeat
-				task.wait(1)
+				if not self.autoInfiniteToggle.Value then break end
 				BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
 				if not BATTLETOWERUI then
 					if battleLabel.Text == "" then
@@ -462,34 +469,35 @@ function AvHub:Functions()
 				else
 					timeEmpty = 0
 				end
+				task.wait(1)
 			until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
+			if not self.autoInfiniteToggle.Value then return end
 			repeat
-				self.checkToggleRepeat()
+				if not self.autoInfiniteToggle.Value then break end
 				davidNPC = gamenpcs:WaitForChild("David")
 				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
 				task.wait(0.1)
 			until davidHRP or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
+			if not self.autoInfiniteToggle.Value then return end
 			repeat 
-				self.checkToggleRepeat()
+				if not self.autoInfiniteToggle.Value then break end
 				davidProximityPrompt = davidHRP.ProximityPrompt
 				fireproximityprompt(davidProximityPrompt)
 				npcDialogue = playergui:FindFirstChild("NPCDialogue")
 				task.wait(0.1)
 			until npcDialogue or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
+			if not self.autoInfiniteToggle.Value then return end
 			repeat
-				self.checkToggleRepeat()
+				if not self.autoInfiniteToggle.Value then return end
 				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
 				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
 				dialogueOption = responseFrame:WaitForChild("DialogueOption")
 				guiservice.SelectedObject = dialogueOption
 				task.wait(0.1)
 			until guiservice.SelectedObject == dialogueOption or not self.autoInfiniteToggle.Value
-			self.checkToggleWhile()
+			if not self.autoInfiniteToggle.Value then return end
 			if dialogueOption and self.autoInfiniteToggle.Value then
-				self.checkToggleRepeat()
+				if not self.autoInfiniteToggle.Value then return end
 				guiservice.SelectedObject = dialogueOption
 				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
 				task.wait(0.1)
@@ -659,7 +667,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.2";
+	local version = "v_1.2.3";
 	local devs = "Av & Hari";
 
 	--[[
