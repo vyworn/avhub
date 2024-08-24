@@ -556,7 +556,7 @@ function AvHub:Functions()
 	self.autoRaid = function()
 		local titanBoss, titanHRP, titanProximityPrompt 
 		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
-		while self.autoRaidToggle.Value and isRaidActive() and not isRaidComplete() do
+		while isAutoRaidActive() and isRaidActive() and not isRaidComplete() do
 			if not isRaidActive() then break end
 			if not isAutoRaidActive() then break end
 			if not isInRaidVicinity() then
@@ -610,8 +610,7 @@ function AvHub:Functions()
 		end
 	end
 	self.autoRejoinRaid = function()
-		task.spawn(self.autoRaid)
-		while self.autoRaidToggle.Value do
+		while self.autoRejoinRaid.Value do
 			if isRaidComplete() then
 				rejoinGame()
 			end
@@ -1133,6 +1132,7 @@ function AvHub:Gui()
 		Description = "Auto Hides Battle",
 		Default = false
 	});
+	local autoRejoinRaidTask
 	self.autoRejoinRaidToggle:OnChanged(function()
 		if self.autoRejoinRaidToggle.Value then
 			autoRejoinRaidTask = task.spawn(self.autoRejoinRaid);
