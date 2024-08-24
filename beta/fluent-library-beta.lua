@@ -5907,7 +5907,7 @@ local MinimizeButton = New("TextButton", {
         PaddingTop = UDim.new(0, 2),
     }),
     New("ImageLabel", {
-        Image = "rbxassetid://125973583706257",
+        Image = "rbxassetid://17071506793",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
         ScaleType = Enum.ScaleType.Fit,
@@ -5921,7 +5921,7 @@ local MinimizeButton = New("TextButton", {
 
 local Minimizer = New("Frame", {
     Parent = GUI,
-    Size = UDim2.new(0, 300, 0, 300),  -- Match size of MinimizeButton
+    Size = UDim2.new(0, 1, 0, 1),
     Position = UDim2.new(0.45, 0, 0.025, 0),
     BackgroundTransparency = 1,
     ZIndex = 999999999,
