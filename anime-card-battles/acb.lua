@@ -370,9 +370,21 @@ function AvHub:Functions()
 	end
 	self.autoRaid = function()
 		while self.autoRaidToggle.Value do
+			local damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+			local damageThreshold = 1000000
+			if damageTracker > damageThreshold then
+				if autoRaidTask then
+					task.cancel(autoRaidTask)
+					autoRaidTask = nil
+				end
+				if self.autoInfiniteToggle.Value and not autoInfiniteTask then
+					autoInfiniteTask = task.spawn(self.autoInfinite)
+				end
+				return
+			end
 			if isRaidActive() then
-				local damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
-				local damageThreshold = 1000000
+				damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+				damageThreshold = 1000000
 				if self.autoSwordToggle.Value then
 					if grabbedSword then
 						self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
@@ -457,6 +469,21 @@ function AvHub:Functions()
 		end
 	end
 	self.autoInfinite = function()
+		if not isRaidActive() and self.autoInfiniteToggle.Value then
+			if self.autoSwordToggle.Value then
+				if grabbedSword then
+					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+				else
+					repeat
+						if not self.autoInfiniteToggle.Value then return end
+						task.wait(0.1)
+					until grabbedSword == true
+					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+				end
+			else
+				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+			end
+		end
 		while self.autoInfiniteToggle.Value do
 			if isRaidActive() and self.autoRaidToggle.Value then
 				local BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
@@ -481,20 +508,6 @@ function AvHub:Functions()
 				until not isRaidActive()
 				autoInfiniteTask = task.spawn(self.autoInfinite)
 				return
-			else
-				if self.autoSwordToggle.Value then
-					if grabbedSword then
-						self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-					else
-						repeat
-							if not self.autoInfiniteToggle.Value then return end
-							task.wait(0.1)
-						until grabbedSword == true
-						self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-					end
-				else
-					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-				end
 			end
 			while self.autoInfiniteToggle.Value do
 				if isRaidActive() then break end
@@ -778,7 +791,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.7";
+	local version = "v_1.2.8";
 	local devs = "Av";
 
 	--[[
