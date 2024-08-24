@@ -848,7 +848,7 @@ function AvHub:Gui()
 		TabWidth = 90,
 		Size = UDim2.fromOffset(500, 350),
 		Acrylic = true,
-		Theme = "Sakura",
+		Theme = "Avalanche",
 		MinimizeKey = Enum.KeyCode.LeftControl
 	});
 	local Tabs = {
