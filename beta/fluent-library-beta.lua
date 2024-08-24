@@ -1382,12 +1382,25 @@ Components.Element = (function()
         local Element = {}
         local Options = Options or {}
 
+        -- Default to left alignment if not specified
+        local TextAlign = Options.TextAlign or "Left"
+
+        -- Determine the Enum for TextXAlignment based on the TextAlign option
+        local TextXAlignmentEnum
+        if TextAlign == "Center" then
+            TextXAlignmentEnum = Enum.TextXAlignment.Center
+        elseif TextAlign == "Right" then
+            TextXAlignmentEnum = Enum.TextXAlignment.Right
+        else
+            TextXAlignmentEnum = Enum.TextXAlignment.Left
+        end
+
         Element.TitleLabel = New("TextLabel", {
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
             Text = Title,
             TextColor3 = Color3.fromRGB(240, 240, 240),
             TextSize = 13,
-            TextXAlignment = Enum.TextXAlignment.Left,
+            TextXAlignment = TextXAlignmentEnum,  -- Use the determined alignment
             Size = UDim2.new(1, 0, 0, 14),
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             BackgroundTransparency = 1,
@@ -1402,7 +1415,7 @@ Components.Element = (function()
             TextColor3 = Color3.fromRGB(200, 200, 200),
             TextSize = 12,
             TextWrapped = true,
-            TextXAlignment = Enum.TextXAlignment.Left,
+            TextXAlignment = TextXAlignmentEnum,  -- Use the determined alignment
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             AutomaticSize = Enum.AutomaticSize.Y,
             BackgroundTransparency = 1,
@@ -1441,7 +1454,7 @@ Components.Element = (function()
         })
 
         Element.Frame = New("TextButton", {
-            Visible = Options.Visible and Options.Visible or true,
+            Visible = Options.Visible ~= nil and Options.Visible or true,
             Size = UDim2.new(1, 0, 0, 0),
             BackgroundTransparency = 0.89,
             BackgroundColor3 = Color3.fromRGB(130, 130, 130),
@@ -1523,6 +1536,7 @@ Components.Element = (function()
         return Element
     end
 end)()
+
 Components.Section = (function()
     local New = Creator.New
 
@@ -3496,25 +3510,10 @@ ElementsTable.Paragraph = (function()
     function Paragraph:New(Config)
         assert(Config.Title, "Paragraph - Missing Title")
         Config.Content = Config.Content or ""
-        
-        -- Handle TextAlign parameter with default value as "Left"
-        local TextAlign = Config.TextAlign or "Left"
 
         local Paragraph = Components.Element(Config.Title, Config.Content, Paragraph.Container, false, Config)
         Paragraph.Frame.BackgroundTransparency = 0.92
         Paragraph.Border.Transparency = 0.6
-        
-        -- Setting the text alignment based on the Config.TextAlign parameter
-        if TextAlign == "Center" then
-            Paragraph.Title.TextXAlignment = Enum.TextXAlignment.Center
-            Paragraph.Content.TextXAlignment = Enum.TextXAlignment.Center
-        elseif TextAlign == "Right" then
-            Paragraph.Title.TextXAlignment = Enum.TextXAlignment.Right
-            Paragraph.Content.TextXAlignment = Enum.TextXAlignment.Right
-        else
-            Paragraph.Title.TextXAlignment = Enum.TextXAlignment.Left
-            Paragraph.Content.TextXAlignment = Enum.TextXAlignment.Left
-        end
 
         Paragraph.SetTitle = Paragraph.SetTitle
         Paragraph.SetDesc = Paragraph.SetDesc
