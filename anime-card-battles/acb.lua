@@ -384,8 +384,9 @@ function AvHub:Functions()
 			if currentRaid:match("Adaptive Titan") then
 				return true
 			elseif currentRaid:match("") then
-				if playergui.RaidBar.RaidBar.Visible == true
-					playergui.RaidBar.RaidBar.Visible = false
+				local raidBar = playergui:FindFirstChild("RaidBar"):FindFirstChild("RaidBar")
+				if raidBar.Visible then
+					raidBar.Visible = false
 				end
 				return false
 			end
@@ -884,21 +885,25 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.9";
+	local version = "v_1.3.0";
 	local devs = "Av";
 
 	--[[
 		Main Tab
 	--]]
+	local informationSection = Tabs.Main:AddSection("Information");
 	informationParagraph = Tabs.Main:AddParagraph({
-		Title = "Information\n",
+		Title = "\b",
 		Content = "*Version" 
 		.. "\n->\t" .. version
 		.. "\n" .. "*Made By" 
 		.. "\n->\t" .. devs
+
+		.. "\n",
 	});
+	local latestSection = Tabs.Main:AddSection("Latest");
 	latestParagraph = Tabs.Main:AddParagraph({
-		Title = "Latest\n",
+		Title = "\b",
 		Content = "*Added"
 		-- .. "\n->\t" .. "~"
 		.. "\n->\t" .. "Auto Raids"
@@ -908,9 +913,12 @@ function AvHub:Gui()
 		-- .. "\n->\t" .. "~"
 		-- .. "\n*Notes"
 		-- .. "\n->\t" .. "~"
+
+		.. "\n"
 	});
+	local plannedSection = Tabs.Main:AddSection("Planned");
 	plannedParagraph = Tabs.Main:AddParagraph({
-		Title = "Planned\n",
+		Title = "\b",
 		Content = "*Coming Soon"
 		.. "\n->\t" .. "Webhooks"
 		.. "\n->\t" .. "More Stats"
@@ -918,6 +926,8 @@ function AvHub:Gui()
 		.. "\n->\t" .. "Auto Use Potions"
 		.. "\n*Future"
 		.. "\n->\t" .. "Auto Repeatable Bosses"
+
+		.. "\n"
 	});
 
 	--[[
