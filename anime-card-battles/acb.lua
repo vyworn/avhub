@@ -157,6 +157,7 @@ local npcTeleports = {
 	"Charm Merchant",
 	"Potion Shop",
 	"Card Fusion",
+	"Card Deconstruction",
 	"Daily Chest",
 	"Card Index",
 	"Strange Trader",
@@ -200,6 +201,7 @@ local npcTeleportsCoordinates = {
 	["Potion Shop"] = Vector3.new(-7744.11376953125, 180.14158630371094, -9369.5908203125),
 	["Raid Shop"] = Vector3.new(-7930.668457, 179.798950,-9347.118164),
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
+	["Card Deconstruction"] = Vector3.new(-7837.935059, 180.831451,-9281.571289),
 	["Card Index"] = Vector3.new(-7846.603515625, 180.50991821289062, -9371.1884765625),
 	["Daily Chest"] = Vector3.new(-7785.53173828125, 180.8318634033203, -9339.9423828125),
 	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
@@ -544,15 +546,17 @@ function AvHub:Functions()
 		end
 	end
 	self.cancelInfiniteBattle = function()
+		if isRaidComplete() then return end
 		playergui.ChildAdded:Connect(onChildAdded)
 		repeat
+			if isRaidComplete() then return end
 			task.wait(0.1)
 		until not isInInfiniteBattle()
 	end
 	self.autoRaid = function()
 		local titanBoss, titanHRP, titanProximityPrompt 
 		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
-		while self.autoRaidToggle.Value and isRaidActive() and not isRaidComplete() do
+		while isAutoRaidActive() and isRaidActive() and not isRaidComplete() do
 			if not isRaidActive() then break end
 			if not isAutoRaidActive() then break end
 			if not isInRaidVicinity() then
@@ -603,6 +607,14 @@ function AvHub:Functions()
 		if isRaidComplete() or not isRaidActive() then
 			playergui.RaidBar.RaidBar.Visible = false
 			return
+		end
+	end
+	self.autoRejoinRaid = function()
+		while self.autoRejoinRaid.Value do
+			if isRaidComplete() then
+				rejoinGame()
+			end
+			task.wait(1)
 		end
 	end
 	self.autoInfinite = function()
@@ -670,7 +682,9 @@ function AvHub:Functions()
 		while isAutoRaidActive() or isAutoInfiniteActive() do
 			if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
 				if isInInfiniteBattle() then
-					self.cancelInfiniteBattle()
+					if not isRaidComplete() then
+						self.cancelInfiniteBattle()
+					else return end
 					repeat
 						task.wait(1)
 					until not isInInfiniteBattle()
@@ -963,7 +977,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "1.3.5";
+	local version = "1.3.7";
 	local devs = "Av";
 
 	--[[
@@ -985,6 +999,7 @@ function AvHub:Gui()
 		Content = "*Added"
 		-- .. "\n->\t" .. "~"
 		.. "\n->\t" .. "Auto Raids"
+		.. "\n->\t" .. "Avalanche Theme"
 		-- .. "\n*Removed"
 		-- .. "\n->\t" .. "~"
 		-- .. "\n*Changed"
@@ -998,6 +1013,8 @@ function AvHub:Gui()
 	plannedParagraph = Tabs.Main:AddParagraph({
 		Title = "\b",
 		Content = "*Coming Soon"
+		.. "\n->\t" .. "Move Stats to a new Stats Tab"
+		.. "\n->\t" .. "Rework Teleports Tab"
 		.. "\n->\t" .. "Webhooks"
 		.. "\n->\t" .. "More Stats"
 		.. "\n->\t" .. "More Themes"
@@ -1072,7 +1089,7 @@ function AvHub:Gui()
 		Title = "Disclaimer\n",
 		Content = "Toggling it on then off then back on will break it."
 			.. "\n" .. "Rejoin if it bugs out."
-			.. "\n" .. "Will fix soon"
+			.. "\n" .. "Will fix soon."
 	});
 	battleStatsParagraph = Tabs.Battle:AddParagraph({
 		Title = "Stats\n",
@@ -1083,6 +1100,11 @@ function AvHub:Gui()
 			.. "\n" .. "Previous Floor: " .. "N/A"
 			.. "\n" .. "Close Result Screen: " .. "N/A"
 			.. "\n" .. "Hide Battle: " .. "N/A"
+	});
+	self.autoRejoinRaidToggle = Tabs.Battle:AddToggle("AutoRejoinRaid", {
+		Title = "Auto Rejoin Raid",
+		Description = "Auto Rejoins and Raids",
+		Default = false
 	});
 	self.autoRaidToggle = Tabs.Battle:AddToggle("AutoRaid", {
 		Title = "Auto Raid",
@@ -1110,7 +1132,17 @@ function AvHub:Gui()
 		Description = "Auto Hides Battle",
 		Default = false
 	});
-
+	local autoRejoinRaidTask
+	self.autoRejoinRaidToggle:OnChanged(function()
+		if self.autoRejoinRaidToggle.Value then
+			autoRejoinRaidTask = task.spawn(self.autoRejoinRaid);
+		else
+			if autoRejoinRaidTask then
+				task.cancel(autoRejoinRaidTask)
+				autoRejoinRaidTask = nil
+			end
+		end;
+	end);
 	self.autoRaidToggle:OnChanged(function()
 		if self.autoRaidToggle.Value then
 			self.startManagePriority()
