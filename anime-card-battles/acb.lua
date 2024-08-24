@@ -41,6 +41,7 @@ local api = "https://games.roblox.com/v1/games/"
 local stats = player:WaitForChild("Stats")
 local playergui = player:WaitForChild("PlayerGui")
 local gamenpcs = workspace:WaitForChild("NPCs")
+local gamebosses = workspace:WaitForChild("Bosses")
 
 --[[
 	Libraries
@@ -361,6 +362,45 @@ function AvHub:Functions()
 			canGoBack = true;
 		end;
 	end;
+	self.autoRaid = function()
+		while self.autoRaidToggle.Value do
+			local titanBOSS, titanHRP, titanProximityPrompt, dialogueOption
+			local npcDialogue, dialogueFrame, responseFrame
+			if not self.autoRaidToggle.Value then return end
+			repeat 
+				if not self.autoRaidToggle.Value then return end
+				titanBOSS = gamebosses:WaitForChild("Adaptive Titan")
+				titanHRP = titanBOSS:FindFirstChild("HumanoidRootPart")
+				task.wait(0.1)
+			until titanHRP or not self.autoRaidToggle.Value
+			if not self.autoRaidToggle.Value then return end
+			repeat
+				if not self.autoRaidToggle.Value then return end
+				titanProximityPrompt = titanHRP.ProximityPrompt
+				fireproximityprompt(titanProximityPrompt)
+				npcDialogue = playergui:FindFirstChild("NPCDialogue")
+				task.wait(0.1)
+			until npcDialogue or not self.autoRaidToggle.Value
+			if not self.autoRaidToggle.Value then return end
+			repeat
+				if not self.autoRaidToggle.Value then return end
+				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+				dialogueOption = responseFrame:WaitForChild("DialogueOption")
+				guiservice.SelectedObject = dialogueOption
+				task.wait(0.1)
+			until guiservice.SelectedObject == dialogueOption or not self.autoRaidToggle.Value
+			if dialogueOption and self.autoRaidToggle.Value then
+				guiservice.SelectedObject = dialogueOption
+				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+				task.wait(0.1)
+				virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+			end
+			task.wait(0.1)
+			guiservice.SelectedObject = nil
+			task.wait(0.5)
+		end
+	end;
 	self.autoRanked = function()
 		local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 		if not rankedRemote then
@@ -619,7 +659,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.1";
+	local version = "v_1.2.2";
 	local devs = "Av & Hari";
 
 	--[[
@@ -719,6 +759,11 @@ function AvHub:Gui()
 	--[[
 		Battle Tab
 	--]]
+	self.autoRaidToggle = Tabs.Battle:AddToggle("AutoRaid", {
+		Title = "Auto Raid",
+		Description = "Auto Starts Raid",
+		Default = false
+	});
 	self.autoRankedToggle = Tabs.Battle:AddToggle("AutoRanked", {
 		Title = "Auto Ranked",
 		Description = "Auto Starts Ranked",
@@ -740,6 +785,16 @@ function AvHub:Gui()
 		Default = false
 	});
 
+	self.autoRaidToggle:OnChanged(function()
+		if self.autoRaidToggle.Value then
+			autoRaidTask = task.spawn(self.autoRaid);
+		else
+			if autoRaidTask then
+				task.cancel(autoRaidTask)
+				autoRaidTask = nil
+			end
+		end;
+	end);
 	self.autoRankedToggle:OnChanged(function()
 		if self.autoRankedToggle.Value then
 			autoRankedTask = task.spawn(self.autoRanked);
