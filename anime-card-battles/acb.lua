@@ -94,7 +94,7 @@ local isdeveloper = isDeveloper(playerid);
 --[[
 	Library Variables
 --]]
-local informationParagraph, latestParagraph, plannedParagraph, statsParagraph, disclaimerParagraph, codesParagraph
+local informationParagraph, latestParagraph, plannedParagraph, farmStatsParagraph, battleStatsParagraph, codesParagraph
 local updatingParagraph = false;
 local randomKey = generateRandomKey(9);
 _G[randomKey] = {};
@@ -245,11 +245,13 @@ local inBattle = stats:FindFirstChild("InBattle").Value;
 local potionCount = 0;
 local autoPotionsActive = false;
 local autoSwordActive = false;
+local autoRaidActive = false;
+local autoInfiniteActive = false;
 local canGoBack = false;
 local grabbedSword = false;
 local tickCount, uptimeInSeconds, hours, minutes, seconds
 local uptimeText = "00 hours\n00 minutes\n00 seconds";
-local autoPotionsTask, autoSwordTask, updateParagraphTask, autoRankedTask, autoInfiniteTask, closeResultScreenTask, autoHideBattleTask
+local autoPotionsTask, autoSwordTask, updateFarmParagraphTask, autoRankedTask, autoRaidTask, autoInfiniteTask, closeResultScreenTask, autoHideBattleTask
 
 --[[
 	Hub Functions
@@ -362,62 +364,208 @@ function AvHub:Functions()
 			canGoBack = true;
 		end;
 	end;
+	local function isRaidActive()
+		local value = replicatedstorage:FindFirstChild("RaidActive").Value
+		return value
+	end
 	self.autoRaid = function()
-		if self.autoSwordToggle.Value then
-			if grabbedSword then
-				self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
-			else
-				repeat
-					if not self.autoInfiniteToggle.Value then return end
-					task.wait(0.1)
-				until grabbedSword == true
-				self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
-			end
-		else
-			self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
-		end
+		print ("Auto Raid started")
 		while self.autoRaidToggle.Value do
-			local titanBoss, titanHRP, titanProximityPrompt, dialogueOption
-			local npcDialogue, dialogueFrame, responseFrame
-			if not self.autoRaidToggle.Value then return end
-			repeat 
-				if not self.autoRaidToggle.Value then break end
-				titanBoss = gamebosses:WaitForChild("Adaptive Titan")
-				titanHRP = titanBoss:FindFirstChild("HumanoidRootPart")
-				task.wait(0.1)
-			until titanHRP or not self.autoRaidToggle.Value
-			if not self.autoRaidToggle.Value then return end
-			repeat
-				if not self.autoRaidToggle.Value then break end
-				titanProximityPrompt = titanHRP.ProximityPrompt
-				fireproximityprompt(titanProximityPrompt)
-				npcDialogue = playergui:FindFirstChild("NPCDialogue")
-				task.wait(0.1)
-			until npcDialogue or not self.autoRaidToggle.Value
-			if not self.autoRaidToggle.Value then return end
-			repeat
-				if not self.autoRaidToggle.Value then break end
-				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
-				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-				dialogueOption = responseFrame:WaitForChild("DialogueOption")
-				guiservice.SelectedObject = dialogueOption
-				task.wait(0.1)
-			until guiservice.SelectedObject == dialogueOption or not self.autoRaidToggle.Value
-			if dialogueOption and self.autoRaidToggle.Value then
-				guiservice.SelectedObject = dialogueOption
-				if not self.autoRaidToggle.Value then 
-					guiservice.SelectedObject = nil
-					return 
+			if isRaidActive() then
+				if self.autoSwordToggle.Value then
+					if grabbedSword then
+						self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+					else
+						repeat
+							if not self.autoRaidToggle.Value then break end
+							if not isRaidActive() then break end
+							task.wait(0.1)
+						until grabbedSword == true
+						self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
+					end
+				else
+					self.characterTeleport(raidTeleportCoordinates["Adaptive Titan"])
 				end
-				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-				task.wait(0.1)
-				virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+	
+				while self.autoRaidToggle.Value and isRaidActive() do
+					local titanBoss, titanHRP, titanProximityPrompt, dialogueOption
+					local npcDialogue, dialogueFrame, responseFrame
+					if not self.autoRaidToggle.Value then return end
+					repeat 
+						if not self.autoRaidToggle.Value then break end
+						if not isRaidActive() then break end
+						titanBoss = gamebosses:WaitForChild("Adaptive Titan")
+						titanHRP = titanBoss:FindFirstChild("HumanoidRootPart")
+						task.wait(0.1)
+					until titanHRP or not self.autoRaidToggle.Value
+	
+					if not self.autoRaidToggle.Value then return end
+					repeat
+						if not self.autoRaidToggle.Value then break end
+						if not isRaidActive() then break end
+						titanProximityPrompt = titanHRP.ProximityPrompt
+						fireproximityprompt(titanProximityPrompt)
+						npcDialogue = playergui:FindFirstChild("NPCDialogue")
+						task.wait(0.1)
+					until npcDialogue or not self.autoRaidToggle.Value
+	
+					if not self.autoRaidToggle.Value then return end
+					repeat
+						if not self.autoRaidToggle.Value then break end
+						if not isRaidActive() then break end
+						dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+						responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+						dialogueOption = responseFrame:WaitForChild("DialogueOption")
+						guiservice.SelectedObject = dialogueOption
+						task.wait(0.1)
+					until guiservice.SelectedObject == dialogueOption or not self.autoRaidToggle.Value or not isRaidActive()
+	
+					if not self.autoRaidToggle.Value then return end
+					if dialogueOption and self.autoRaidToggle.Value then
+						guiservice.SelectedObject = dialogueOption
+						if not self.autoRaidToggle.Value then 
+							guiservice.SelectedObject = nil
+							return 
+						end
+						virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+						task.wait(0.1)
+						virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+					end
+					task.wait(0.1)
+					guiservice.SelectedObject = nil
+					task.wait(0.5)
+				end
+			else
+				-- Pause autoRaid when raid is not active
+				if autoRaidTask then
+					task.cancel(autoRaidTask)
+					autoRaidTask = nil
+				end
+				-- Restart autoInfinite if it's toggled on
+				if self.autoInfiniteToggle.Value and not autoInfiniteTask then
+					autoInfiniteTask = task.spawn(self.autoInfinite)
+				end
+				return
 			end
 			task.wait(0.1)
-			guiservice.SelectedObject = nil
-			task.wait(0.5)
 		end
-	end;
+	end
+	self.autoInfinite = function()
+		while self.autoInfiniteToggle.Value do
+			if isRaidActive() and self.autoRaidToggle.Value then
+				print("Auto Infinite paused due to raid activation")
+				-- Give up auto infinite if it's running
+				local BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
+				if BATTLETOWERUI then
+					local giveUpButton = BATTLETOWERUI:FindFirstChild("Background"):FindFirstChild("GiveUp")
+					if giveUpButton then
+						guiservice.SelectedObject = giveUpButton
+						virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+						task.wait(0.1)
+						virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+					end
+				end
+				-- Pause autoInfinite and start autoRaid
+				if autoInfiniteTask then
+					task.cancel(autoInfiniteTask)
+					autoInfiniteTask = nil
+				end
+				if not autoRaidTask then
+					autoRaidTask = task.spawn(self.autoRaid)
+				end
+				-- Wait until raid is no longer active
+				repeat
+					task.wait(1)
+				until not isRaidActive()
+				-- Restart autoInfinite
+				autoInfiniteTask = task.spawn(self.autoInfinite)
+				return
+			end
+	
+			-- Existing autoInfinite code starts here
+			if self.autoSwordToggle.Value then
+				if grabbedSword then
+					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+				else
+					repeat
+						if not self.autoInfiniteToggle.Value then return end
+						task.wait(0.1)
+					until grabbedSword == true
+					self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+				end
+			else
+				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
+			end
+			while self.autoInfiniteToggle.Value do
+				if isRaidActive() then break end  -- Check for raid activation
+				local battleLabel = playergui:WaitForChild("HideBattle"):WaitForChild("BATTLE")
+				local BATTLETOWERUI
+				local timeEmpty = 0
+				local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
+				local npcDialogue, dialogueFrame, responseFrame    
+				if not self.autoInfiniteToggle.Value then return end
+				repeat
+					if not self.autoInfiniteToggle.Value then break end
+					if isRaidActive() then break end  -- Check for raid activation
+					BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
+					if not BATTLETOWERUI then
+						if battleLabel.Text == "" then
+							timeEmpty = timeEmpty + 1
+						else
+							timeEmpty = 0
+						end
+					else
+						timeEmpty = 0
+					end
+					task.wait(1)
+				until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
+				if not self.autoInfiniteToggle.Value then return end
+				if isRaidActive() then break end  -- Check for raid activation
+				repeat
+					if not self.autoInfiniteToggle.Value then break end
+					if isRaidActive() then break end  -- Check for raid activation
+					davidNPC = gamenpcs:WaitForChild("David")
+					davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
+					task.wait(0.1)
+				until davidHRP or not self.autoInfiniteToggle.Value
+				if not self.autoInfiniteToggle.Value then return end
+				if isRaidActive() then break end  -- Check for raid activation
+				repeat 
+					if not self.autoInfiniteToggle.Value then break end
+					if isRaidActive() then break end  -- Check for raid activation
+					davidProximityPrompt = davidHRP.ProximityPrompt
+					fireproximityprompt(davidProximityPrompt)
+					npcDialogue = playergui:FindFirstChild("NPCDialogue")
+					task.wait(0.1)
+				until npcDialogue or not self.autoInfiniteToggle.Value
+				if not self.autoInfiniteToggle.Value then return end
+				if isRaidActive() then break end  -- Check for raid activation
+				repeat
+					if not self.autoInfiniteToggle.Value then return end
+					if isRaidActive() then break end  -- Check for raid activation
+					dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
+					responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
+					dialogueOption = responseFrame:WaitForChild("DialogueOption")
+					guiservice.SelectedObject = dialogueOption
+					task.wait(0.1)
+				until guiservice.SelectedObject == dialogueOption or not self.autoInfiniteToggle.Value
+				if not self.autoInfiniteToggle.Value then return end
+				if isRaidActive() then break end  -- Check for raid activation
+				if dialogueOption and self.autoInfiniteToggle.Value then
+					if not self.autoInfiniteToggle.Value then return end
+					if isRaidActive() then break end  -- Check for raid activation
+					guiservice.SelectedObject = dialogueOption
+					virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+					task.wait(0.1)
+					virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+				end
+				task.wait(0.1)
+				guiservice.SelectedObject = nil
+				task.wait(0.5)
+			end
+			task.wait(0.1)
+		end
+	end
 	self.autoRanked = function()
 		local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 		if not rankedRemote then
@@ -434,78 +582,6 @@ function AvHub:Functions()
 				task.wait(1)
 			end
 			task.wait(0.1)
-		end
-	end
-	self.autoInfinite = function()
-		if self.autoSwordToggle.Value then
-			if grabbedSword then
-				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-			else
-				repeat
-					if not self.autoInfiniteToggle.Value then return end
-					task.wait(0.1)
-				until grabbedSword == true
-				self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-			end
-		else
-			self.characterTeleport(npcTeleportsCoordinates["Heaven Infinite"])
-		end
-		while self.autoInfiniteToggle.Value do
-			local battleLabel = playergui:WaitForChild("HideBattle"):WaitForChild("BATTLE")
-			local BATTLETOWERUI
-			local timeEmpty = 0
-			local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
-			local npcDialogue, dialogueFrame, responseFrame	
-			if not self.autoInfiniteToggle.Value then return end
-			repeat
-				if not self.autoInfiniteToggle.Value then break end
-				BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
-				if not BATTLETOWERUI then
-					if battleLabel.Text == "" then
-						timeEmpty = timeEmpty + 1
-					else
-						timeEmpty = 0
-					end
-				else
-					timeEmpty = 0
-				end
-				task.wait(1)
-			until timeEmpty >= 3 or not self.autoInfiniteToggle.Value
-			if not self.autoInfiniteToggle.Value then return end
-			repeat
-				if not self.autoInfiniteToggle.Value then break end
-				davidNPC = gamenpcs:WaitForChild("David")
-				davidHRP = davidNPC:FindFirstChild("HumanoidRootPart")
-				task.wait(0.1)
-			until davidHRP or not self.autoInfiniteToggle.Value
-			if not self.autoInfiniteToggle.Value then return end
-			repeat 
-				if not self.autoInfiniteToggle.Value then break end
-				davidProximityPrompt = davidHRP.ProximityPrompt
-				fireproximityprompt(davidProximityPrompt)
-				npcDialogue = playergui:FindFirstChild("NPCDialogue")
-				task.wait(0.1)
-			until npcDialogue or not self.autoInfiniteToggle.Value
-			if not self.autoInfiniteToggle.Value then return end
-			repeat
-				if not self.autoInfiniteToggle.Value then return end
-				dialogueFrame = npcDialogue:WaitForChild("DialogueFrame")
-				responseFrame = dialogueFrame:WaitForChild("ResponseFrame")
-				dialogueOption = responseFrame:WaitForChild("DialogueOption")
-				guiservice.SelectedObject = dialogueOption
-				task.wait(0.1)
-			until guiservice.SelectedObject == dialogueOption or not self.autoInfiniteToggle.Value
-			if not self.autoInfiniteToggle.Value then return end
-			if dialogueOption and self.autoInfiniteToggle.Value then
-				if not self.autoInfiniteToggle.Value then return end
-				guiservice.SelectedObject = dialogueOption
-				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-				task.wait(0.1)
-				virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-			end
-			task.wait(0.1)
-			guiservice.SelectedObject = nil
-			task.wait(0.5)
 		end
 	end
 	self.closeResultScreen = function()
@@ -586,7 +662,7 @@ function AvHub:Functions()
 	--[[
 		Paragraph Functions
 	--]]
-	self.updateStatsParagraph = function()
+	self.updateFarmStatsParagraph = function()
 		while self.autoPotionsToggle.Value or self.autoSwordToggle.Value do
 			swordCooldown = (stats:FindFirstChild("SwordObbyCD")).Value;
 			local totalPotions = potionCount;
@@ -598,24 +674,60 @@ function AvHub:Functions()
 			seconds = uptimeInSeconds % 60
 			uptimeText = string.format("%02d hours\n%02d minutes\n%02d seconds", hours, minutes, seconds)
 
-			statsParagraph:SetDesc("Total Potions: " .. totalPotions 
+			farmStatsParagraph:SetDesc("Total Potions: " .. totalPotions 
 				.. "\nSword Timer: " .. timeLeft 
 				.. "\n" .. uptimeText);
 			task.wait(0.2);
 		end;
 	end;
-	self.manageUpdateParagraphTask = function()
+	self.manageUpdateFarmParagraphTask = function()
 		if autoPotionsActive or autoSwordActive then
-			if not updateParagraphTask then
-				updateParagraphTask = task.spawn(self.updateStatsParagraph)
+			if not updateFarmParagraphTask then
+				updateFarmParagraphTask = task.spawn(self.updateFarmStatsParagraph)
 			end
 		else
-			if updateParagraphTask then
-				task.cancel(updateParagraphTask)
-				updateParagraphTask = nil
+			if updateFarmParagraphTask then
+				task.cancel(updateFarmParagraphTask)
+				updateFarmParagraphTask = nil
 			end
 		end
 	end
+	self.updateBattleStatsParagraph = function()
+		while self.autoRankedToggle.Value or self.autoInfiniteToggle.Value do
+			local hideBattle = self.autoHideBattleToggle.Value
+			local closeResultScreen = self.closeResultScreenToggle.Value
+			local highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
+			local lastRaidDamage = stats:FindFirstChild("LastRaidIndex").Value
+			local raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+			local raidActive = isRaidActive()
+			local raidText 
+			if raidActive then
+				raidText = "open"
+			else
+				raidText = "closed"
+			end
+			battleStatsParagraph:SetDesc("Raids: " .. tostring(raidText)
+				.. "\n" .. "Raid Damage Tracker: " .. tostring(raidDamageTracker)
+				.. "\n" .. "Last Raid Damage: " .. tostring(lastRaidDamage)
+				.. "\n" .. "Highest Floor: " .. tostring(highestFloor)
+				.. "\n" .. "Close Result Screen: " .. tostring(closeResultScreen)
+				.. "\n" .. "Hide Battle: " .. tostring(hideBattle)
+			)
+			task.wait(0.2);
+		end;
+	end;
+	self.manageUpdateBattleParagraphTask = function()
+		if autoRaidActive or autoInfiniteActive then
+			if not updateBattleParagraphTask then
+				updateBattleParagraphTask = task.spawn(self.updateBattleStatsParagraph)
+			end
+		else
+			if updateBattleParagraphTask then
+				task.cancel(updateBattleParagraphTask)
+				updateBattleParagraphTask = nil
+			end
+		end
+	end;
 end;
 
 function AvHub:Gui()
@@ -625,7 +737,7 @@ function AvHub:Gui()
 	guiWindow[randomKey] = Fluent:CreateWindow({
 		Title = "UK1 Hub",
 		SubTitle = "by Av",
-		TabWidth = 100,
+		TabWidth = 90,
 		Size = UDim2.fromOffset(500, 350),
 		Acrylic = true,
 		Theme = "Sakura",
@@ -667,7 +779,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.3";
+	local version = "v_1.2.5";
 	local devs = "Av & Hari";
 
 	--[[
@@ -684,12 +796,7 @@ function AvHub:Gui()
 		Title = "Latest\n",
 		Content = "*Added"
 		-- .. "\n->\t" .. "~"
-		.. "\n->\t" .. "Minimize button at top"
-		.. "\n->\t" .. "New Theme"
-		.. "\n->\t" .. "Configs (autoload)"
-		.. "\n->\t" .. "Auto Infinite"
-		.. "\n->\t" .. "Auto Ranked"
-		.. "\n\t\t->" .. "Starts in background if doing Infinite"
+		.. "\n->\t" .. "Auto Raids"
 		-- .. "\n*Removed"
 		-- .. "\n->\t" .. "~"
 		-- .. "\n*Changed"
@@ -711,7 +818,7 @@ function AvHub:Gui()
 	--[[
 		Auto Tab
 	--]]
-	statsParagraph = Tabs.Farm:AddParagraph({
+	farmStatsParagraph = Tabs.Farm:AddParagraph({
 		Title = "Stats\n",
 		Content = "Total Potions: " .. potionCount 
 		.. "\n" .. "Sword Timer: " .. swordCooldown 
@@ -747,7 +854,7 @@ function AvHub:Gui()
 				autoPotionsTask = nil
 			end
 		end
-		self.manageUpdateParagraphTask()
+		self.manageUpdateFarmParagraphTask()
 	end)
 	self.autoSwordToggle:OnChanged(function()
 		autoSwordActive = self.autoSwordToggle.Value
@@ -761,20 +868,22 @@ function AvHub:Gui()
 				autoSwordTask = nil
 			end
 		end
-		self.manageUpdateParagraphTask()
+		self.manageUpdateFarmParagraphTask()
 	end)
 
 	--[[
 		Battle Tab
 	--]]
+	battleStatsParagraph = Tabs.Battle:AddParagraph({
+		Title = "Stats\n",
+		Content = "Raids: " .. "nil"
+				.. "\n" .. "Raid Damage Tracker: " .. "nil"
+				.. "\n" .. "Last Raid Damage: " .. "nil"
+				.. "\n" .. "Highest Floor: " .. "nil"
+	});
 	self.autoRaidToggle = Tabs.Battle:AddToggle("AutoRaid", {
 		Title = "Auto Raid",
 		Description = "Auto Starts Raid",
-		Default = false
-	});
-	self.autoRankedToggle = Tabs.Battle:AddToggle("AutoRanked", {
-		Title = "Auto Ranked",
-		Description = "Auto Starts Ranked",
 		Default = false
 	});
 	self.autoInfiniteToggle = Tabs.Battle:AddToggle("AutoInfinite", {
@@ -782,6 +891,12 @@ function AvHub:Gui()
 		Description = "Auto Starts Infinite",
 		Default = false
 	});
+	self.autoRankedToggle = Tabs.Battle:AddToggle("AutoRanked", {
+		Title = "Auto Ranked",
+		Description = "Auto Starts Ranked",
+		Default = false
+	});
+	local section = Tabs.Battle:AddSection("Additional Options")
 	self.closeResultScreenToggle = Tabs.Battle:AddToggle("CloseResultScreen", {
 		Title = "Auto Close Result",
 		Description = "Auto Closes Result Screen",
@@ -794,15 +909,33 @@ function AvHub:Gui()
 	});
 
 	self.autoRaidToggle:OnChanged(function()
-		if self.autoRaidToggle.Value then
-			autoRaidTask = task.spawn(self.autoRaid);
+		autoRaidActive = self.autoRaidToggle.Value
+		if autoRaidActive then
+			if not autoRaidTask then
+				autoRaidTask = task.spawn(self.autoRaid)
+			end
 		else
 			if autoRaidTask then
 				task.cancel(autoRaidTask)
 				autoRaidTask = nil
 			end
-		end;
-	end);
+		end
+		self.manageUpdateBattleParagraphTask()
+	end)
+	self.autoInfiniteToggle:OnChanged(function()
+		autoInfiniteActive = self.autoInfiniteToggle.Value
+		if autoInfiniteActive then
+			if not autoInfiniteTask then
+				autoInfiniteTask = task.spawn(self.autoInfinite)
+			end
+		else
+			if autoInfiniteTask then
+				task.cancel(autoInfiniteTask)
+				autoInfiniteTask = nil
+			end
+		end
+		self.manageUpdateBattleParagraphTask()
+	end)
 	self.autoRankedToggle:OnChanged(function()
 		if self.autoRankedToggle.Value then
 			autoRankedTask = task.spawn(self.autoRanked);
@@ -810,16 +943,6 @@ function AvHub:Gui()
 			if autoRankedTask then
 				task.cancel(autoRankedTask)
 				autoRankedTask = nil
-			end
-		end;
-	end);
-	self.autoInfiniteToggle:OnChanged(function()
-		if self.autoInfiniteToggle.Value then
-			autoInfiniteTask = task.spawn(self.autoInfinite);
-		else
-			if autoInfiniteTask then
-				task.cancel(autoInfiniteTask)
-				autoInfiniteTask = nil
 			end
 		end;
 	end);
@@ -847,10 +970,11 @@ function AvHub:Gui()
 	--[[
 		Teleports Tab
 	--]]
-	local npcTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
-		Title = "Npcs",
-		Description = "Teleports to Npcs",
-		Values = npcTeleports,
+	local mobsSection = Tabs.Teleports:AddSection("Mobs")
+	local raidTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
+		Title = "Raids",
+		Description = "Teleports to Raids",
+		Values = raidTeleports,
 		Multi = false,
 		Default = nil
 	});
@@ -868,6 +992,14 @@ function AvHub:Gui()
 		Multi = false,
 		Default = nil
 	});
+	local npcsAndAreaSection = Tabs.Teleports:AddSection("NPCS & Areas")
+	local npcTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
+		Title = "Npcs",
+		Description = "Teleports to Npcs",
+		Values = npcTeleports,
+		Multi = false,
+		Default = nil
+	});
 	local areaTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
 		Title = "Areas",
 		Description = "Teleports to Areas",
@@ -875,13 +1007,7 @@ function AvHub:Gui()
 		Multi = false,
 		Default = nil
 	});
-	local raidTeleportDropdown = Tabs.Teleports:AddDropdown("Dropdown", {
-		Title = "Raids",
-		Description = "Teleports to Raids",
-		Values = raidTeleports,
-		Multi = false,
-		Default = nil
-	});
+
 	npcTeleportDropdown:OnChanged(function(Value)
 		local destination = npcTeleportsCoordinates[Value];
 		if destination then
@@ -921,14 +1047,6 @@ function AvHub:Gui()
 	--[[
 		Codes Tab
 	--]]
-	disclaimerParagraph = Tabs.Codes:AddParagraph({
-		Title = "Disclaimer\n",
-		Content = "*Disclaimer" 
-		.. "\n->\t" .. "15 Codes per page"
-		.. "\n->\t" .. "Top code is newest"
-		.. "\n->\t" .. "Some may be expired"
-		.. "\n->\t" .. "Copy and Claim all combines both of the sections"
-	});
 	self.claimCodesButton = Tabs.Codes:AddButton({
 		Title = "Claim All Codes",
 		Description = "Claims all codes",
@@ -943,9 +1061,7 @@ function AvHub:Gui()
 			setclipboard(self.reverseCodesCopy());
 		end
 	});
-	Tabs.Codes:AddParagraph({
-		Title = "SCROLL DOWN",
-	});
+	local codesSection = Tabs.Codes:AddSection("List Of Codes")
 	local MAX_CODES_PER_PARAGRAPH = 15
 	self.displayCodesInParagraphs = function()
 		local codeCount = #codes
