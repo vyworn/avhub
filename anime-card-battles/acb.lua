@@ -384,14 +384,15 @@ function AvHub:Functions()
 		return grabbedSword
 	end
 	local function isRaidActive()
-		local currentRaid = replicatedstorage.RaidActive.CurrentRaid.Raids.Text
+		local raidBar = playergui:FindFirstChild("RaidBar")
+		local currentRaid = raidBar.RaidActive.Raids
 		if currentRaid then 
 			if currentRaid:match("") then
 				return false
 			elseif not currentRaid:match("") then
-				local raidBar = playergui:FindFirstChild("RaidBar"):FindFirstChild("RaidBar")
-				if raidBar.Visible then
-					raidBar.Visible = false
+				local progressBar = raidBar:FindFirstChild("RaidBar")
+				if progressBar.Visible then
+					progressBar.Visible = false
 				end
 				return false
 			end
@@ -885,7 +886,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.3.4";
+	local version = "1.3.5";
 	local devs = "Av";
 
 	--[[
@@ -895,7 +896,7 @@ function AvHub:Gui()
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "\b",
 		Content = "*Version" 
-		.. "\n->\t" .. version
+		.. "\n->\t" .. "v_" .. version
 		.. "\n" .. "*Made By" 
 		.. "\n->\t" .. devs
 
