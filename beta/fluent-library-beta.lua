@@ -20,6 +20,7 @@ local Themes = {
         "Amethyst",
         "Rose",
         "Sakura",
+        "Avalanche",
     },
     Dark = {
         Name = "Dark",
@@ -345,6 +346,61 @@ local Themes = {
         Hover = Color3.fromRGB(200, 120, 170),
         HoverChange = 0.04,
     },
+    Avalanche = {
+        Name = "Avalanche",
+        Accent = Color3.fromRGB(173, 216, 230),  -- Light Ice Blue
+    
+        AcrylicMain = Color3.fromRGB(30, 30, 45),  -- Deep Night Blue
+        AcrylicBorder = Color3.fromRGB(70, 70, 90),  -- Cool Dark Blue
+        AcrylicGradient = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(173, 216, 230)),  -- Light Ice Blue
+            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(200, 230, 250)),  -- Frost White Blue
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(160, 200, 240)),  -- Icy Blue
+            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(120, 170, 220)),  -- Twilight Blue
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 80, 110)),  -- Midnight Blue
+        },
+        AcrylicNoise = 0.85,
+    
+        TitleBarLine = Color3.fromRGB(90, 120, 160),  -- Twilight Blue
+        Tab = Color3.fromRGB(80, 110, 140),  -- Deep Ice Blue
+    
+        Element = Color3.fromRGB(180, 220, 255),  -- Icy Blue
+        ElementBorder = Color3.fromRGB(100, 130, 170),  -- Frost Blue
+        InElementBorder = Color3.fromRGB(120, 150, 190),  -- Light Deep Blue
+        ElementTransparency = 0.85,
+    
+        ToggleSlider = Color3.fromRGB(173, 216, 230),  -- Light Ice Blue
+        ToggleToggled = Color3.fromRGB(173, 216, 230),  -- Light Ice Blue
+        TransparenToggle = 0.75,
+    
+        SliderRail = Color3.fromRGB(173, 216, 230),  -- Light Ice Blue
+    
+        DropdownFrame = Color3.fromRGB(173, 216, 230),  -- Light Ice Blue
+        DropdownHolder = Color3.fromRGB(120, 150, 190),  -- Light Deep Blue
+        DropdownBorder = Color3.fromRGB(80, 100, 130),  -- Cool Dark Blue
+        DropdownOption = Color3.fromRGB(173, 216, 230),  -- Light Ice Blue
+    
+        Keybind = Color3.fromRGB(150, 190, 240),  -- Soft Blue
+    
+        Input = Color3.fromRGB(150, 190, 240),  -- Soft Blue
+        InputFocused = Color3.fromRGB(200, 220, 250),  -- Frost White Blue
+        InputIndicator = Color3.fromRGB(140, 170, 220),  -- Deep Frost Blue
+        InputIndicatorFocus = Color3.fromRGB(173, 216, 230),  -- Light Ice Blue
+    
+        Dialog = Color3.fromRGB(90, 120, 160),  -- Twilight Blue
+        DialogHolder = Color3.fromRGB(70, 100, 130),  -- Cool Deep Blue
+        DialogHolderLine = Color3.fromRGB(60, 90, 120),  -- Deep Blue
+        DialogButton = Color3.fromRGB(90, 120, 160),  -- Twilight Blue
+        DialogButtonBorder = Color3.fromRGB(110, 140, 180),  -- Frosted Blue
+        DialogBorder = Color3.fromRGB(80, 110, 150),  -- Deep Cool Blue
+        DialogInput = Color3.fromRGB(100, 130, 170),  -- Frost Blue
+        DialogInputLine = Color3.fromRGB(180, 210, 240),  -- Soft Frost Blue
+    
+        Text = Color3.fromRGB(240, 240, 250),  -- Frost White
+        SubText = Color3.fromRGB(220, 220, 230),  -- Light Frost White
+        Hover = Color3.fromRGB(150, 190, 240),  -- Soft Blue
+        HoverChange = 0.05,
+    }    
 }
 
 local Library = {
