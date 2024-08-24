@@ -372,6 +372,7 @@ function AvHub:Functions()
 			fireproximityprompt(swordProximityPrompt);
 			task.wait(0.5);
 			canGoBack = true;
+			grabbedSword = true;
 		end;
 	end;
 	local function hasGrabbedSword() 
@@ -383,6 +384,7 @@ function AvHub:Functions()
 			if currentRaid:match("Adaptive Titan") then
 				return true
 			elseif currentRaid:match("") then
+				playergui.RaidBar.RaidBar.Visible = false
 				return false
 			end
 		end
@@ -391,16 +393,15 @@ function AvHub:Functions()
 		local battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 		if battleLabel then
 			local startTime = tick()
-			while tick() - startTime < 3 do
+			local timerThreshold = 2
+			while (tick() - startTime) < timerThreshold do
 				if not battleLabel.Parent then
 					return false
 				end
-				
 				local labelText = battleLabel.Text
 				if labelText:match("CURRENTLY IN BATTLE FLOOR %d+") then
 					return true
 				end
-				
 				task.wait(0.1)
 			end
 		end
@@ -612,8 +613,10 @@ function AvHub:Functions()
 		while self.autoRaidToggle.Value or self.autoInfiniteToggle.Value do
 			if self.autoRaidToggle.Value and isRaidActive() and not isRaidComplete() then
 				if isInInfiniteBattle() then
-					self.cancelInfiniteBattle()
-					task.wait(1)
+					repeat 
+						self.cancelInfiniteBattle()
+						task.wait(0.2)
+					until not isInInfiniteBattle()
 				end
 				
 				if autoInfiniteTask then
@@ -710,7 +713,6 @@ function AvHub:Functions()
 			if swordObbyCD == 0 then
 				grabbedSword = false;
 				self.claimSword();
-				grabbedSword = true;
 				if canGoBack then
 					self.characterTeleport(otherCoordinates["Old Position Sword"]);
 					canGoBack = false;
@@ -772,27 +774,42 @@ function AvHub:Functions()
 			end
 		end
 	end
+	-- Function to format numbers with commas
+	local function formatNumberWithCommas(number)
+		return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):gsub(",%-$", ""):reverse()
+	end
+
+	-- Updated self.updateBattleStatsParagraph function
 	self.updateBattleStatsParagraph = function()
 		while self.autoRankedToggle.Value or self.autoInfiniteToggle.Value do
 			local hideBattle = self.autoHideBattleToggle.Value
 			local closeResultScreen = self.closeResultScreenToggle.Value
 			local highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
-			local raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
-			local raidText 
+			local raidDamageTracker = formatNumberWithCommas(stats:FindFirstChild("RaidDamageTracker").Value)
+			local raidText
+			
 			if isRaidActive() then
-				raidText = "open"
+				raidText = "Open"
 			else
-				raidText = "closed"
+				raidText = "Closed"
 			end
-			battleStatsParagraph:SetDesc("Raids: " .. tostring(raidText)
-				.. "\n" .. "Raid Damage Tracker: " .. tostring(raidDamageTracker)
-				.. "\n" .. "Highest Floor: " .. tostring(highestFloor)
-				.. "\n" .. "Close Result Screen: " .. tostring(closeResultScreen)
-				.. "\n" .. "Hide Battle: " .. tostring(hideBattle)
+			if isRaidComplete() then
+				raidText = raidText .. " (completed)"
+			else
+				raidText = raidText .. " (in progress)"
+			end
+
+			battleStatsParagraph:SetDesc("Raid: " .. raidText ..
+				"\nRaid Damage Tracker: " .. raidDamageTracker ..
+				"\nHighest Floor: " .. highestFloor ..
+				"\nClose Result Screen: " .. tostring(closeResultScreen) ..
+				"\nHide Battle: " .. tostring(hideBattle)
 			)
-			task.wait(0.2);
-		end;
-	end;
+
+			task.wait(0.2)
+		end
+	end
+
 	self.manageUpdateBattleParagraphTask = function()
 		if isAutoRaidActive() or isAutoInfiniteActive() then
 			if not updateBattleParagraphTask then
@@ -821,8 +838,8 @@ function AvHub:Gui()
 		Gui Init
 	--]]
 	guiWindow[randomKey] = Fluent:CreateWindow({
-		Title = "UK1 Hub",
-		SubTitle = "by Av",
+		Title = "UK1",
+		SubTitle = "Anime Card Battles",
 		TabWidth = 90,
 		Size = UDim2.fromOffset(500, 350),
 		Acrylic = true,
@@ -865,7 +882,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "v_1.2.8";
+	local version = "v_1.2.9";
 	local devs = "Av";
 
 	--[[
@@ -893,11 +910,11 @@ function AvHub:Gui()
 	plannedParagraph = Tabs.Main:AddParagraph({
 		Title = "Planned\n",
 		Content = "*Coming Soon"
-		.. "\n->\t" .. "Auto Use Potions"
 		.. "\n->\t" .. "Webhooks"
 		.. "\n->\t" .. "More Stats"
 		.. "\n->\t" .. "More Themes"
-		.. "*Future"
+		.. "\n->\t" .. "Auto Use Potions"
+		.. "\n*Future"
 		.. "\n->\t" .. "Auto Repeatable Bosses"
 	});
 
