@@ -384,18 +384,17 @@ function AvHub:Functions()
 		return grabbedSword
 	end
 	local function isRaidActive()
-		local raidBar = playergui:FindFirstChild("RaidBar")
-		local currentRaid = raidBar.RaidActive.Raids
-		if currentRaid then 
-			if currentRaid:match("") then
-				return false
-			elseif not currentRaid:match("") then
-				local progressBar = raidBar:FindFirstChild("RaidBar")
+		local cardName = workspace.LocationMarkers.Raids:FindFirstChild("CardName")
+		local raidTimer = cardName:FindFirstChild("Frame"):FindFirstChild("Time")
+		local timeText = raidTimer.Text
+		if timeText:match("Opens in") then
+			local progressBar = raidBar:FindFirstChild("RaidBar")
 				if progressBar.Visible then
 					progressBar.Visible = false
 				end
-				return false
-			end
+			return false
+		elseif timeText:match("Closes in") then
+			return true
 		end
 	end
 	local function isInInfiniteBattle()
@@ -525,6 +524,7 @@ function AvHub:Functions()
 		local titanBoss, titanHRP, titanProximityPrompt 
 		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
 		while self.autoRaidToggle.Value and isRaidActive() and not isRaidComplete() do
+			if not isRaidActive() then break end
 			if not isAutoRaidActive() then break end
 			if not isInRaidVicinity() then
 				self.canTeleportToRaid()
@@ -532,7 +532,9 @@ function AvHub:Functions()
 			playergui.RaidBar.RaidBar.Visible = true
 			
 			repeat
+				if not isRaidActive() then break end
 				if not isAutoRaidActive() then break end
+				if isInRaidBattle() then break end
 				guiservice.SelectedObject = nil
 				titanBoss = gamebosses:FindFirstChild("Adaptive Titan")
 				titanHRP = titanBoss:WaitForChild("HumanoidRootPart")
@@ -540,7 +542,9 @@ function AvHub:Functions()
 			until titanHRP
 			
 			repeat 
+				if not isRaidActive() then break end
 				if not isAutoRaidActive() then break end
+				if isInRaidBattle() then break end
 				titanProximityPrompt = titanHRP:WaitForChild("ProximityPrompt")
 				fireproximityprompt(titanProximityPrompt)
 				task.wait(0.1)
@@ -552,6 +556,7 @@ function AvHub:Functions()
 			dialogueOption = responseFrame:WaitForChild("DialogueOption")
 			
 			repeat 
+				if not isRaidActive() then break end
 				if not isAutoRaidActive() then break end
 				if isInRaidBattle() then break end
 				if foundDialogue() then
