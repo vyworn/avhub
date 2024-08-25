@@ -54,6 +54,7 @@ local function generateRandomKey(length)
 	end
 	return key
 end
+
 local function antiAfk()
 	player.Idled:Connect(function()
 		virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
@@ -62,10 +63,12 @@ local function antiAfk()
 	end)
 	print("Anti Afk enabled")
 end
+
 local function rejoinGame()
 	task.wait(1)
 	teleportservice:Teleport(placeid, player)
 end
+
 local function joinPublicServer()
     task.wait(1)
     local serversurl = api .. placeid .. "/servers/Public?sortOrder=Asc&limit=10"
@@ -77,6 +80,8 @@ local function joinPublicServer()
     local server = servers.data[math.random(1, #servers.data)]
     teleportservice:TeleportToPlaceInstance(placeid, server.id, player)
 end
+
+-- Developer Check
 local devid = 
 {
 	["av"] = 164011583,
@@ -84,6 +89,7 @@ local devid =
 	["hari"] = 85087803,
     ["marc"] = 57061551,
 }
+
 local function isDeveloper(userid)
 	for _, id in pairs(devid) do
 		if id == userid then
@@ -255,6 +261,7 @@ local autoPotionsActive, autoSwordActive = false, false
 
 local potionCount = 0
 local totalPotions = 0
+local processedPotions = {} 
 local activePotions
 
 local canGoBack, grabbedSword = false, false
@@ -520,38 +527,36 @@ function AvHub:Function()
 		end
     end
 
-    self.getPotions = function()
+    self.getPotions = function()    
         local function onPotionAdded(child)
             if child:IsA("Model") and child:FindFirstChild("Base") then
-                local base = child:FindFirstChild("Base")
-                if base then
-                    firetouchinterest(base, humanoidrootpart, 0)
-                    task.wait(0.1)
-                    firetouchinterest(base, humanoidrootpart, 1)
-                    potionCount = potionCount + 1
+                if not processedPotions[child] then
+                    local base = child:FindFirstChild("Base")
+                    if base then
+                        firetouchinterest(base, humanoidrootpart, 0)
+                        task.wait(0.1)
+                        firetouchinterest(base, humanoidrootpart, 1)
+                        potionCount = potionCount + 1
+                        processedPotions[child] = true
+                    end
                 end
             end
         end
-
+    
+        humanoidrootpart = character:WaitForChild("HumanoidRootPart")
+    
         while isAutoPotionsActive() do
-            workspace = game:GetService("Workspace")
-            activePotions = workspace:FindFirstChild("ActivePotions")
-            
-            players = game:GetService("Players")
-            player = players.LocalPlayer
-            character = player.Character or player.CharacterAdded:Wait()
-            humanoidrootpart = character:WaitForChild("HumanoidRootPart")
-
             if activePotions then
                 activePotions.ChildAdded:Connect(onPotionAdded)
                 for _, potion in ipairs(activePotions:GetChildren()) do
                     onPotionAdded(potion)
                 end
             end
-
+    
             task.wait(0.25)
         end
-	end	
+    end
+    
     
     self.claimDailyChest = function()
         self.getPreviousPosition(previousPositions["Previous Position Chest"])
@@ -684,7 +689,7 @@ function AvHub:Function()
         if progressBar then
             if canRaidCheck() then
                 progressBar.Visible = true
-            else
+            elseif not canRaidCheck() or canInfiniteCheck() then
                 progressBar.Visible = false
             end
         end
@@ -773,31 +778,32 @@ function AvHub:Function()
     end
 
     local function giveUpInfinite(child)
-		if child.Name == "BATTLETOWERUI" then
-			local giveUpButton = child.Background:FindFirstChild("GiveUp")
-			if giveUpButton then
-				guiservice.SelectedObject = giveUpButton
-				virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-				task.wait(0.1)
-				virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-			end
-		end
+        if not canRaidCheck() then 
+            return 
+        end
+        if canRaidCheck() then
+            if child.Name == "BATTLETOWERUI" then
+                local giveUpButton = child.Background:FindFirstChild("GiveUp")
+                if giveUpButton then
+                    guiservice.SelectedObject = giveUpButton
+                    virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                    task.wait(0.1)
+                    virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                end
+            end
+        end
 	end
 
     local function cancelInfiniteBattle()
-		if isRaidComplete() then 
+		if not canRaidCheck() then 
             return 
         end
+        local connection
+		connection = playergui.ChildAdded:Connect(function(child)
+            giveUpInfinite(child)
 
-		playergui.ChildAdded:Connect(giveUpInfinite)
-
-		repeat
-			if isRaidComplete() then 
-                return 
-            end
-            
-			task.wait(0.1)
-		until not isInInfiniteBattle()
+            connection:Disconnect()
+        end)
 	end
 
     self.autoRaid = function()
@@ -1019,7 +1025,6 @@ function AvHub:Function()
             elseif not isRaidActive() and isRaidComplete() then
                 raidText = raidText .. " (waiting for next raid)"
             end
-
 
             formattedHighestFloor = formatNumberWithCommas(highestFloor)
             formattedPreviousRunFloor = formatNumberWithCommas(previousRunFloor)
