@@ -682,21 +682,34 @@ function AvHub:Functions()
 		while isAutoRaidActive() or isAutoInfiniteActive() do
 			if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
 				if isInInfiniteBattle() then
-					if not isRaidComplete() then
+					if not isRaidActive() then break end
+					if not isAutoRaidActive() then break end
+					if isRaidComplete() then 
+						break
+					elseif not isRaidComplete() and isAutoRaidActive() and isRaidActive() then
 						self.cancelInfiniteBattle()
-					else return end
+					end
 					repeat
+						if not isRaidActive() then break end
+						if not isAutoRaidActive() then break end
+						if isRaidComplete() then break end
 						task.wait(1)
 					until not isInInfiniteBattle()
 				end
 				
-				if autoInfiniteTask then
-					task.cancel(autoInfiniteTask)
-					autoInfiniteTask = nil
-				end
-				
-				if not autoRaidTask then
-					autoRaidTask = task.spawn(self.autoRaid)
+				if not isRaidActive() then break end
+				if not isAutoRaidActive() then break end
+				if isRaidComplete() then 
+					break
+				elseif not isRaidComplete() and isAutoRaidActive() and isRaidActive() then
+					if autoInfiniteTask then
+						task.cancel(autoInfiniteTask)
+						autoInfiniteTask = nil
+					end
+					
+					if not autoRaidTask then
+						autoRaidTask = task.spawn(self.autoRaid)
+					end
 				end
 			elseif isAutoInfiniteActive() and (isRaidComplete() or not isAutoRaidActive() or not isRaidActive()) then
 				if autoRaidTask then
@@ -852,22 +865,30 @@ function AvHub:Functions()
 		local previousHighestFloor = nil
 		local currentHighestFloor = nil
 		local battleInProgress = false
-	
+		local raidDamageTracker = 0
 		while isAutoRaidActive() or isAutoInfiniteActive() do
+			local raidText, hideBattle, closeResultScreen, damageDealt, previousDamageTracker, currentFloor, floorMatch, currentHighestFloor, battleLabel, text, formattedRaidDamageTracker, formattedDamageDealt
 			repeat
 				if not isAutoRaidActive() and not isAutoInfiniteActive() then break end
 	
-				local hideBattle = self.autoHideBattleToggle.Value
-				local closeResultScreen = self.closeResultScreenToggle.Value
-				local raidDamageTracker = formatNumberWithCommas(stats:FindFirstChild("RaidDamageTracker").Value)
-				local raidText
+				hideBattle = self.autoHideBattleToggle.Value
+				closeResultScreen = self.closeResultScreenToggle.Value
+				if raidDamageTracker ~= stats:FindFirstChild("RaidDamageTracker").Value then
+					previousDamageTracker = raidDamageTracker
+					raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+					damageDealt = (tonumber(raidDamageTracker) - tonumber(previousDamageTracker))
+				else
+					previousDamageTracker = "N/A"
+				end 
+				formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
+				formattedDamageDealt = formatNumberWithCommas(damageDealt)
 	
-				local battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
+				battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 				if battleLabel then
-					local text = battleLabel.Text
-					local floorMatch = string.match(text, "CURRENTLY IN BATTLE FLOOR (%d+)")
+					text = battleLabel.Text
+					floorMatch = string.match(text, "CURRENTLY IN BATTLE FLOOR (%d+)")
 					if floorMatch then
-						local currentFloor = tonumber(floorMatch)
+						currentFloor = tonumber(floorMatch)
 						if currentHighestFloor == nil or currentFloor > currentHighestFloor then
 							currentHighestFloor = currentFloor
 						end
@@ -901,7 +922,8 @@ function AvHub:Functions()
 				end
 
 				battleStatsParagraph:SetDesc("Raid: " .. raidText
-					.. "\nRaid Damage Tracker: " .. raidDamageTracker
+					.. "\nRaid Damage Tracker: " .. formattedRaidDamageTracker
+					.. "\nPrevious Damage Dealt: " .. formattedDamageDealt
 					.. "\nCurrent Highest Floor: " .. (currentHighestFloor or "N/A") 
 					.. "\nPrevious Highest Floor: " .. (previousHighestFloor or "N/A")
 					.. "\nClose Result Screen: " .. tostring(closeResultScreen)
@@ -1095,6 +1117,7 @@ function AvHub:Gui()
 		Title = "Stats\n",
 		Content = "Raid: " .. "N/A"
 			.. "\n" .. "Raid Damage Tracker: " .. "N/A"
+			.. "\n" .. "Previous Damage Dealt: " .. "N/A"
 			.. "\n" .. "Highest Floor: " .. "N/A"
 			.. "\n" .. "Current Floor: " .. "N/A"
 			.. "\n" .. "Previous Floor: " .. "N/A"
