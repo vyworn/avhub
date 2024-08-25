@@ -5409,7 +5409,6 @@ function Library:CreateWindow(Config)
     })
 
     Library.Window = Window
-    InterfaceManager:SetTheme(Config.Theme)
     Library:SetTheme(Config.Theme)
 
     return Window
