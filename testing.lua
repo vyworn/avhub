@@ -39,9 +39,9 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 local gamebosses = workspace:WaitForChild("Bosses")
 
 -- Libraries
-local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")))();
-local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua")))();
-local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/fluent-library.lua")))();
+local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/FluentLibrary.lua")))()
+local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/InterfaceManager.lua")))()
+local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/SaveManager.lua")))()
 
 -- Helper Functions
 local function generateRandomKey(length)
@@ -1674,15 +1674,15 @@ function AvHub:GUI()
     end
 
     -- Configs Tab
-    SaveManager:SetLibrary(Fluent);
+    SaveManager:SetLibrary(Fluent)
 	SaveManager:IgnoreThemeSettings()
-	SaveManager:SetFolder("UK1/acb");
-	SaveManager:BuildConfigSection(Tabs.Configs);
+	SaveManager:SetFolder("UK1/acb")
+	SaveManager:BuildConfigSection(Tabs.Configs)
 
     -- Interface Tab
-	InterfaceManager:SetLibrary(Fluent);
-	InterfaceManager:SetFolder("UK1");
-	InterfaceManager:BuildInterfaceSection(Tabs.Interface);
+	InterfaceManager:SetLibrary(Fluent)
+	InterfaceManager:SetFolder("UK1")
+	InterfaceManager:BuildInterfaceSection(Tabs.Interface)
 end
 
 function AvHub:Start()
