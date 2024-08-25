@@ -5489,6 +5489,28 @@ local SaveManager = {} do
         return true
     end
 
+    function SaveManager:Delete(name)
+        if (not name) then
+            return false, "no config file is selected"
+        end
+    
+        local fullPath = self.Folder .. "/" .. name .. ".json"
+    
+        if not isfile(fullPath) then
+            return false, "config file does not exist"
+        end
+    
+        local success, err = pcall(function()
+            delfile(fullPath)
+        end)
+    
+        if not success then
+            return false, "failed to delete config file: " .. tostring(err)
+        end
+    
+        return true
+    end
+
     function SaveManager:Load(name)
         if (not name) then
             return false, "no config file is selected"
@@ -5572,7 +5594,7 @@ local SaveManager = {} do
                     Title = "Interface",
                     Content = "Config loader",
                     SubContent = "Failed to load autoload config: " .. err,
-                    Duration = 7
+                    Duration = 4
                 })
             end
 
@@ -5580,7 +5602,7 @@ local SaveManager = {} do
                 Title = "Interface",
                 Content = "Config loader",
                 SubContent = string.format("Auto loaded config %q", name),
-                Duration = 7
+                Duration = 4
             })
         end
     end
@@ -5603,7 +5625,7 @@ local SaveManager = {} do
                         Title = "Interface",
                         Content = "Config loader",
                         SubContent = "Invalid config name (empty)",
-                        Duration = 7
+                        Duration = 4
                     })
                 end
 
@@ -5613,7 +5635,7 @@ local SaveManager = {} do
                         Title = "Interface",
                         Content = "Config loader",
                         SubContent = "Failed to save config: " .. err,
-                        Duration = 7
+                        Duration = 4
                     })
                 end
 
@@ -5621,7 +5643,7 @@ local SaveManager = {} do
                     Title = "Interface",
                     Content = "Config loader",
                     SubContent = string.format("Created config %q", name),
-                    Duration = 7
+                    Duration = 4
                 })
 
                 SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
@@ -5638,7 +5660,7 @@ local SaveManager = {} do
                     Title = "Interface",
                     Content = "Config loader",
                     SubContent = "Failed to load config: " .. err,
-                    Duration = 7
+                    Duration = 4
                 })
             end
 
@@ -5646,7 +5668,7 @@ local SaveManager = {} do
                 Title = "Interface",
                 Content = "Config loader",
                 SubContent = string.format("Loaded config %q", name),
-                Duration = 7
+                Duration = 4
             })
         end})
 
@@ -5659,7 +5681,7 @@ local SaveManager = {} do
                     Title = "Interface",
                     Content = "Config loader",
                     SubContent = "Failed to overwrite config: " .. err,
-                    Duration = 7
+                    Duration = 4
                 })
             end
 
@@ -5667,9 +5689,53 @@ local SaveManager = {} do
                 Title = "Interface",
                 Content = "Config loader",
                 SubContent = string.format("Overwrote config %q", name),
-                Duration = 7
+                Duration = 4
             })
         end})
+
+        section:AddButton({
+            Title = "Delete config", 
+            Callback = function()
+                local name = SaveManager.Options.SaveManager_ConfigList.Value
+        
+                if not name then
+                    return self.Library:Notify({
+                        Title = "Interface",
+                        Content = "Config loader",
+                        SubContent = "No config selected",
+                        Duration = 4
+                    })
+                end
+        
+                local success, err = self:Delete(name)
+                if not success then
+                    return self.Library:Notify({
+                        Title = "Interface",
+                        Content = "Config loader",
+                        SubContent = "Failed to delete config: " .. err,
+                        Duration = 4
+                    })
+                end
+        
+                self.Library:Notify({
+                    Title = "Interface",
+                    Content = "Config loader",
+                    SubContent = string.format("Deleted config %q", name),
+                    Duration = 4
+                })
+
+                SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+                SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
+        
+                if isfile(self.Folder .. "/autoload.txt") then
+                    local autoloadName = readfile(self.Folder .. "/autoload.txt")
+                    if autoloadName == name then
+                        delfile(self.Folder .. "/autoload.txt")
+                        AutoloadButton:SetDesc("Current autoload config: none")
+                    end
+                end
+            end
+        })
 
         section:AddButton({Title = "Refresh list", Callback = function()
             SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
@@ -5685,7 +5751,7 @@ local SaveManager = {} do
                 Title = "Interface",
                 Content = "Config loader",
                 SubContent = string.format("Set %q to auto load", name),
-                Duration = 7
+                Duration = 4
             })
         end})
 

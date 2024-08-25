@@ -5895,47 +5895,47 @@ end
 local Dragging, DragInput, MousePos, StartPos = false
 
 local MinimizeButton = New("TextButton", {
-    BackgroundTransparency = 1,
-    Size = UDim2.new(0, 2, 0, 2),  -- Set button size to 2x2 pixels
-    BorderSizePixel = 2,
+	BackgroundTransparency = 1,
+	Size = UDim2.new(1, 0, 1, 0),
+	BorderSizePixel = 0
 }, {
-    New("UIPadding", {
-        PaddingBottom = UDim.new(0, 0),  -- Padding won't be visible due to tiny size
-        PaddingLeft = UDim.new(0, 0),
-        PaddingRight = UDim.new(0, 0),
-        PaddingTop = UDim.new(0, 0),
-    }),
-    New("ImageLabel", {
-        Image = "rbxassetid://5093811309",  -- Replace with your image asset ID
-        Size = UDim2.new(1, 0, 1, 0),  -- Fill the button
-        BackgroundTransparency = 1,
-        ScaleType = Enum.ScaleType.Fit,  -- Scale image to fit the ImageLabel
-    }, {
-        New("UIAspectRatioConstraint", {
-            AspectRatio = 1,
-            AspectType = Enum.AspectType.FitWithinMaxSize,
-        })
-    })
+	New("UIPadding", {
+		PaddingBottom = UDim.new(0, 2),
+		PaddingLeft = UDim.new(0, 2),
+		PaddingRight = UDim.new(0, 2),
+		PaddingTop = UDim.new(0, 2),
+	}),
+	New("ImageLabel", {
+		Image = "rbxassetid://123957080365902",
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+	}, {
+		New("UIAspectRatioConstraint", {
+			AspectRatio = 1,
+			AspectType = Enum.AspectType.FitWithinMaxSize,
+		})
+	})
 })
 
 local Minimizer = New("Frame", {
-    Parent = GUI,  -- Assuming GUI is the correct parent container
-    Size = UDim2.new(0, 32, 0, 32),  -- Adjusted size of the parent frame for visibility
-    Position = UDim2.new(0.45, 0, 0.025, 0),
-    BackgroundTransparency = 1,
-    ZIndex = 999999999,
-}, {
-    New("Frame", {
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 0.5,
-        BorderSizePixel = 0
-    }, {
-        New("UICorner", {
-            CornerRadius = UDim.new(0.25, 0),
-        }),
-        MinimizeButton
-    })
+	Parent = GUI,
+	Size = UDim2.new(0, 32, 0, 32),
+	Position = UDim2.new(0.45, 0, 0.025, 0),
+	BackgroundTransparency = 1,
+	ZIndex = 999999999,
+},
+{
+	New("Frame", {
+		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 0.5,
+		BorderSizePixel = 0
+	}, {
+		New("UICorner", {
+			CornerRadius = UDim.new(0.25, 0),
+		}),
+		MinimizeButton
+	})
 })
 
 Creator.AddSignal(Minimizer.InputBegan, function(Input)

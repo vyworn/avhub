@@ -138,7 +138,7 @@ local codes = {
 	"30KLIKES!",
 	"10MVISITS!",
 	"UPDATE3!",
-};
+}
 
 --[[
 	Teleport Tables
@@ -389,9 +389,9 @@ function AvHub:Functions()
 		return grabbedSword
 	end
 	local function isRaidActive()
-		local raidActiveValue = replicatedstorage:WaitForChild("RaidActive"):WaitForChild("CurrentRaid").Value
+		local CurrentRaidValue = replicatedstorage:WaitForChild("RaidActive"):WaitForChild("CurrentRaid").Value
 
-		if raidActiveValue and raidActiveValue ~= "" then
+		if CurrentRaidValue and CurrentRaidValue ~= "" then
 			return true
 		end
 		
@@ -446,16 +446,11 @@ function AvHub:Functions()
 		local battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 		if battleLabel then 
 			local labelText = battleLabel.Text
-			if labelText:match("CURRENTLY IN BATTLE") then
+			if labelText == "CURRENTLY IN BATTLE" then
 				return true
 			end
 		end
 		return false
-	end
-	local function isRaidComplete()
-		local damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
-		damageThreshold = 1000000
-		return damageTracker >= damageThreshold
 	end
 	local function isAutoInfiniteActive()
 		return self.autoInfiniteToggle.Value
@@ -466,7 +461,7 @@ function AvHub:Functions()
 	local function isInInfiniteVicinity()
 		local targetPosition = npcTeleportsCoordinates["Heaven Infinite"]
 		local playerPosition = humanoidRootPart.Position
-		local margin = 5
+		local margin = 20
 		local distance = (playerPosition - targetPosition).Magnitude
 		if distance <= margin then
 			return true
@@ -492,6 +487,11 @@ function AvHub:Functions()
 		else
 			return false
 		end
+	end
+	local function isRaidComplete()
+		local damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+		damageThreshold = 1000000
+		return damageTracker >= damageThreshold
 	end
 	self.canTeleportToInfinite = function()
 		if isInInfiniteVicinity() then
@@ -554,10 +554,26 @@ function AvHub:Functions()
 			task.wait(0.1)
 		until not isInInfiniteBattle()
 	end
+	local function testPrints() 
+		print("----------------------")
+		print("isRaidActive ", tostring(isRaidActive()))
+		print("isRaidComplete ", tostring(isRaidComplete()))
+		print("isInInfiniteVicinity ", tostring(isInInfiniteVicinity()))
+		print("isInRaidVicinity ", tostring(isInRaidVicinity()))
+		print("isInInfiniteBattle ", tostring(isInInfiniteBattle()))
+		print("isInRaidBattle ", tostring(isInRaidBattle()))
+		print("grabbedSword ", tostring(grabbedSword))
+		print("canGoBack ", tostring(canGoBack))
+		print("foundDialogue ", tostring(foundDialogue()))
+		print("----------------------")
+		task.wait(0.1)
+	end
 	self.autoRaid = function()
 		local titanBoss, titanHRP, titanProximityPrompt 
 		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
 		while isAutoRaidActive() and isRaidActive() and not isRaidComplete() do
+			print("Auto Raid Process")
+			testPrints()
 			if not isRaidActive() then break end
 			if not isAutoRaidActive() then break end
 			if not isInRaidVicinity() then
@@ -609,6 +625,8 @@ function AvHub:Functions()
 			task.wait(1)
 		end
 		if isRaidComplete() or not isRaidActive() then
+			print("Raid Completed")
+			testPrints()
 			playergui.RaidBar.RaidBar.Visible = false
 			return
 		end
@@ -622,8 +640,8 @@ function AvHub:Functions()
 		end
 	end
 	self.autoInfinite = function()
-		local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
-		local npcDialogue, dialogueFrame, responseFrame
+		local davidNPC, davidHRP, davidProximityPrompt
+		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
 		while isAutoInfiniteActive() do
 			if (not isAutoRaidActive() or not isRaidActive()) or isRaidComplete() then 
 				if not isAutoInfiniteActive() then break end
@@ -692,6 +710,8 @@ function AvHub:Functions()
 		while isAutoRaidActive() or isAutoInfiniteActive() do
 			if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
 				if isInInfiniteBattle() then
+					print("Checking Infinite Battle")
+					testPrints()
 					if not isRaidActive() then break end
 					if not isAutoRaidActive() then break end
 					if isRaidComplete() then 
@@ -712,6 +732,8 @@ function AvHub:Functions()
 				if isRaidComplete() then 
 					break
 				elseif not isRaidComplete() and isAutoRaidActive() and isRaidActive() then
+					print("Manging Priority for Raid")
+					testPrints()
 					if autoInfiniteTask then
 						task.cancel(autoInfiniteTask)
 					end
@@ -724,6 +746,8 @@ function AvHub:Functions()
 					break
 				end
 			elseif isAutoInfiniteActive() and (isRaidComplete() or not isAutoRaidActive() or not isRaidActive()) then
+				print("Manging Priority for Infinite")
+				testPrints()
 				if autoRaidTask then
 					task.cancel(autoRaidTask)
 				end
