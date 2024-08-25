@@ -261,7 +261,7 @@ local SaveManager = {} do
                     SubContent = string.format("Created config %q", name),
                     Duration = 4
                 })
-
+                
                 SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
                 SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
             end
@@ -284,27 +284,6 @@ local SaveManager = {} do
                 Title = "Interface",
                 Content = "Config loader",
                 SubContent = string.format("Loaded config %q", name),
-                Duration = 4
-            })
-        end})
-
-        section:AddButton({Title = "Save config", Callback = function()
-            local name = SaveManager.Options.SaveManager_ConfigList.Value
-
-            local success, err = self:Save(name)
-            if not success then
-                return self.Library:Notify({
-                    Title = "Interface",
-                    Content = "Config loader",
-                    SubContent = "Failed to overwrite config: " .. err,
-                    Duration = 4
-                })
-            end
-
-            self.Library:Notify({
-                Title = "Interface",
-                Content = "Config loader",
-                SubContent = string.format("Overwrote config %q", name),
                 Duration = 4
             })
         end})
@@ -339,6 +318,7 @@ local SaveManager = {} do
                     SubContent = string.format("Deleted config %q", name),
                     Duration = 4
                 })
+
 
                 SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
                 SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
