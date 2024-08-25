@@ -259,9 +259,7 @@ local codes =
 -- Farming Variables
 local autoPotionsActive, autoSwordActive = false, false
 
-local potionCount = 0
-local totalPotions = 0
-local processedPotions = {} 
+local potionCount
 local activePotions
 
 local canGoBack, grabbedSword = false, false
@@ -276,9 +274,8 @@ local inBattle
 local rsra, currentRaidValue
 local raidBar, progressBar
 local raidActive, raidTimer, timerText, lastTimerText
-local timerUpdateInterval = 1
-local maxStableInterval = 5
-local startTime
+local maxStableInterval = 3
+local startTime, currentTries
 local raidDamageTracker = stats:FindFirstChild("RaidDamageTracker")
 local damageThreshold = 1000000
 local davidNPC, davidHRP, davidProximityPrompt
@@ -296,7 +293,8 @@ local uptimeText = "N/A hours\nN/A minutes\nN/A seconds"
 local timeLeft
 local damageDealt, previousRunDamage = 0, 0
 local battleLabelText, raidText
-local highestFloor, previousRunFloor, currentRunFloor, floorMatch = 0, 0, 0, 0 
+local highestFloor, previousRunFloor, currentRunFloor = 0, 0, 0
+local floorMatch
 local formattedRaidDamageTracker, formattedDamageDealt, formattedThreshold
 local formattedHighestFloor, formattedPreviousRunFloor, formattedCurrentRunFloor
 local battleInProgress = false
@@ -388,7 +386,7 @@ function AvHub:Function()
 	player.CharacterAdded:Connect(function(newCharacter)
 		player = game.Players.LocalPlayer
 		character = newCharacter
-		humanoidrootpart = character:WaitForChild("HumanoidRootPart", 10)
+		humanoidrootpart = character:WaitForChild("HumanoidRootPart")
 
 		if humanoidrootpart then
 			character.PrimaryPart = humanoidrootpart
@@ -527,36 +525,36 @@ function AvHub:Function()
 		end
     end
 
-    self.getPotions = function()    
-        local function onPotionAdded(child)
-            if child:IsA("Model") and child:FindFirstChild("Base") then
-                if not processedPotions[child] then
-                    local base = child:FindFirstChild("Base")
-                    if base then
-                        firetouchinterest(base, humanoidrootpart, 0)
-                        task.wait(0.1)
-                        firetouchinterest(base, humanoidrootpart, 1)
-                        potionCount = potionCount + 1
-                        processedPotions[child] = true
-                    end
-                end
-            end
+    self.getPotions = function()
+        potionCount = 0
+        local players = game:GetService("Players")
+        local player = players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local workspace = game:GetService("Workspace")
+        local activePotions = workspace:FindFirstChild("ActivePotions")
+    
+        local function onPotionGrabbed()
+            potionCount = potionCount + 1
         end
     
-        humanoidrootpart = character:WaitForChild("HumanoidRootPart")
+        activePotions.ChildRemoved:Connect(onPotionGrabbed)
     
         while isAutoPotionsActive() do
-            if activePotions then
-                activePotions.ChildAdded:Connect(onPotionAdded)
-                for _, potion in ipairs(activePotions:GetChildren()) do
-                    onPotionAdded(potion)
+            for _, potion in ipairs(activePotions:GetChildren()) do
+                local base = potion:FindFirstChild("Base")
+                if base then
+                    firetouchinterest(humanoidRootPart, base, 0)
+                    task.wait(0.1)
+                    firetouchinterest(humanoidRootPart, base, 1)
                 end
+                task.wait(0.1)
             end
-    
             task.wait(0.25)
         end
-    end
     
+        return potionCount
+    end
     
     self.claimDailyChest = function()
         self.getPreviousPosition(previousPositions["Previous Position Chest"])
@@ -580,7 +578,7 @@ function AvHub:Function()
         
         task.wait(0.5)
         
-        self.characterTeleport(interactionPositions["Previous Position Chest"])
+        self.characterTeleport(previousPositions["Previous Position Chest"])
     end
 
     -- Battle Functions
@@ -632,7 +630,14 @@ function AvHub:Function()
     end
 
     local function isRaidComplete()
+        rsra = replicatedstorage:WaitForChild("RaidActive")
+        currentRaidValue = rsra:WaitForChild("CurrentRaid").Value
         raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+
+        if raidDamageTracker >= damageThreshold then
+            currentRaidValue = ""
+            return true
+        end
 		return raidDamageTracker >= damageThreshold
     end
 
@@ -654,20 +659,27 @@ function AvHub:Function()
         end
 
         startTime = tick()
-        while tick() - startTime < maxStableInterval do
-            task.wait(timerUpdateInterval)
+        currentTries = 0
+        local maxTries = 2
+
+        while (tick() - startTime) < maxStableInterval do
+            raidTimer = raidActive:FindFirstChild("Time")
             if raidTimer then
                 timerText = raidTimer.Text
                 if timerText ~= lastTimerText then
                     return true 
+                elseif currentTries > maxTries then
+                    return false
                 end
                 lastTimerText = timerText
             end
-        end
 
+            currentTries = currentTries + 1
+
+            task.wait(0.5)
+        end
         return false
     end
-
     local function canRaidCheck()
         if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
             return true
@@ -677,20 +689,21 @@ function AvHub:Function()
     end
 
     local function canInfiniteCheck()
-        if isAutoInfiniteActive() and (isRaidComplete() or not isAutoRaidActive() or not isRaidActive()) then
+        if isAutoInfiniteActive() and not canRaidCheck() then
             return true
-        else
+        else    
             return false
         end
     end
 
     local function toggleProgressBar()
-        progressBar = raidBar:FindFirstChild("ProgressBar")
-        if progressBar then
+        local rb = playergui:FindFirstChild("RaidBar")
+        local pb = rb.FindFirstChild("RaidBar")
+        if pb then
             if canRaidCheck() then
-                progressBar.Visible = true
+                pb.Visible = true
             elseif not canRaidCheck() or canInfiniteCheck() then
-                progressBar.Visible = false
+                pb.Visible = false
             end
         end
     end
@@ -798,11 +811,11 @@ function AvHub:Function()
 		if not canRaidCheck() then 
             return 
         end
-        local connection
-		connection = playergui.ChildAdded:Connect(function(child)
+        local towerConnection
+		towerConnection = playergui.ChildAdded:Connect(function(child)
             giveUpInfinite(child)
 
-            connection:Disconnect()
+            towerConnection:Disconnect()
         end)
 	end
 
@@ -895,11 +908,7 @@ function AvHub:Function()
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
                 end
-            elseif not canInfiniteCheck()  then
-                break
-            end
-
-            task.wait(1)
+            task.wait(0.5)
         end
     end
 
@@ -959,7 +968,6 @@ function AvHub:Function()
     self.updateFarmParagraph = function()
         while isAutoSwordActive() or isAutoPotionsActive() do
             swordCooldown = stats.SwordObbyCD.Value
-            totalPotions = potionCount
             timeLeft = swordCooldown
 
             uptimeInSeconds = tick() - tickCount
@@ -968,13 +976,30 @@ function AvHub:Function()
 			seconds = uptimeInSeconds % 60
 			uptimeText = string.format("%02d hours\n%02d minutes\n%02d seconds", hours, minutes, seconds)
 
-            farmParagraph:SetDesc("Total Potions: " .. totalPotions 
+            farmParagraph:SetDesc("Total Potions: " .. potionCount 
             .. "\n" .. "Sword Timer: " .. timeLeft 
             .. "\n" .. "Script Uptime: "
             .. "\n" .. tostring(uptimeText)
             )
 
             task.wait(0.2)
+        end
+    end
+
+    local function checkFloors()
+        battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
+
+        if battleLabel then
+            battleLabelText = battleLabel.Text
+            if battleLabelText:match("CURRENTLY IN BATTLE") then
+                floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
+                if floorMatch then
+                    currentRunFloor = tonumber(floorMatch)
+                    if currentRunFloor > previousRunFloor then
+                        previousRunFloor = currentRunFloor
+                    end
+                end
+            end
         end
     end
 
@@ -990,21 +1015,9 @@ function AvHub:Function()
             formattedThreshold = formatNumberWithCommas(damageThreshold)
             formattedDamageDealt = formatNumberWithCommas(damageDealt)
 
-            battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
             highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
 
-            if battleLabel then
-                battleLabelText = battleLabel.Text
-                if battleLabelText:match("CURRENTLY IN BATTLE") then
-                    floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
-                    if floorMatch then
-                        currentRunFloor = tonumber(floorMatch)
-                        if currentRunFloor >= previousHighestFloor then
-                            previousRunFloor = currentRunFloor
-                        end
-                    end
-                end
-            end
+            checkFloors()
 
            if isInInfiniteBattle() or isInRaidBattle() then
                 battleInProgress = true
@@ -1076,31 +1089,41 @@ function AvHub:Function()
 
     -- Coroutine Functions
     self.managePriority = function()
+        local priority
         while isAutoRaidActive() or isAutoInfiniteActive() do
             if canRaidCheck() then
+                priority = 1
+            elseif canInfiniteCheck() then
+                priority = 2
+            else
+                priority = nil
+            end
+    
+            if priority == 1 then
                 if not raidCoroutine or coroutine.status(raidCoroutine) == "dead" then
                     raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
                 end
-
+    
                 if infiniteCoroutine and coroutine.status(infiniteCoroutine) ~= "dead" then
                     infiniteCoroutine = self.stopFunction(infiniteCoroutine)
                 end
-
+    
                 cancelInfiniteBattle()
-
-            elseif canInfiniteCheck() then
+    
+            elseif priority == 2 then
                 if not infiniteCoroutine or coroutine.status(infiniteCoroutine) == "dead" then
                     infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
                 end
-
+    
                 if raidCoroutine and coroutine.status(raidCoroutine) ~= "dead" then
                     raidCoroutine = self.stopFunction(raidCoroutine)
                 end
             end
-
+    
             task.wait(1)
         end
     end
+    
 
     self.startUpdateBattleParagraph = function()
         battleParagraphCoroutine = self.startFunction(battleParagraphCoroutine, self.updateBattleParagraph)
@@ -1218,7 +1241,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.4.4"
+	local version = "1.4.5"
 	local devs = "Av"
 
     -- Main Tab
