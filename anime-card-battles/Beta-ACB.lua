@@ -698,7 +698,7 @@ function AvHub:Function()
 
     local function toggleProgressBar()
         local rb = playergui:FindFirstChild("RaidBar")
-        local pb = rb.FindFirstChild("RaidBar")
+        local pb = rb:FindFirstChild("RaidBar")
         if pb then
             if canRaidCheck() then
                 pb.Visible = true
@@ -908,7 +908,9 @@ function AvHub:Function()
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
                 end
+
             task.wait(0.5)
+            end
         end
     end
 
@@ -1241,7 +1243,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.4.5"
+	local version = "1.4.6"
 	local devs = "Av"
 
     -- Main Tab
