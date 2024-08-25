@@ -42,6 +42,8 @@ local stats = player:WaitForChild("Stats")
 local playergui = player:WaitForChild("PlayerGui")
 local gamenpcs = workspace:WaitForChild("NPCs")
 local gamebosses = workspace:WaitForChild("Bosses")
+local raidBar = playergui:WaitForChild("RaidBar")
+local progressBar = raidBar:WaitForChild("RaidBar")
 
 --[[
 	Libraries
@@ -136,7 +138,7 @@ local codes = {
 	"30KLIKES!",
 	"10MVISITS!",
 	"UPDATE3!",
-};
+}
 
 --[[
 	Teleport Tables
@@ -252,6 +254,7 @@ local autoInfiniteActive = false;
 local canGoBack = false;
 local grabbedSword = false;
 local tickCount, uptimeInSeconds, hours, minutes, seconds
+local damageThreshold
 local uptimeText = "00 hours\n00 minutes\n00 seconds";
 local autoPotionsTask, autoSwordTask, updateFarmParagraphTask, updateBattleParagraphTask, 
 autoRankedTask, autoRaidTask, autoInfiniteTask, 
@@ -386,14 +389,13 @@ function AvHub:Functions()
 		return grabbedSword
 	end
 	local function isRaidActive()
-		local raidActiveValue = replicatedstorage:WaitForChild("RaidActive"):WaitForChild("CurrentRaid").Value
+		local CurrentRaidValue = replicatedstorage:WaitForChild("RaidActive"):WaitForChild("CurrentRaid").Value
 
-		if raidActiveValue and raidActiveValue ~= "" then
+		if CurrentRaidValue and CurrentRaidValue ~= "" then
 			return true
 		end
 		
 		local playergui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-		local raidBar = playergui:FindFirstChild("RaidBar")
 		
 		if not raidBar then
 			return false
@@ -414,7 +416,6 @@ function AvHub:Functions()
 			return true
 		end
 
-		local progressBar = raidBar:FindFirstChild("RaidBar")
 		if progressBar and progressBar:IsA("Frame") then
 			if progressBar.Visible then
 				progressBar.Visible = false
@@ -445,16 +446,11 @@ function AvHub:Functions()
 		local battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 		if battleLabel then 
 			local labelText = battleLabel.Text
-			if labelText:match("CURRENTLY IN BATTLE") then
+			if labelText == "CURRENTLY IN BATTLE" then
 				return true
 			end
 		end
 		return false
-	end
-	local function isRaidComplete()
-		local damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
-		local damageThreshold = 1000000
-		return damageTracker > damageThreshold
 	end
 	local function isAutoInfiniteActive()
 		return self.autoInfiniteToggle.Value
@@ -465,7 +461,7 @@ function AvHub:Functions()
 	local function isInInfiniteVicinity()
 		local targetPosition = npcTeleportsCoordinates["Heaven Infinite"]
 		local playerPosition = humanoidRootPart.Position
-		local margin = 5
+		local margin = 20
 		local distance = (playerPosition - targetPosition).Magnitude
 		if distance <= margin then
 			return true
@@ -491,6 +487,11 @@ function AvHub:Functions()
 		else
 			return false
 		end
+	end
+	local function isRaidComplete()
+		local damageTracker = stats:FindFirstChild("RaidDamageTracker").Value
+		damageThreshold = 1000000
+		return damageTracker >= damageThreshold
 	end
 	self.canTeleportToInfinite = function()
 		if isInInfiniteVicinity() then
@@ -553,10 +554,26 @@ function AvHub:Functions()
 			task.wait(0.1)
 		until not isInInfiniteBattle()
 	end
+	local function testPrints() 
+		print("----------------------")
+		print("isRaidActive ", tostring(isRaidActive()))
+		print("isRaidComplete ", tostring(isRaidComplete()))
+		print("isInInfiniteVicinity ", tostring(isInInfiniteVicinity()))
+		print("isInRaidVicinity ", tostring(isInRaidVicinity()))
+		print("isInInfiniteBattle ", tostring(isInInfiniteBattle()))
+		print("isInRaidBattle ", tostring(isInRaidBattle()))
+		print("grabbedSword ", tostring(grabbedSword))
+		print("canGoBack ", tostring(canGoBack))
+		print("foundDialogue ", tostring(foundDialogue()))
+		print("----------------------")
+		task.wait(0.1)
+	end
 	self.autoRaid = function()
 		local titanBoss, titanHRP, titanProximityPrompt 
 		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
 		while isAutoRaidActive() and isRaidActive() and not isRaidComplete() do
+			print("Auto Raid Process")
+			testPrints()
 			if not isRaidActive() then break end
 			if not isAutoRaidActive() then break end
 			if not isInRaidVicinity() then
@@ -602,9 +619,14 @@ function AvHub:Functions()
 			if guiservice.SelectedObject == closeLb then 
 				guiservice.SelectedObject = nil
 			end
+			if isRaidComplete() then
+				break
+			end
 			task.wait(1)
 		end
 		if isRaidComplete() or not isRaidActive() then
+			print("Raid Completed")
+			testPrints()
 			playergui.RaidBar.RaidBar.Visible = false
 			return
 		end
@@ -618,8 +640,8 @@ function AvHub:Functions()
 		end
 	end
 	self.autoInfinite = function()
-		local davidNPC, davidHRP, davidProximityPrompt, dialogueOption
-		local npcDialogue, dialogueFrame, responseFrame
+		local davidNPC, davidHRP, davidProximityPrompt
+		local npcDialogue, dialogueFrame, responseFrame, dialogueOption
 		while isAutoInfiniteActive() do
 			if (not isAutoRaidActive() or not isRaidActive()) or isRaidComplete() then 
 				if not isAutoInfiniteActive() then break end
@@ -634,6 +656,12 @@ function AvHub:Functions()
 					until not isInInfiniteBattle()
 				end
 
+				if progressBar and progressBar:IsA("Frame") then
+					if progressBar.Visible then
+						progressBar.Visible = false
+					end
+				end
+				
 				repeat 
 					if not isAutoInfiniteActive() then break end
 					if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then break end
@@ -682,6 +710,8 @@ function AvHub:Functions()
 		while isAutoRaidActive() or isAutoInfiniteActive() do
 			if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
 				if isInInfiniteBattle() then
+					print("Checking Infinite Battle")
+					testPrints()
 					if not isRaidActive() then break end
 					if not isAutoRaidActive() then break end
 					if isRaidComplete() then 
@@ -702,19 +732,24 @@ function AvHub:Functions()
 				if isRaidComplete() then 
 					break
 				elseif not isRaidComplete() and isAutoRaidActive() and isRaidActive() then
+					print("Manging Priority for Raid")
+					testPrints()
 					if autoInfiniteTask then
 						task.cancel(autoInfiniteTask)
-						autoInfiniteTask = nil
 					end
 					
 					if not autoRaidTask then
 						autoRaidTask = task.spawn(self.autoRaid)
 					end
 				end
+				if isRaidComplete() then 
+					break
+				end
 			elseif isAutoInfiniteActive() and (isRaidComplete() or not isAutoRaidActive() or not isRaidActive()) then
+				print("Manging Priority for Infinite")
+				testPrints()
 				if autoRaidTask then
 					task.cancel(autoRaidTask)
-					autoRaidTask = nil
 				end
 
 				if not autoInfiniteTask then
@@ -793,6 +828,7 @@ function AvHub:Functions()
 				self.claimSword();
 				if canGoBack then
 					self.characterTeleport(otherCoordinates["Old Position Sword"]);
+					grabbedSword = true
 					canGoBack = false;
 				end;
 			elseif swordObbyCD > 0 and grabbedSword == false then
@@ -848,7 +884,6 @@ function AvHub:Functions()
 		else
 			if updateFarmParagraphTask then
 				task.cancel(updateFarmParagraphTask)
-				updateFarmParagraphTask = nil
 			end
 		end
 	end
@@ -867,7 +902,10 @@ function AvHub:Functions()
 		local battleInProgress = false
 		local raidDamageTracker = 0
 		while isAutoRaidActive() or isAutoInfiniteActive() do
-			local raidText, hideBattle, closeResultScreen, damageDealt, previousDamageTracker, currentFloor, floorMatch, currentHighestFloor, battleLabel, text, formattedRaidDamageTracker, formattedDamageDealt
+			local hideBattle  
+			local raidText, damageDealt, previousDamageTracker
+			local closeResultScreen, currentFloor, floorMatch, currentHighestFloor, battleLabel
+			local text, formattedRaidDamageTracker, formattedDamageDealt, formattedThreshold
 			repeat
 				if not isAutoRaidActive() and not isAutoInfiniteActive() then break end
 	
@@ -882,6 +920,7 @@ function AvHub:Functions()
 				end 
 				formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
 				formattedDamageDealt = formatNumberWithCommas(damageDealt)
+				formattedThreshold = formatNumberWithCommas(damageThreshold)
 	
 				battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 				if battleLabel then
@@ -922,7 +961,7 @@ function AvHub:Functions()
 				end
 
 				battleStatsParagraph:SetDesc("Raid: " .. raidText
-					.. "\nRaid Damage Tracker: " .. formattedRaidDamageTracker
+					.. "\nRaid Damage Tracker: " .. formattedRaidDamageTracker .. " / " .. formattedThreshold
 					.. "\nPrevious Damage Dealt: " .. formattedDamageDealt
 					.. "\nCurrent Highest Floor: " .. (currentHighestFloor or "N/A") 
 					.. "\nPrevious Highest Floor: " .. (previousHighestFloor or "N/A")
@@ -944,7 +983,6 @@ function AvHub:Functions()
 		elseif not isAutoRaidActive() and not isAutoInfiniteActive() then
 			if updateBattleParagraphTask then
 				task.cancel(updateBattleParagraphTask)
-				updateBattleParagraphTask = nil
 			end
 		end
 	end;
@@ -999,7 +1037,7 @@ function AvHub:Gui()
 	};
 	
 	local Options = Fluent.Options;
-	local version = "1.3.7";
+	local version = "1.3.9";
 	local devs = "Av";
 
 	--[[
@@ -1083,7 +1121,6 @@ function AvHub:Gui()
 		else 
 			if autoPotionsTask then
 				task.cancel(autoPotionsTask)
-				autoPotionsTask = nil
 			end
 		end
 		self.manageUpdateFarmParagraphTask()
@@ -1097,7 +1134,6 @@ function AvHub:Gui()
 		else 
 			if autoSwordTask then
 				task.cancel(autoSwordTask)
-				autoSwordTask = nil
 			end
 		end
 		self.manageUpdateFarmParagraphTask()
@@ -1162,7 +1198,6 @@ function AvHub:Gui()
 		else
 			if autoRejoinRaidTask then
 				task.cancel(autoRejoinRaidTask)
-				autoRejoinRaidTask = nil
 			end
 		end;
 	end);
@@ -1172,22 +1207,19 @@ function AvHub:Gui()
 			if not manageUpdateBattleParagraphTask then
 				manageUpdateBattleParagraphTask = task.spawn(self.manageUpdateBattleParagraphTask)
 			end
-		elseif not self.autoInfiniteToggle.Value then
+		elseif not self.autoRaidToggle.Value then
 			if managePriorityTask and not self.autoInfiniteToggle.Value then
 				if not isAutoInfiniteActive() then
 					if manageUpdateBattleParagraphTask then
 						task.cancel(manageUpdateBattleParagraphTask)
-						manageUpdateBattleParagraphTask = nil
 					end
 				end
 				task.cancel(autoRaidTask)
 				task.cancel(managePriorityTask)
-				autoRaidTask = nil
-				managePriorityTask = nil
 			else
 				if managePriorityTask then
+					task.cancel(autoRaidTask)
 					task.cancel(managePriorityTask)
-					managePriorityTask = nil
 				end
 			end
 		end
@@ -1195,26 +1227,23 @@ function AvHub:Gui()
 	self.autoInfiniteToggle:OnChanged(function()
 		task.wait(1)
 		if self.autoInfiniteToggle.Value then
+			self.startManagePriority()
 			if not manageUpdateBattleParagraphTask then
 				manageUpdateBattleParagraphTask = task.spawn(self.manageUpdateBattleParagraphTask)
 			end
-			self.startManagePriority()
-		elseif not self.autoRaidToggle.Value then
+		elseif not self.autoInfiniteToggle.Value then
 			if managePriorityTask and not self.autoRaidToggle.Value then
 				if not isAutoRaidActive() then
 					if manageUpdateBattleParagraphTask then
 						task.cancel(manageUpdateBattleParagraphTask)
-						manageUpdateBattleParagraphTask = nil
 					end
 				end
 				task.cancel(autoInfiniteTask)
 				task.cancel(managePriorityTask)
-				autoInfiniteTask = nil
-				managePriorityTask = nil
 			else
 				if managePriorityTask then
+					task.cancel(autoInfiniteTask)
 					task.cancel(managePriorityTask)
-					managePriorityTask = nil
 				end
 			end
 		end
@@ -1226,7 +1255,6 @@ function AvHub:Gui()
 		else
 			if autoRankedTask then
 				task.cancel(autoRankedTask)
-				autoRankedTask = nil
 			end
 		end;
 	end);
@@ -1236,7 +1264,6 @@ function AvHub:Gui()
 		else
 			if closeResultScreenTask then
 				task.cancel(closeResultScreenTask)
-				closeResultScreenTask = nil
 			end
 		end;
 	end);
@@ -1246,7 +1273,6 @@ function AvHub:Gui()
 		else
 			if autoHideBattleTask then
 				task.cancel(autoHideBattleTask)
-				autoHideBattleTask = nil
 			end
 		end;
 	end);
