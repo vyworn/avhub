@@ -3,6 +3,10 @@ if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
 
+local functionsInit = false
+local guiInit = false
+local hubInit = false
+
 -- Roblox Services & Variables
 local players = game:GetService("Players")
 local player = players.LocalPlayer
@@ -61,7 +65,7 @@ local function antiAfk()
 		task.wait(0.1)
 		virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 	end)
-	print("Anti Afk enabled")
+    return true
 end
 
 local function rejoinGame()
@@ -110,14 +114,12 @@ local AvHub = _G[randomKey]
 -- Position Tables
 local interactionNames = 
 {
-    "Sword",
     "Raid Shop",
 	"Potion Shop",
 	"Card Fusion",
 	"Card Deconstruction",
 	"Charm Merchant",
 	"Strange Trader",
-	"Daily Chest",
 	"Card Index",
 	"Card Packs",
 }
@@ -127,6 +129,17 @@ local battleNames =
 	"Heaven Infinite",
 	"Heaven Tower",
     "Adaptive Titan",
+}
+
+local areaNames = 
+{
+    "Daily Chest",
+    "Sword",
+	"Spawn",
+    "Follow Leaderboard",
+    "Roll Leaderboard",
+	"Card Leaderboard",
+    "Luck Fountain",
 }
 
 local repeatableBossNames =
@@ -153,23 +166,13 @@ local normalBossNames =
 	"Galactic Tyrant",
 }
 
-local areaNames = 
-{
-	"Spawn",
-    "Roll Leaderboard",
-	"Card Leaderboard",
-    "Luck Fountain",
-}
-
 local interactionPositions = 
 {
-    ["Sword"] = Vector3.new(-7714.85205078125, 211.64096069335938, -9588.51953125),
-	["Potion Shop"] = Vector3.new(-7744.11376953125, 180.14158630371094, -9369.5908203125),
+    ["Potion Shop"] = Vector3.new(-7744.11376953125, 180.14158630371094, -9369.5908203125),
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
 	["Card Deconstruction"] = Vector3.new(-7837.935059, 180.831451,-9281.571289),
 	["Charm Merchant"] = Vector3.new(-7764.36572265625, 179.71200561523438, -9194.859375),
 	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
-	["Daily Chest"] = Vector3.new(-7785.53173828125, 180.8318634033203, -9339.9423828125),
 	["Card Index"] = Vector3.new(-7846.603515625, 180.50991821289062, -9371.1884765625),
 	["Card Packs"] = Vector3.new(-7708.05810546875, 180.46566772460938, -9310.736328125),
 }
@@ -179,6 +182,17 @@ local battlePositions =
     ["Heaven Infinite"] = Vector3.new(454.615417, 260.529327,5928.994629),
     ["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
     ["Adaptive Titan"] = Vector3.new(-11600.375000, 250.031403,-11486.458984),
+}
+
+local areaPositions = 
+{
+	["Daily Chest"] = Vector3.new(-7785.53173828125, 180.8318634033203, -9339.9423828125),
+    ["Sword"] = Vector3.new(-7714.85205078125, 211.64096069335938, -9588.51953125),
+    ["Spawn"] = Vector3.new(-7810.774902, 179.706451,-9363.508789),
+    ["Follow Leaderboard"] = Vector3.new(-7799.123535, 179.436554,-9539.000000),
+    ["Roll Leaderboard"] = Vector3.new(-7920.541015625, 186.38790893554688, -9144.70703125),
+    ["Card Leaderboard"] = Vector3.new(-7920.541015625, 186.38800048828125, -9170.8369140625),
+    ["Luck Fountain"] = Vector3.new(-7811.5751953125, 180.41331481933594, -9278.078125),
 }
 
 local repeatableBossPositions =
@@ -203,14 +217,6 @@ local normalBossPositions =
     ["King Of Curses"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
     ["Shinobi God"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
     ["Galactic Tyrant"] = Vector3.new(10927.65918, 352.19986, -5072.885254),
-}
-
-local areaPositions = 
-{
-    ["Spawn"] = Vector3.new(-7921.300781, 177.836029,-9143.949219),
-    ["Roll Leaderboard"] = Vector3.new(-7920.541015625, 186.38790893554688, -9144.70703125),
-    ["Card Leaderboard"] = Vector3.new(-7920.541015625, 186.38800048828125, -9170.8369140625),
-    ["Luck Fountain"] = Vector3.new(-7811.5751953125, 180.41331481933594, -9278.078125),
 }
 
 local previousPositions = 
@@ -254,6 +260,7 @@ local codes =
     "30KLIKES!",
     "10MVISITS!",
     "UPDATE3!",
+    "WEFIXITZ!",
 }
 
 -- Farming Variables
@@ -287,9 +294,9 @@ local BATTLETOWERUI
 local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 
 -- Paragraph Variables
-local farmParagraph, battleParagraph 
+local hubInfoParagraph, farmParagraph, battleParagraph  
 local tickCount, uptimeInSeconds, hours, minutes, seconds
-local uptimeText = "N/A hours\nN/A minutes\nN/A seconds"
+local uptimeText = "N/A hours N/A minutes N/A seconds"
 local timeLeft
 local damageDealt, previousRunDamage = 0, 0
 local battleLabelText, raidText
@@ -303,7 +310,7 @@ local battleInProgress = false
 local potionsCoroutine, swordCoroutine
 local raidCoroutine, infiniteCoroutine, rankedCoroutine, managePriorityCoroutine
 local hideBattleCoroutine, closeResultCoroutine
-local farmParagraphCoroutine, battleParagraphCoroutine
+local hubInfoParagraphCoroutine, farmParagraphCoroutine, battleParagraphCoroutine
 
 function AvHub:Function()
     -- Universal Functions
@@ -486,11 +493,11 @@ function AvHub:Function()
     
             if swordProximityPrompt then
                 fireproximityprompt(swordProximityPrompt)
-                task.wait(0.5)
+                task.wait(0.2)
                 canGoBack = true
             else
                 if waitForProximityPrompt(swordBlock, 10) then
-                    task.wait(0.5)
+                    task.wait(0.2)
                     canGoBack = true
                 end
             end
@@ -503,12 +510,11 @@ function AvHub:Function()
             swordObbyCD = swordCooldown
 			if swordObbyCD == 0 then
 				grabbedSword = false
-
+                
                 self.getPreviousPosition(previousPositions["Previous Position Sword"])
-				task.wait(0.25)
-                self.characterTeleport(interactionPositions["Sword"])
+				task.wait(0.2)
+                self.characterTeleport(areaPositions["Sword"])
                 task.wait(0.5)
-
                 self.getSword()
 
 				if canGoBack then
@@ -521,7 +527,7 @@ function AvHub:Function()
 				grabbedSword = true
 			end
 
-			task.wait(0.25)
+			task.wait(0.2)
 		end
     end
 
@@ -559,7 +565,7 @@ function AvHub:Function()
     self.claimDailyChest = function()
         self.getPreviousPosition(previousPositions["Previous Position Chest"])
         task.wait(0.25)
-        self.characterTeleport(interactionPositions["Daily Chest"])
+        self.characterTeleport(areaPositions["Daily Chest"])
         task.wait(0.5)
 
         dailyChest = workspace:FindFirstChild("DailyChestPrompt")
@@ -649,10 +655,6 @@ function AvHub:Function()
         raidTimer = raidActive:FindFirstChild("Time")
         timerText = raidTimer.Text
         lastTimerText = timerText
-
-        if isRaidComplete() then
-            return false
-        end
 
         if currentRaidValue == "Adaptive Titan" then
             return true
@@ -967,45 +969,60 @@ function AvHub:Function()
     end
 
     -- Paragraph Functions
+    self.updateHubInfoParagraph = function ()
+        while hubInit do
+            uptimeInSeconds = tick() - tickCount
+			hours = math.floor(uptimeInSeconds / 3600)
+			minutes = math.floor((uptimeInSeconds % 3600) / 60)
+			seconds = uptimeInSeconds % 60
+			uptimeText = string.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds)
+
+            antiAfkStatus = antiAfk()
+            if antiAfkStatus then
+                antiAFK = "On"
+            else
+                antiAFK = "Off"
+            end
+
+            hubInfoParagraph:SetDesc("Uptime:\t" .. tostring(uptimeText)
+            .. "\n" .. "Anti-AFK: " .. tostring(antiAfkStatus)
+            )
+
+            task.wait(0.2)
+        end
+    end
+    
     self.updateFarmParagraph = function()
         while isAutoSwordActive() or isAutoPotionsActive() do
             swordCooldown = stats.SwordObbyCD.Value
             timeLeft = swordCooldown
 
-            uptimeInSeconds = tick() - tickCount
-			hours = math.floor(uptimeInSeconds / 3600)
-			minutes = math.floor((uptimeInSeconds % 3600) / 60)
-			seconds = uptimeInSeconds % 60
-			uptimeText = string.format("%02d hours\n%02d minutes\n%02d seconds", hours, minutes, seconds)
-
             farmParagraph:SetDesc("Total Potions: " .. potionCount 
             .. "\n" .. "Sword Timer: " .. timeLeft 
-            .. "\n" .. "Script Uptime: "
-            .. "\n" .. tostring(uptimeText)
             )
 
             task.wait(0.2)
         end
     end
 
-    local function checkFloors()
-        battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
-
-        if battleLabel then
-            battleLabelText = battleLabel.Text
-            if battleLabelText:match("CURRENTLY IN BATTLE") then
-                floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
-                if floorMatch then
-                    currentRunFloor = tonumber(floorMatch)
-                    if currentRunFloor > previousRunFloor then
-                        previousRunFloor = currentRunFloor
+    self.updateBattleParagraph = function()
+        local function checkFloors()
+            battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
+    
+            if battleLabel then
+                battleLabelText = battleLabel.Text
+                if battleLabelText:match("CURRENTLY IN BATTLE") then
+                    floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
+                    if floorMatch then
+                        currentRunFloor = tonumber(floorMatch)
+                        if currentRunFloor > previousRunFloor then
+                            previousRunFloor = currentRunFloor
+                        end
                     end
                 end
             end
         end
-    end
 
-    self.updateBattleParagraph = function()
         while isAutoRaidActive() or isAutoInfiniteActive() do
             if raidDamageTracker ~= stats:FindFirstChild("RaidDamageTracker").Value then
                 previousRunDamage = raidDamageTracker
@@ -1054,6 +1071,20 @@ function AvHub:Function()
             )
 
             task.wait(0.2)
+        end
+    end
+
+    self.manageHubInfoParagraph = function()
+        if hubInit then
+            if not hubInfoParagraphCoroutine or coroutine.status(hubInfoParagraphCoroutine) == "dead" then
+                hubInfoParagraphCoroutine = self.startFunction(hubInfoParagraphCoroutine, self.updateHubInfoParagraph)
+            end
+        else
+            if hubInfoParagraphCoroutine then
+                hubInfoParagraphCoroutine = self.stopFunction(hubInfoParagraphCoroutine)
+            else
+                return
+            end
         end
     end
 
@@ -1126,15 +1157,6 @@ function AvHub:Function()
         end
     end
     
-
-    self.startUpdateBattleParagraph = function()
-        battleParagraphCoroutine = self.startFunction(battleParagraphCoroutine, self.updateBattleParagraph)
-    end
-
-    self.stopUpdateBattleParagraph = function()
-        battleParagraphCoroutine = self.stopFunction(battleParagraphCoroutine)
-    end
-
     self.startPotionsCoroutine = function()
         potionsCoroutine = self.startFunction(potionsCoroutine, self.getPotions)
     end
@@ -1182,6 +1204,8 @@ function AvHub:Function()
     self.stopHideBattleCoroutine = function()
         hideBattleCoroutine = self.stopFunction(hideBattleCoroutine)
     end
+
+    functionsInit = true
 end
 
 function AvHub:GUI()
@@ -1243,7 +1267,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.4.6"
+	local version = "1.4.7"
 	local devs = "Av"
 
     -- Main Tab
@@ -1331,12 +1355,15 @@ function AvHub:GUI()
 	})
 
     -- Stats Tab
+    hubInfoParagraph = Tabs.Stats:AddParagraph({
+        Title = "Uptime",
+        Content = "Uptime:\t" .. "N/A hours N/A minutes N/A seconds"
+        .. "\n" .. "Anti-AFK: " .. "N/A"
+    })
     farmParagraph = Tabs.Stats:AddParagraph({
         Title = "Farm",
         Content = "Total Potions: " .. "N/A"
         .. "\n" .. "Sword Timer: " .. "N/A"
-        .. "\n" .. "Script Uptime: "
-        .. "\n" .. "N/A hours\nN/A minutes\nN/A seconds"
     })
     battleParagraph = Tabs.Stats:AddParagraph({
         Title = "Stats",
@@ -1650,16 +1677,14 @@ function AvHub:GUI()
             if not managePriorityCoroutine then
                 self.startManagePriority()
             end
-            if not battleParagraphCoroutine then
-                self.startUpdateBattleParagraph()
-            end
+
+            self.manageBattleParagraph()
         elseif not self.autoInfiniteToggle.Value then
             if managePriorityCoroutine then
                 self.stopManagePriority()
             end
-            if battleParagraphCoroutine then
-                self.stopUpdateBattleParagraph()
-            end
+
+            self.manageBattleParagraph()
         end
     end)
 
@@ -1745,16 +1770,24 @@ function AvHub:GUI()
 	InterfaceManager:SetLibrary(Fluent)
 	InterfaceManager:SetFolder("UK1")
 	InterfaceManager:BuildInterfaceSection(Tabs.Interface)
+
+    guiInit = true
 end
 
 function AvHub:Start()
     self:Function()
     self:GUI()
 
+    if functionsInit and guiInit then
+        hubInit = true
+    end
+
     antiAfk()
 
     tickCount = tick()
     
+    self.manageHubInfoParagraph()
+
     guiWindow[randomKey]:SelectTab(1)
 
     if _G.isAutoExec then
