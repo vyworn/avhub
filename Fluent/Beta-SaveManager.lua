@@ -267,27 +267,6 @@ local SaveManager = {} do
             end
         })
 
-        section:AddButton({Title = "Load config", Callback = function()
-            local name = SaveManager.Options.SaveManager_ConfigList.Value
-
-            local success, err = self:Load(name)
-            if not success then
-                return self.Library:Notify({
-                    Title = "Interface",
-                    Content = "Config loader",
-                    SubContent = "Failed to load config: " .. err,
-                    Duration = 4
-                })
-            end
-
-            self.Library:Notify({
-                Title = "Interface",
-                Content = "Config loader",
-                SubContent = string.format("Loaded config %q", name),
-                Duration = 4
-            })
-        end})
-
         section:AddButton({Title = "Overwrite config", Callback = function()
 			local name = SaveManager.Options.SaveManager_ConfigList.Value
 
@@ -308,6 +287,27 @@ local SaveManager = {} do
 				Duration = 7
 			})
 		end})
+
+        section:AddButton({Title = "Load config", Callback = function()
+            local name = SaveManager.Options.SaveManager_ConfigList.Value
+
+            local success, err = self:Load(name)
+            if not success then
+                return self.Library:Notify({
+                    Title = "Interface",
+                    Content = "Config loader",
+                    SubContent = "Failed to load config: " .. err,
+                    Duration = 4
+                })
+            end
+
+            self.Library:Notify({
+                Title = "Interface",
+                Content = "Config loader",
+                SubContent = string.format("Loaded config %q", name),
+                Duration = 4
+            })
+        end})
 
         section:AddButton({
             Title = "Delete config", 
