@@ -288,6 +288,27 @@ local SaveManager = {} do
             })
         end})
 
+        section:AddButton({Title = "Overwrite config", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+
+			local success, err = self:Save(name)
+			if not success then
+				return self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to overwrite config: " .. err,
+					Duration = 7
+				})
+			end
+
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Overwrote config %q", name),
+				Duration = 7
+			})
+		end})
+
         section:AddButton({
             Title = "Delete config", 
             Callback = function()
