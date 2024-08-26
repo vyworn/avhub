@@ -1217,7 +1217,7 @@ function AvHub:GUI()
 	local Tabs = {
 		Main = guiWindow[randomKey]:AddTab({
 			Title = "Main",
-			Icon = "home"
+			Icon = "info"
 		}),
 		Auto = guiWindow[randomKey]:AddTab({
 			Title = "Auto",
@@ -1231,21 +1231,21 @@ function AvHub:GUI()
 			Title = "Teleports",
 			Icon = "navigation"
 		}),
+        Cards = guiWindow[randomKey]:AddTab({
+            Title = "Cards",
+            Icon = "book-open"
+        }),
 		Codes = guiWindow[randomKey]:AddTab({
 			Title = "Codes",
-			Icon = "file-text"
+			Icon = "baseline"
 		}),
 		Misc = guiWindow[randomKey]:AddTab({
 			Title = "Misc",
 			Icon = "circle-ellipsis"
 		}),
-        Configs = guiWindow[randomKey]:AddTab({
-			Title = "Configs",
+        Settings = guiWindow[randomKey]:AddTab({
+			Title = "Settings",
 			Icon = "save"
-		}),
-        Interface = guiWindow[randomKey]:AddTab({
-			Title = "Interface",
-			Icon = "paintbrush"
 		}),
 	}
 
@@ -1262,7 +1262,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.4.9"
+	local version = "1.5.0"
 	local devs = "Av"
 
     -- Main Tab
@@ -1281,7 +1281,7 @@ function AvHub:GUI()
 	latestParagraph = Tabs.Main:AddParagraph({
 		Title = "\b",
 		Content = "* Changes"
-        .. "\n->\t" .. "Added Card Lookup (in Misc)"
+        .. "\n->\t" .. "Added Card Lookup"
 		.. "\n->\t" .. "Added Auto Raids"
 		.. "\n->\t" .. "Added Avalanche Theme"
         .. "\n->\t" .. "Reworked Script"
@@ -1485,7 +1485,7 @@ function AvHub:GUI()
         local toolsAdded = false
         Tabs.Tools = guiWindow[randomKey]:AddTab({
             Title = "Tools",
-            Icon = "wrench"
+            Icon = "bug"
         })
         self.showToolsButton = Tabs.Tools:AddButton({
             Title = "Show Tools",
@@ -1763,16 +1763,16 @@ function AvHub:GUI()
         end
     end)
 
-    -- Configs Tab
+    -- Configs Section
     SaveManager:SetLibrary(Fluent)
 	SaveManager:IgnoreThemeSettings()
 	SaveManager:SetFolder("UK1/acb")
-	SaveManager:BuildConfigSection(Tabs.Configs)
+	SaveManager:BuildConfigSection(Tabs.Settings)
 
-    -- Interface Tab
+    -- Interface Section
 	InterfaceManager:SetLibrary(Fluent)
 	InterfaceManager:SetFolder("UK1")
-	InterfaceManager:BuildInterfaceSection(Tabs.Interface)
+	InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 
     local path = game:GetService("ReplicatedStorage").Modules.CardInfo
     local cardInfo = require(path)
@@ -1805,35 +1805,46 @@ function AvHub:GUI()
     local function startGetCardData()
         cardCoroutine = self.startFunction(cardCoroutine, getCardData)
     end
+
+    local fieldOrder = {
+        "Name", "Origin", "Series", "CardPack", "Gender", "Alignment", "Chance", "Passive", "Description"
+    }
+
+    local fieldString = ""
+
+    for _, field in ipairs(fieldOrder) do
+        if field == "Chance" then
+            fieldString = fieldString .. field .. ": " .. "1 / X" .. "\n"
+        elseif field == "Description" then
+            fieldString = fieldString .. field .. ":"
+        else
+            fieldString = fieldString .. field .. ": " .. "\n"
+        end
+    end
     
     startGetCardData()
     
-    selectCardDropdown = Tabs.Misc:AddDropdown("Select Card", { 
+    selectCardDropdown = Tabs.Cards:AddDropdown("Select Card", { 
         Title = "Select Card",
         Values = cardNames,
         Multi = false,
         Default = nil,
     })
 
-    cardDataParagraph = Tabs.Misc:AddParagraph({
+    cardDataParagraph = Tabs.Cards:AddParagraph({
         Title = "Card Info",
-        Content = ""
+        Content = fieldString
     })
-
-    local fieldOrder = {
-        "Name", "Origin", "Series", "CardPack", "Gender", "Alignment", "Chance", "Passive", "Description"
-    }
 
     local function updateCardDataParagraph(selectedCard)
         local cardDetails = cardTables[selectedCard]
         if not cardDetails then
-            cardDataParagraph:SetDesc("Select a card")
+            cardDataParagraph:SetDesc(fieldString)
             return
         end
 
         local detailsString = ""
 
-        -- Add fields in the predefined order
         for _, field in ipairs(fieldOrder) do
             local value = cardDetails[field]
             if value then
