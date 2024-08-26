@@ -85,6 +85,52 @@ local function joinPublicServer()
     teleportservice:TeleportToPlaceInstance(placeid, server.id, player)
 end
 
+-- Universal Functions
+local function formatNumberWithCommas(number)
+    local numStr = tostring(number)
+    local formattedStr = numStr:reverse():gsub("(%d%d%d)", "%1,"):gsub(",%-$", ""):reverse()
+    if formattedStr:sub(1, 1) == "," then
+        formattedStr = formattedStr:sub(2)
+    end
+    return formattedStr
+end
+
+local function waitForTarget(targetName, parentObject, timeout)
+    local startTime = tick()
+    local target = parentObject:FindFirstChild(targetName)
+    
+    while not target and (tick() - startTime) < (timeout or 10) do
+        target = parentObject:FindFirstChild(targetName)
+        
+        task.wait(0.1)
+    end
+    
+    if target then
+        local hrp = target:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            return hrp
+        end
+    end
+    return nil
+end
+
+local function waitForProximityPrompt(hrp, timeout)
+    local startTime = tick()
+    local proximityPrompt = hrp:FindFirstChild("ProximityPrompt")
+    
+    while not proximityPrompt and (tick() - startTime) < (timeout or 10) do
+        proximityPrompt = hrp:FindFirstChild("ProximityPrompt")
+        
+        task.wait(0.1)
+    end
+    
+    if proximityPrompt then
+        fireproximityprompt(proximityPrompt)
+        return true
+    end
+    return false
+end
+
 -- Developer Check
 local devid = 
 {
@@ -168,6 +214,7 @@ local normalBossNames =
 
 local interactionPositions = 
 {
+    ["Raid Shop"] = Vector3.new(-7933.645020, 179.723953,-9347.706055),
     ["Potion Shop"] = Vector3.new(-7744.11376953125, 180.14158630371094, -9369.5908203125),
 	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
 	["Card Deconstruction"] = Vector3.new(-7837.935059, 180.831451,-9281.571289),
@@ -282,7 +329,7 @@ local rsra, currentRaidValue
 local raidBar, progressBar
 local raidActive, raidTimer, timerText, lastTimerText
 local maxStableInterval = 3
-local startTime, currentTries
+local startTime, currentTries, maxTries
 local raidDamageTracker = stats:FindFirstChild("RaidDamageTracker")
 local damageThreshold = 1000000
 local davidNPC, davidHRP, davidProximityPrompt
@@ -313,59 +360,11 @@ local hideBattleCoroutine, closeResultCoroutine
 local hubInfoParagraphCoroutine, farmParagraphCoroutine, battleParagraphCoroutine
 
 function AvHub:Function()
-    -- Universal Functions
-    local function formatNumberWithCommas(number)
-		local numStr = tostring(number)
-		local formattedStr = numStr:reverse():gsub("(%d%d%d)", "%1,"):gsub(",%-$", ""):reverse()
-		if formattedStr:sub(1, 1) == "," then
-			formattedStr = formattedStr:sub(2)
-		end
-		return formattedStr
-	end
-
-    local function waitForTarget(targetName, parentObject, timeout)
-        local startTime = tick()
-        local target = parentObject:FindFirstChild(targetName)
-        
-        while not target and (tick() - startTime) < (timeout or 10) do
-            target = parentObject:FindFirstChild(targetName)
-            
-            task.wait(0.1)
-        end
-        
-        if target then
-            local hrp = target:FindFirstChild("HumanoidRootPart")
-
-            if hrp then
-                return hrp
-            end
-        end
-
-        return nil
-    end
-    
-    local function waitForProximityPrompt(hrp, timeout)
-        local startTime = tick()
-        local proximityPrompt = hrp:FindFirstChild("ProximityPrompt")
-        
-        while not proximityPrompt and (tick() - startTime) < (timeout or 10) do
-            proximityPrompt = hrp:FindFirstChild("ProximityPrompt")
-            
-            task.wait(0.1)
-        end
-        
-        if proximityPrompt then
-            fireproximityprompt(proximityPrompt)
-
-            return true
-        end
-
-        return false
-    end
-
     self.startFunction = function(coroutineVar, func)
         if not coroutineVar or coroutine.status(coroutineVar) == "dead" then
             coroutineVar = coroutine.create(func)
+            coroutine.resume(coroutineVar)
+        elseif coroutine.status(coroutineVar) == "suspended" then
             coroutine.resume(coroutineVar)
         end
         return coroutineVar
@@ -373,7 +372,7 @@ function AvHub:Function()
     
     self.stopFunction = function(coroutineVar)
         if coroutineVar and coroutine.status(coroutineVar) ~= "dead" then
-            coroutine.close(coroutineVar)
+            coroutine.yield(coroutineVar)
         end
         return nil
     end
@@ -518,7 +517,11 @@ function AvHub:Function()
                 self.getSword()
 
 				if canGoBack then
-					self.getPreviousPosition(previousPositions["Previous Position Sword"])
+                    task.wait(1)
+
+                    if swordObbyCD > 0 then
+					    self.getPreviousPosition(previousPositions["Previous Position Sword"])
+                    end
 
                     grabbedSword = true
 					canGoBack = false
@@ -566,7 +569,7 @@ function AvHub:Function()
         self.getPreviousPosition(previousPositions["Previous Position Chest"])
         task.wait(0.25)
         self.characterTeleport(areaPositions["Daily Chest"])
-        task.wait(0.5)
+        task.wait(0.75)
 
         dailyChest = workspace:FindFirstChild("DailyChestPrompt")
         
@@ -582,7 +585,7 @@ function AvHub:Function()
             end
         end
         
-        task.wait(0.5)
+        task.wait(0.75)
         
         self.characterTeleport(previousPositions["Previous Position Chest"])
     end
@@ -648,40 +651,24 @@ function AvHub:Function()
     end
 
     local function isRaidActive()
-        rsra = replicatedstorage:WaitForChild("RaidActive")
-        currentRaidValue = rsra:WaitForChild("CurrentRaid").Value
-        raidBar = playergui:WaitForChild("RaidBar")
-        raidActive = raidBar:WaitForChild("RaidActive")
-        raidTimer = raidActive:FindFirstChild("Time")
-        timerText = raidTimer.Text
-        lastTimerText = timerText
+        currentRaidActiveValue = replicatedstorage:WaitForChild("RaidActive").Value
+        currentRaidValue = replicatedstorage:WaitForChild("RaidActive"):WaitForChild("CurrentRaid").Value
 
-        if currentRaidValue == "Adaptive Titan" then
+        if currentRaidActiveValue then
             return true
+        else
+            return false
         end
 
-        startTime = tick()
-        currentTries = 0
-        local maxTries = 2
+        if currentRaidValue == "" then
+            return false
+        elseif currentRaidValue == "Adaptive Titan" then
+            return true
+        end        
 
-        while (tick() - startTime) < maxStableInterval do
-            raidTimer = raidActive:FindFirstChild("Time")
-            if raidTimer then
-                timerText = raidTimer.Text
-                if timerText ~= lastTimerText then
-                    return true 
-                elseif currentTries > maxTries then
-                    return false
-                end
-                lastTimerText = timerText
-            end
-
-            currentTries = currentTries + 1
-
-            task.wait(0.5)
-        end
         return false
     end
+
     local function canRaidCheck()
         if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
             return true
@@ -1010,7 +997,7 @@ function AvHub:Function()
                 else
                     damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
                 end
-                
+
                 previousRunDamage = raidDamageTracker
             end
 
@@ -1067,14 +1054,15 @@ function AvHub:Function()
 			uptimeText = string.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds)
 
             antiAfkStatus = antiAfk()
+            local antiAFKstring
             if antiAfkStatus then
-                antiAFK = "On"
+                antiAFKstring = "On"
             else
-                antiAFK = "Off"
+                antiAFKstring = "Off"
             end
 
-            hubInfoParagraph:SetDesc("Uptime:\t" .. tostring(uptimeText)
-            .. "\n" .. "Anti-AFK: " .. tostring(antiAfkStatus)
+            hubInfoParagraph:SetDesc(tostring(uptimeText)
+            .. "\n" .. "Anti-AFK: " .. antiAFKstring
             )
 
             task.wait(0.2)
@@ -1221,7 +1209,7 @@ function AvHub:GUI()
 		Title = "UK1",
 		SubTitle = "Anime Card Battles",
 		TabWidth = 90,
-		Size = UDim2.fromOffset(500, 350),
+		Size = UDim2.fromOffset(450, 375),
 		Acrylic = true,
 		Theme = "Avalanche",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -1274,7 +1262,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.4.8"
+	local version = "1.4.9"
 	local devs = "Av"
 
     -- Main Tab
@@ -1293,6 +1281,7 @@ function AvHub:GUI()
 	latestParagraph = Tabs.Main:AddParagraph({
 		Title = "\b",
 		Content = "* Changes"
+        .. "\n->\t" .. "Added Card Lookup (in Misc)"
 		.. "\n->\t" .. "Added Auto Raids"
 		.. "\n->\t" .. "Added Avalanche Theme"
         .. "\n->\t" .. "Reworked Script"
@@ -1378,7 +1367,7 @@ function AvHub:GUI()
     })
     hubInfoParagraph = Tabs.Stats:AddParagraph({
         Title = "Uptime",
-        Content = "Uptime:\t" .. "N/A hours N/A minutes N/A seconds"
+        Content = "N/A hours N/A minutes N/A seconds"
         .. "\n" .. "Anti-AFK: " .. "N/A"
     })
 
@@ -1490,7 +1479,10 @@ function AvHub:GUI()
 			self.joinPublicServer()
 		end
 	})
+
+    -- Tools Tab
     if isDeveloper(playerid) then 
+        local toolsAdded = false
         Tabs.Tools = guiWindow[randomKey]:AddTab({
             Title = "Tools",
             Icon = "wrench"
@@ -1500,6 +1492,9 @@ function AvHub:GUI()
             Description = "Adds Tools",
             Callback = function()
                 local function showTools()
+                    if toolsAdded then
+                        return
+                    end
                     -- Tools Variables
                     local loggedPositionX, loggedPositionY, loggedPositionZ
                 
@@ -1624,6 +1619,7 @@ function AvHub:GUI()
                         Title = "Info",
                         Content = infodata
                     })
+                    toolsAdded = true
                 end
                 showTools()
             end
@@ -1778,6 +1774,94 @@ function AvHub:GUI()
 	InterfaceManager:SetFolder("UK1")
 	InterfaceManager:BuildInterfaceSection(Tabs.Interface)
 
+    local path = game:GetService("ReplicatedStorage").Modules.CardInfo
+    local cardInfo = require(path)
+
+    local moduleName = {}
+    local moduleTable = {}
+
+    local cardNames = {}
+    local cardTables = {}
+
+    local selectCardDropdown, cardDataParagraph
+
+    local cardCoroutine
+
+    local function getCardData()
+        for moduleKey, moduleValue in pairs(cardInfo) do        
+            table.insert(moduleName, moduleKey)
+            moduleTable[moduleKey] = moduleValue
+    
+            for cardName, cardDetails in pairs(moduleValue) do
+                table.insert(cardNames, cardName)
+                cardTables[cardName] = cardDetails
+            end
+        end
+
+        table.sort(cardNames)
+        selectCardDropdown:SetValues(cardNames)
+    end
+
+    local function startGetCardData()
+        cardCoroutine = self.startFunction(cardCoroutine, getCardData)
+    end
+    
+    startGetCardData()
+    
+    selectCardDropdown = Tabs.Misc:AddDropdown("Select Card", { 
+        Title = "Select Card",
+        Values = cardNames,
+        Multi = false,
+        Default = nil,
+    })
+
+    cardDataParagraph = Tabs.Misc:AddParagraph({
+        Title = "Card Info",
+        Content = ""
+    })
+
+    local fieldOrder = {
+        "Name", "Origin", "Series", "CardPack", "Gender", "Alignment", "Chance", "Passive", "Description"
+    }
+
+    local function updateCardDataParagraph(selectedCard)
+        local cardDetails = cardTables[selectedCard]
+        if not cardDetails then
+            cardDataParagraph:SetDesc("Select a card")
+            return
+        end
+
+        local detailsString = ""
+
+        -- Add fields in the predefined order
+        for _, field in ipairs(fieldOrder) do
+            local value = cardDetails[field]
+            if value then
+                if field == "Chance" then
+                    local formattedValue = formatNumberWithCommas(tonumber(value))
+                    local valueWithoutPercent = "1 / " .. formattedValue:gsub("%%", "")
+                    detailsString = detailsString .. field .. ": " .. valueWithoutPercent .. "\n"
+                elseif field == "Gender" or field == "Alignment" then
+                    if cardDetails["Gender"] then
+                        detailsString = detailsString .. "Gender: " .. tostring(cardDetails["Gender"]) .. "\n"
+                    elseif cardDetails["Alignment"] then
+                        detailsString = detailsString .. "Alignment: " .. tostring(cardDetails["Alignment"]) .. "\n"
+                    end
+                elseif field == "Description" then
+                    detailsString = detailsString .. field .. ":\n" .. tostring(value)
+                else
+                    detailsString = detailsString .. field .. ": " .. tostring(value) .. "\n"
+                end
+            end
+        end
+
+        cardDataParagraph:SetDesc(detailsString)
+    end
+
+    selectCardDropdown:OnChanged(function(value)
+        updateCardDataParagraph(value)
+    end)
+
     guiInit = true
 end
 
@@ -1785,20 +1869,17 @@ function AvHub:Start()
     self:Function()
     self:GUI()
 
-    if functionsInit and guiInit then
-        hubInit = true
-    end
-
     antiAfk()
 
     tickCount = tick()
     
+    hubInit = true
     self.manageHubInfoParagraph()
 
     guiWindow[randomKey]:SelectTab(1)
 
     if _G.isAutoExec then
-        guiWindow[randomKey]:SelectTab(2)
+        guiWindow[randomKey]:SelectTab(3)
         
         local menu = playergui:WaitForChild("Menu")
         local deck = menu:WaitForChild("CardLibrary")
@@ -1807,8 +1888,9 @@ function AvHub:Start()
     end
 
     if _G.autoLoad then
-        task.wait(2)
+        task.wait(1)
 
+        guiWindow[randomKey]:SelectTab(3)
         SaveManager:LoadAutoloadConfig()
     end
 end
