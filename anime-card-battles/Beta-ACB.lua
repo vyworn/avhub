@@ -968,66 +968,50 @@ function AvHub:Function()
         end
     end
 
-    -- Paragraph Functions
-    self.updateHubInfoParagraph = function ()
-        while hubInit do
-            uptimeInSeconds = tick() - tickCount
-			hours = math.floor(uptimeInSeconds / 3600)
-			minutes = math.floor((uptimeInSeconds % 3600) / 60)
-			seconds = uptimeInSeconds % 60
-			uptimeText = string.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds)
-
-            antiAfkStatus = antiAfk()
-            if antiAfkStatus then
-                antiAFK = "On"
-            else
-                antiAFK = "Off"
-            end
-
-            hubInfoParagraph:SetDesc("Uptime:\t" .. tostring(uptimeText)
-            .. "\n" .. "Anti-AFK: " .. tostring(antiAfkStatus)
-            )
-
-            task.wait(0.2)
-        end
-    end
-    
+    -- Paragraph Functions    
     self.updateFarmParagraph = function()
         while isAutoSwordActive() or isAutoPotionsActive() do
             swordCooldown = stats.SwordObbyCD.Value
             timeLeft = swordCooldown
 
             farmParagraph:SetDesc("Total Potions: " .. potionCount 
-            .. "\n" .. "Sword Timer: " .. timeLeft 
+            .. "\n" .. "Sword Cooldown: " .. timeLeft 
             )
 
             task.wait(0.2)
         end
     end
 
-    self.updateBattleParagraph = function()
-        local function checkFloors()
-            battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
-    
-            if battleLabel then
-                battleLabelText = battleLabel.Text
-                if battleLabelText:match("CURRENTLY IN BATTLE") then
-                    floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
-                    if floorMatch then
-                        currentRunFloor = tonumber(floorMatch)
-                        if currentRunFloor > previousRunFloor then
-                            previousRunFloor = currentRunFloor
-                        end
+    local function checkFloors()
+        battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
+
+        if battleLabel then
+            battleLabelText = battleLabel.Text
+            if battleLabelText:match("CURRENTLY IN BATTLE") then
+                floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
+                if floorMatch then
+                    currentRunFloor = tonumber(floorMatch)
+                    if currentRunFloor > previousRunFloor then
+                        previousRunFloor = currentRunFloor
                     end
                 end
             end
         end
+    end
 
+    self.updateBattleParagraph = function()
         while isAutoRaidActive() or isAutoInfiniteActive() do
-            if raidDamageTracker ~= stats:FindFirstChild("RaidDamageTracker").Value then
+            if previousRunDamage ~= raidDamageTracker then
+                raidDamageTracker = stats.RaidDamageTracker.Value
+                damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+
+                if damageDealt == raidDamageTracker then
+                    damageDealt = 0
+                else
+                    damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+                end
+                
                 previousRunDamage = raidDamageTracker
-                raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
-                damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage) )
             end
 
             formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
@@ -1074,17 +1058,26 @@ function AvHub:Function()
         end
     end
 
-    self.manageHubInfoParagraph = function()
-        if hubInit then
-            if not hubInfoParagraphCoroutine or coroutine.status(hubInfoParagraphCoroutine) == "dead" then
-                hubInfoParagraphCoroutine = self.startFunction(hubInfoParagraphCoroutine, self.updateHubInfoParagraph)
-            end
-        else
-            if hubInfoParagraphCoroutine then
-                hubInfoParagraphCoroutine = self.stopFunction(hubInfoParagraphCoroutine)
+    self.updateHubInfoParagraph = function ()
+        while hubInit do
+            uptimeInSeconds = tick() - tickCount
+			hours = math.floor(uptimeInSeconds / 3600)
+			minutes = math.floor((uptimeInSeconds % 3600) / 60)
+			seconds = uptimeInSeconds % 60
+			uptimeText = string.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds)
+
+            antiAfkStatus = antiAfk()
+            if antiAfkStatus then
+                antiAFK = "On"
             else
-                return
+                antiAFK = "Off"
             end
+
+            hubInfoParagraph:SetDesc("Uptime:\t" .. tostring(uptimeText)
+            .. "\n" .. "Anti-AFK: " .. tostring(antiAfkStatus)
+            )
+
+            task.wait(0.2)
         end
     end
 
@@ -1117,6 +1110,20 @@ function AvHub:Function()
             end
         else
             return
+        end
+    end
+
+    self.manageHubInfoParagraph = function()
+        if hubInit then
+            if not hubInfoParagraphCoroutine or coroutine.status(hubInfoParagraphCoroutine) == "dead" then
+                hubInfoParagraphCoroutine = self.startFunction(hubInfoParagraphCoroutine, self.updateHubInfoParagraph)
+            end
+        else
+            if hubInfoParagraphCoroutine then
+                hubInfoParagraphCoroutine = self.stopFunction(hubInfoParagraphCoroutine)
+            else
+                return
+            end
         end
     end
 
@@ -1267,7 +1274,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.4.7"
+	local version = "1.4.8"
 	local devs = "Av"
 
     -- Main Tab
@@ -1355,15 +1362,10 @@ function AvHub:GUI()
 	})
 
     -- Stats Tab
-    hubInfoParagraph = Tabs.Stats:AddParagraph({
-        Title = "Uptime",
-        Content = "Uptime:\t" .. "N/A hours N/A minutes N/A seconds"
-        .. "\n" .. "Anti-AFK: " .. "N/A"
-    })
     farmParagraph = Tabs.Stats:AddParagraph({
         Title = "Farm",
         Content = "Total Potions: " .. "N/A"
-        .. "\n" .. "Sword Timer: " .. "N/A"
+        .. "\n" .. "Sword Cooldown: " .. "N/A"
     })
     battleParagraph = Tabs.Stats:AddParagraph({
         Title = "Stats",
@@ -1373,6 +1375,11 @@ function AvHub:GUI()
         .. "\n" .. "Highest Floor: " .. "N/A"
         .. "\n" .. "Previous Run: " .. "N/A"
         .. "\n" .. "Current Run: " .. "N/A"
+    })
+    hubInfoParagraph = Tabs.Stats:AddParagraph({
+        Title = "Uptime",
+        Content = "Uptime:\t" .. "N/A hours N/A minutes N/A seconds"
+        .. "\n" .. "Anti-AFK: " .. "N/A"
     })
 
     -- Teleports Tab
