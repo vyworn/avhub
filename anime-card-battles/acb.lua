@@ -363,16 +363,23 @@ function AvHub:Function()
     self.startFunction = function(coroutineVar, func)
         if not coroutineVar or coroutine.status(coroutineVar) == "dead" then
             coroutineVar = coroutine.create(func)
-            coroutine.resume(coroutineVar)
+            if coroutine.isyieldable(coroutineVar) then
+                coroutine.resume(coroutineVar)
+            end
         elseif coroutine.status(coroutineVar) == "suspended" then
-            coroutine.resume(coroutineVar)
+            if coroutine.isyieldable(coroutineVar) then
+                coroutine.resume(coroutineVar)
+            end
         end
         return coroutineVar
     end
     
     self.stopFunction = function(coroutineVar)
-        if coroutineVar and coroutine.status(coroutineVar) ~= "dead" then
-            coroutine.yield(coroutineVar)
+        if coroutineVar then
+            if coroutine.isyieldable(coroutineVar) then
+                coroutine.yield(coroutineVar)
+                return coroutineVar
+            end
         end
         return nil
     end
@@ -592,11 +599,13 @@ function AvHub:Function()
 
     -- Battle Functions
     local function isAutoInfiniteActive()
-		return self.autoInfiniteToggle.Value
+        local value = self.autoInfiniteToggle.Value
+		return value
 	end
 
 	local function isAutoRaidActive()
-		return self.autoRaidToggle.Value
+		local value = self.autoRaidToggle.Value
+        return value
 	end
 
     local function isAutoRankedActive()
@@ -799,8 +808,6 @@ function AvHub:Function()
 
     self.autoRaid = function()
         while canRaidCheck() do
-            canTeleport("Adaptive Titan")
-            
             if not canRaidCheck() then
                 return
             end
@@ -811,6 +818,7 @@ function AvHub:Function()
 
             guiservice.SelectedObject = nil
 
+            canTeleport("Adaptive Titan")
             toggleProgressBar()
 
             titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
@@ -848,8 +856,6 @@ function AvHub:Function()
 
     self.autoInfinite = function()
         while isAutoInfiniteActive() do
-            canTeleport("Heaven Infinite")
-            
             if canRaidCheck() then return end
 
             if canInfiniteCheck() then
@@ -867,6 +873,7 @@ function AvHub:Function()
                 
                 guiservice.SelectedObject = nil
 
+                canTeleport("Heaven Infinite")
                 toggleProgressBar()
 
                 repeat
@@ -1125,9 +1132,11 @@ function AvHub:Function()
     -- Coroutine Functions
     local priority
     local priorityStatus
+    local canManagePriority = false
 
     self.managePriority = function()
-        while true do
+        local state = canManagePriority
+        while state do
             task.wait(1)
 
             if canRaidCheck() then
@@ -1179,11 +1188,21 @@ function AvHub:Function()
     end
 
     self.startManagePriority = function()
-        managePriorityCoroutine = self.startFunction(managePriorityCoroutine, self.managePriority)
+        if not managePriorityCoroutine or coroutine.status(managePriorityCoroutine) == "dead" then
+            canManagePriority = true
+            managePriorityCoroutine = self.startFunction(managePriorityCoroutine, self.managePriority)
+        end
     end
 
     self.stopManagePriority = function()
-        managePriorityCoroutine = self.stopFunction(managePriorityCoroutine)
+        if isAutoRaidActive() or isAutoInfiniteActive() then return end 
+        if not isAutoRaidActive() and not isAutoInfiniteActive() then
+            if managePriorityCoroutine then
+                raidCoroutine = self.stopFunction(raidCoroutine)
+                infiniteCoroutine = self.stopFunction(infiniteCoroutine)
+                managePriorityCoroutine = self.stopFunction(managePriorityCoroutine)
+            end
+        end
     end
 
     self.startPotionsCoroutine = function()
@@ -1288,7 +1307,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.1"
+	local version = "1.5.2"
 	local devs = "Av"
 
     -- Main Tab
@@ -1699,15 +1718,11 @@ function AvHub:GUI()
             if not managePriorityCoroutine then
                 self.startManagePriority()
             end
-
             self.manageBattleParagraph()
         elseif not self.autoRaidToggle.Value then
             if managePriorityCoroutine then
-                if not self.autoInfiniteToggle.Value then
-                    self.stopManagePriority()
-                end
+                self.stopManagePriority()
             end
-
             self.manageBattleParagraph()
         end
     end)
@@ -1717,15 +1732,11 @@ function AvHub:GUI()
             if not managePriorityCoroutine then
                 self.startManagePriority()
             end
-
             self.manageBattleParagraph()
         elseif not self.autoInfiniteToggle.Value then
             if managePriorityCoroutine then
-                if not self.autoRaidToggle.Value then
-                    self.stopManagePriority()
-                end
+                self.stopManagePriority()
             end
-
             self.manageBattleParagraph()
         end
     end)
