@@ -43,9 +43,9 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 local gamebosses = workspace:WaitForChild("Bosses")
 
 -- Libraries
-local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/FluentLibrary.lua")))()
-local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/InterfaceManager.lua")))()
-local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/SaveManager.lua")))()
+local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-FluentLibrary.lua")))()
+local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-InterfaceManager.lua")))()
+local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-SaveManager.lua")))()
 
 -- Helper Functions
 local function generateRandomKey(length)
@@ -316,7 +316,7 @@ local autoPotionsActive, autoSwordActive = false, false
 local potionCount
 local activePotions
 
-local canGoBack, grabbedSword = false, false
+local canGoBack, grabbedSword, teleportedBack = false, false, false
 local swordCooldown, swordObbyCD
 local obbySwordPrompt, swordBlock, swordProximityPrompt
 
@@ -361,27 +361,19 @@ local hubInfoParagraphCoroutine, farmParagraphCoroutine, battleParagraphCoroutin
 
 function AvHub:Function()
     self.startFunction = function(coroutineVar, func)
-        if not coroutineVar or coroutine.status(coroutineVar) == "dead" then
+        if not coroutineVar then
             coroutineVar = coroutine.create(func)
-            if coroutine.isyieldable(coroutineVar) then
-                coroutine.resume(coroutineVar)
-            end
-        elseif coroutine.status(coroutineVar) == "suspended" then
-            if coroutine.isyieldable(coroutineVar) then
-                coroutine.resume(coroutineVar)
-            end
+            coroutine.resume(coroutineVar)
+        elseif coroutineVar then
+            coroutine.resume(coroutineVar)
         end
-        return coroutineVar
     end
     
     self.stopFunction = function(coroutineVar)
         if coroutineVar then
-            if coroutine.isyieldable(coroutineVar) then
-                coroutine.yield(coroutineVar)
-                return coroutineVar
-            end
+            coroutine.yield(coroutineVar)
+            coroutineVar = nil
         end
-        return nil
     end
 
     -- Character & Positioning Functions
@@ -516,6 +508,7 @@ function AvHub:Function()
             swordObbyCD = swordCooldown
 			if swordObbyCD == 0 then
 				grabbedSword = false
+                teleportedBack = false
                 
                 self.getPreviousPosition(previousPositions["Previous Position Sword"])
 				task.wait(0.2)
@@ -523,13 +516,12 @@ function AvHub:Function()
                 task.wait(0.5)
                 self.getSword()
 
-				if canGoBack then
+				if canGoBack and not teleportedBack then
                     task.wait(1)
 
-                    if swordObbyCD > 0 then
-					    self.getPreviousPosition(previousPositions["Previous Position Sword"])
-                    end
+                    self.characterTeleport(previousPositions["Previous Position Sword"])
 
+                    teleportedBack = true
                     grabbedSword = true
 					canGoBack = false
 				end
@@ -672,14 +664,11 @@ function AvHub:Function()
             return false
         end
 
-        if isAutoInfiniteActive() then
-            if isRaidActive() and not isRaidComplete() then
-                return true
-            else
-                return false
-            end
-        else
+        
+        if isRaidActive() and not isRaidComplete() then
             return true
+        else
+            return false
         end
     end
 
@@ -688,12 +677,8 @@ function AvHub:Function()
             return false
         end
 
-        if isAutoRaidActive() then
-            if isRaidActive() and not isRaidComplete() then
-                return false
-            else
-                return true
-            end
+        if isRaidActive() and not isRaidComplete() then
+            return false
         else
             return true
         end
@@ -726,10 +711,6 @@ function AvHub:Function()
     end
 
     local function canTeleport(targetName)
-        if isInVicinity(targetName, 20) then
-            return
-        end
-
         if targetName == "Adaptive Titan" then
             if not canRaidCheck() or canInfiniteCheck() then
                 return
@@ -808,30 +789,30 @@ function AvHub:Function()
 
     self.autoRaid = function()
         while canRaidCheck() do
-            if not canRaidCheck() then
-                return
-            end
-
+            toggleProgressBar()
+            
             if self.isInInfiniteBattle() then
                 self.cancelInfiniteBattle()
             end
 
             guiservice.SelectedObject = nil
 
-            canTeleport("Adaptive Titan")
-            toggleProgressBar()
+            if not isInVicinity("Adaptive Titan", 20) then
+                canTeleport("Adaptive Titan")
+            end
 
             titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
+
             if titanHRP then
                 while not waitForProximityPrompt(titanHRP, 10) do
                     if not canRaidCheck() then break end
+
                     task.wait(0.1)
                 end
             end
 
             repeat
                 if not canRaidCheck() then break end
-
                 if isInRaidBattle() then break end
 
                 if foundDialogue() then
@@ -850,64 +831,61 @@ function AvHub:Function()
                 guiservice.SelectedObject = nil
             end
 
-            task.wait(1)
+            task.wait(0.5)
         end
     end
 
     self.autoInfinite = function()
-        while isAutoInfiniteActive() do
-            if canRaidCheck() then return end
+        while canInfiniteCheck() do
+            toggleProgressBar()
 
-            if canInfiniteCheck() then
-                if canRaidCheck() then
-                    return
-                end
-
-                if self.isInInfiniteBattle() then
-                    repeat
-                        if canRaidCheck() then return end
-                        if not canInfiniteCheck() then break end
-                        task.wait(0.1)
-                    until not self.isInInfiniteBattle()
-                end
-                
+            repeat
+                task.wait(0.1)
+            until not canRaidCheck()
+            
+            if canRaidCheck() then 
+                self.cancelInfiniteBattle()
+            else
                 guiservice.SelectedObject = nil
 
-                canTeleport("Heaven Infinite")
-                toggleProgressBar()
-
+                if not isInVicinity("Heaven Infinite", 20) then
+                    canTeleport("Heaven Infinite")
+                end
+                
                 repeat
                     if canRaidCheck() then return end
                     if not canInfiniteCheck() then break end
+    
                     task.wait(0.1) 
                 until not self.isInInfiniteBattle()
                 
                 davidHRP = waitForTarget("David", gamenpcs, 10)
+                
                 if davidHRP then
                     while not waitForProximityPrompt(davidHRP, 10) do
                         if not canInfiniteCheck() then break end
+    
                         task.wait(0.1)
                     end
                 end
-
+    
                 repeat
                     if canRaidCheck() then return end
                     if not canInfiniteCheck() then break end
-                    
                     if self.isInInfiniteBattle() then break end
-
+    
                     if foundDialogue() then
                         handleDialogue()
                     else 
                         break 
                     end
-
+    
                     task.wait(0.1)
                 until self.isInInfiniteBattle()
-
+    
                 guiservice.SelectedObject = nil
                 closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-
+                
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
                 end
@@ -975,7 +953,7 @@ function AvHub:Function()
             swordCooldown = stats.SwordObbyCD.Value
             timeLeft = swordCooldown
 
-            farmParagraph:SetDesc("Total Potions: " .. potionCount 
+            farmParagraph:SetDesc("Potions Collected: " .. potionCount 
             .. "\n" .. "Sword Cooldown: " .. timeLeft 
             )
 
@@ -1036,11 +1014,11 @@ function AvHub:Function()
             end
 
             if isRaidActive() and isRaidComplete() then
-                raidText = raidText .. " (raid completed)"
+                raidText = raidText .. " (completed)"
             elseif isRaidActive() and not isRaidComplete() then
-                raidText = raidText .. " (raid in progress)"
+                raidText = raidText .. " (raiding)"
             elseif not isRaidActive() and isRaidComplete() then
-                raidText = raidText .. " (waiting for next raid)"
+                raidText = raidText .. " (waiting)"
             end
 
             formattedHighestFloor = formatNumberWithCommas(highestFloor)
@@ -1049,7 +1027,7 @@ function AvHub:Function()
 
             battleParagraph:SetDesc("Raid Status: " .. raidText
                 .. "\nTotal Damage: " .. (formattedRaidDamageTracker .. " / " .. formattedThreshold)
-                .. "\nLast Run Damage: " .. formattedDamageDealt
+                .. "\nDamage Dealt: " .. formattedDamageDealt
                 .. "\nHighest Floor: " .. formattedHighestFloor
                 .. "\nPrevious Run: " .. formattedPreviousRunFloor
                 .. "\nCurrent Run: " .. formattedCurrentRunFloor
@@ -1085,7 +1063,7 @@ function AvHub:Function()
 
     self.manageFarmParagraph = function()
         if isAutoSwordActive() or isAutoPotionsActive() then
-            if not farmParagraphCoroutine or coroutine.status(farmParagraphCoroutine) == "dead" then
+            if not farmParagraphCoroutine then
                 farmParagraphCoroutine = self.startFunction(farmParagraphCoroutine, self.updateFarmParagraph)
             end
         elseif not isAutoSwordActive() and not isAutoPotionsActive() then
@@ -1101,7 +1079,7 @@ function AvHub:Function()
 
     self.manageBattleParagraph = function()
         if isAutoRaidActive() or isAutoInfiniteActive() then
-            if not battleParagraphCoroutine or coroutine.status(battleParagraphCoroutine) == "dead" then
+            if not battleParagraphCoroutine then
                 battleParagraphCoroutine = self.startFunction(battleParagraphCoroutine, self.updateBattleParagraph)
             end
         elseif not isAutoRaidActive() and not isAutoInfiniteActive() then
@@ -1117,7 +1095,7 @@ function AvHub:Function()
 
     self.manageHubInfoParagraph = function()
         if hubInit then
-            if not hubInfoParagraphCoroutine or coroutine.status(hubInfoParagraphCoroutine) == "dead" then
+            if not hubInfoParagraphCoroutine then
                 hubInfoParagraphCoroutine = self.startFunction(hubInfoParagraphCoroutine, self.updateHubInfoParagraph)
             end
         else
@@ -1130,119 +1108,116 @@ function AvHub:Function()
     end
 
     -- Coroutine Functions
-    local priority
-    local priorityStatus
-    local canManagePriority = false
-
-    self.managePriority = function()
-        local state = canManagePriority
-        while state do
-            task.wait(1)
-
-            if canRaidCheck() then
-                priority = 1
-            elseif canInfiniteCheck() then
-                priority = 2
-            else
-                priority = nil
+    self.manageRaidCoroutine = function()
+        if isAutoRaidActive() then
+            if not raidCoroutine then
+                raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
             end
-
-            if priority == 1 then
-                if priorityStatus ~= "Raid" then
-                    priorityStatus = "Raid"
-
-                    if infiniteCoroutine and coroutine.status(infiniteCoroutine) ~= "dead" then
-                        infiniteCoroutine = self.stopFunction(infiniteCoroutine)
-                    end
-
-                    if self.isInInfiniteBattle() then
-                        repeat 
-                            self.cancelInfiniteBattle()
-                            task.wait(0.1)
-                        until not self.isInInfiniteBattle()
-                    end
-
-                    if not raidCoroutine or coroutine.status(raidCoroutine) == "dead" then
-                        raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
-                    end
-                end
-
-            elseif priority == 2 then
-                if priorityStatus ~= "Infinite" then
-                    priorityStatus = "Infinite"
-
-                    if raidCoroutine and coroutine.status(raidCoroutine) ~= "dead" then
-                        raidCoroutine = self.stopFunction(raidCoroutine)
-                    end
-
-                    if not infiniteCoroutine or coroutine.status(infiniteCoroutine) == "dead" then
-                        infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
-                    end
-                end
-            end
-
-            if not priority then
-                priorityStatus = nil
-            end
-        end
-    end
-
-    self.startManagePriority = function()
-        if not managePriorityCoroutine or coroutine.status(managePriorityCoroutine) == "dead" then
-            canManagePriority = true
-            managePriorityCoroutine = self.startFunction(managePriorityCoroutine, self.managePriority)
-        end
-    end
-
-    self.stopManagePriority = function()
-        if isAutoRaidActive() or isAutoInfiniteActive() then return end 
-        if not isAutoRaidActive() and not isAutoInfiniteActive() then
-            if managePriorityCoroutine then
+        elseif not isAutoRaidActive() then
+            if raidCoroutine then
                 raidCoroutine = self.stopFunction(raidCoroutine)
-                infiniteCoroutine = self.stopFunction(infiniteCoroutine)
-                managePriorityCoroutine = self.stopFunction(managePriorityCoroutine)
+            else
+                return
             end
+        else
+            return
         end
     end
 
-    self.startPotionsCoroutine = function()
-        potionsCoroutine = self.startFunction(potionsCoroutine, self.getPotions)
-    end
-    
-    self.stopPotionsCoroutine = function()
-        potionsCoroutine = self.stopFunction(potionsCoroutine)
-    end
-
-    self.startSwordCoroutine = function()
-        swordCoroutine = self.startFunction(swordCoroutine, self.autoGetSword)
-    end
-    
-    self.stopSwordCoroutine = function()
-        swordCoroutine = self.stopFunction(swordCoroutine)
-    end
-
-    self.startRankedCoroutine = function()
-        rankedCoroutine = self.startFunction(rankedCoroutine, self.autoRanked)
+    self.manageInfiniteCoroutine = function()
+        if isAutoInfiniteActive() then
+            if not infiniteCoroutine then
+                infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
+            end
+        elseif not isAutoInfiniteActive() then
+            if infiniteCoroutine then
+                infiniteCoroutine = self.stopFunction(infiniteCoroutine)
+            else
+                return
+            end
+        else
+            return
+        end
     end
 
-    self.stopRankedCoroutine = function()
-        rankedCoroutine = self.stopFunction(rankedCoroutine)
+    self.managePotionCoroutine = function()
+        if isAutoPotionsActive() then
+            if not potionsCoroutine then
+                potionsCoroutine = self.startFunction(potionsCoroutine, self.getPotions)
+            end
+        elseif not isAutoPotionsActive() then
+            if potionsCoroutine then
+                potionsCoroutine = self.stopFunction(potionsCoroutine)
+            else
+                return
+            end
+        else
+            return
+        end
     end
 
-    self.startCloseResultCoroutine = function()
-        closeResultCoroutine = self.startFunction(closeResultCoroutine, self.autoCloseResult)
+    self.manageSwordCoroutine = function()
+        if isAutoSwordActive() then
+            if not swordCoroutine then
+                swordCoroutine = self.startFunction(swordCoroutine, self.autoGetSword)
+            end
+        elseif not isAutoSwordActive() then
+            if swordCoroutine then
+                swordCoroutine = self.stopFunction(swordCoroutine)
+            else
+                return
+            end
+        else
+            return
+        end
     end
-    
-    self.stopCloseResultCoroutine = function()
-        closeResultCoroutine = self.stopFunction(closeResultCoroutine)
+
+    self.manageRankedCoroutine = function()
+        if isAutoRankedActive() then
+            if not rankedCoroutine then
+                rankedCoroutine = self.startFunction(rankedCoroutine, self.autoRanked)
+            end
+        elseif not isAutoRankedActive() then
+            if rankedCoroutine then
+                rankedCoroutine = self.stopFunction(rankedCoroutine)
+            else
+                return
+            end
+        else
+            return
+        end
     end
-    
-    self.startHideBattleCoroutine = function()
-        hideBattleCoroutine = self.startFunction(hideBattleCoroutine, self.autoHideBattle)
+
+    self.manageCloseResultCoroutine = function()
+        if isAutoCloseResultActive() then
+            if not closeResultCoroutine then
+                closeResultCoroutine = self.startFunction(closeResultCoroutine, self.autoCloseResult)
+            end
+        elseif not isAutoCloseResultActive() then
+            if closeResultCoroutine then
+                closeResultCoroutine = self.stopFunction(closeResultCoroutine)
+            else
+                return
+            end
+        else
+            return
+        end
     end
-    
-    self.stopHideBattleCoroutine = function()
-        hideBattleCoroutine = self.stopFunction(hideBattleCoroutine)
+
+    self.manageHideBattleCoroutine = function()
+        if isAutoHideBattleActive() then
+            if not hideBattleCoroutine then
+                hideBattleCoroutine = self.startFunction(hideBattleCoroutine, self.autoHideBattle)
+            end
+        elseif not isAutoHideBattleActive() then
+            if hideBattleCoroutine then
+                hideBattleCoroutine = self.stopFunction(hideBattleCoroutine)
+            else
+                return
+            end
+        else
+            return
+        end
     end
 
     functionsInit = true
@@ -1295,8 +1270,8 @@ function AvHub:GUI()
 	}
 
     -- GUI Variables
-    local informationSection, latestSection, plannedSection
-    local informationParagraph, latestParagraph, plannedParagraph
+    local informationSection, latestSection
+    local informationParagraph, latestParagraph
 
     local farmSection, battleSection, miscSection
 
@@ -1307,7 +1282,9 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.2"
+	local version = "1.5.3"
+    local release = "stable"
+    local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
 
     -- Main Tab
@@ -1315,9 +1292,11 @@ function AvHub:GUI()
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "\b",
 		Content = "* Version" 
-		.. "\n->\t" .. "v_" .. version .. " stable"
-		.. "\n\n" .. "* Made By" 
+		.. "\n->\t" .. versionStr
+		.. "\n" .. "* Made By" 
 		.. "\n->\t" .. devs
+        .. "\n" .. "* Extra"
+        .. "\n->\t" .. "Add _G.autoLoad = true before loadstring\n\t  to load script on startup"
 
 		.. "\n"
 	})
@@ -1327,18 +1306,10 @@ function AvHub:GUI()
 		Title = "\b",
 		Content = "* Changes"
         .. "\n->\t" .. "Added Card Lookup"
-		.. "\n->\t" .. "Added Auto Raids"
-		.. "\n->\t" .. "Added Avalanche Theme"
-        .. "\n->\t" .. "Reworked Script"
-        .. "\n->\t" .. "Reworked GUI"
-
-        .. "\n"
-	})
-
-	plannedSection = Tabs.Main:AddSection("Planned")
-	plannedParagraph = Tabs.Main:AddParagraph({
-		Title = "\b",
-		Content = "* Coming Soon"
+		.. "\n->\t" .. "Fixed Auto Raids"
+        .. "\n->\t" .. "Moved Configs & Interface to Settings"
+        .. "\n->\t" .. "Moved Stats to Stats Tab"
+        .. "\n\n" .. "* Coming Soon"
 		.. "\n->\t" .. "Webhooks"
 		.. "\n\n" .. "* Future"
 		.. "\n->\t" .. "Auto Repeatable Bosses"
@@ -1398,14 +1369,14 @@ function AvHub:GUI()
     -- Stats Tab
     farmParagraph = Tabs.Stats:AddParagraph({
         Title = "Farm",
-        Content = "Total Potions: " .. "N/A"
+        Content = "Potions Collected: " .. "N/A"
         .. "\n" .. "Sword Cooldown: " .. "N/A"
     })
     battleParagraph = Tabs.Stats:AddParagraph({
         Title = "Stats",
         Content = "Raid Status: " .. "N/A"
         .. "\n" .. "Total Damage: " .. "N/A" .. " / " .. "N/A"
-        .. "\n" .. "Last Run Damage: " .. "N/A"
+        .. "\n" .. "Damage Dealt: " .. "N/A"
         .. "\n" .. "Highest Floor: " .. "N/A"
         .. "\n" .. "Previous Run: " .. "N/A"
         .. "\n" .. "Current Run: " .. "N/A"
@@ -1684,15 +1655,13 @@ function AvHub:GUI()
     self.autoPotionsToggle:OnChanged(function()
         if self.autoPotionsToggle.Value then
             if not potionsCoroutine then
-                self.startPotionsCoroutine()
+                self.managePotionCoroutine()
             end
-
             self.manageFarmParagraph()
         elseif not self.autoPotionsToggle.Value then
             if potionsCoroutine then
-                self.stopPotionsCoroutine()
+                self.managePotionCoroutine()
             end
-
             self.manageFarmParagraph()
         end
     end)
@@ -1700,28 +1669,26 @@ function AvHub:GUI()
     self.autoSwordToggle:OnChanged(function()
         if self.autoSwordToggle.Value then
             if not swordCoroutine then
-                self.startSwordCoroutine()
+                self.manageSwordCoroutine()
             end
-
             self.manageFarmParagraph()
         elseif not self.autoSwordToggle.Value then
             if swordCoroutine then
-                self.stopSwordCoroutine()
+                self.manageSwordCoroutine()
             end
-
             self.manageFarmParagraph()
         end
     end)
 
     self.autoRaidToggle:OnChanged(function()
         if self.autoRaidToggle.Value then
-            if not managePriorityCoroutine then
-                self.startManagePriority()
+            if not raidCoroutine then
+                self.manageRaidCoroutine()
             end
             self.manageBattleParagraph()
         elseif not self.autoRaidToggle.Value then
-            if managePriorityCoroutine then
-                self.stopManagePriority()
+            if raidCoroutine then
+                self.manageRaidCoroutine()
             end
             self.manageBattleParagraph()
         end
@@ -1729,13 +1696,13 @@ function AvHub:GUI()
 
     self.autoInfiniteToggle:OnChanged(function()
         if self.autoInfiniteToggle.Value then
-            if not managePriorityCoroutine then
-                self.startManagePriority()
+            if not infiniteCoroutine then
+                self.manageInfiniteCoroutine()
             end
             self.manageBattleParagraph()
         elseif not self.autoInfiniteToggle.Value then
-            if managePriorityCoroutine then
-                self.stopManagePriority()
+            if infiniteCoroutine then
+                self.manageInfiniteCoroutine()
             end
             self.manageBattleParagraph()
         end
@@ -1744,11 +1711,11 @@ function AvHub:GUI()
     self.autoRankedToggle:OnChanged(function()
         if self.autoRankedToggle.Value then
             if not rankedCoroutine then
-                self.startRankedCoroutine()
+                self.manageRankedCoroutine()
             end
         elseif not self.autoRankedToggle.Value then
             if rankedCoroutine then
-                self.stopRankedCoroutine()
+                self.manageRankedCoroutine()
             end
         end
     end)
@@ -1756,11 +1723,11 @@ function AvHub:GUI()
     self.autoCloseResultToggle:OnChanged(function()
         if self.autoCloseResultToggle.Value then
             if not closeResultCoroutine then
-                self.startCloseResultCoroutine()
+                self.manageCloseResultCoroutine()
             end
         elseif not self.autoCloseResultToggle.Value then
             if closeResultCoroutine then
-                self.stopCloseResultCoroutine()
+                self.manageCloseResultCoroutine()
             end
         end
     end)
@@ -1768,11 +1735,11 @@ function AvHub:GUI()
     self.autoHideBattleToggle:OnChanged(function()
         if self.autoHideBattleToggle.Value then
             if not hideBattleCoroutine then
-                self.startHideBattleCoroutine()
+                self.manageHideBattleCoroutine()
             end
         elseif not self.autoHideBattleToggle.Value then
             if hideBattleCoroutine then
-                self.stopHideBattleCoroutine()
+                self.manageHideBattleCoroutine()
             end
         end
     end)
@@ -1938,15 +1905,6 @@ function AvHub:Start()
     self.manageHubInfoParagraph()
 
     guiWindow[randomKey]:SelectTab(1)
-
-    if _G.isAutoExec then
-        guiWindow[randomKey]:SelectTab(3)
-        
-        local menu = playergui:WaitForChild("Menu")
-        local deck = menu:WaitForChild("CardLibrary")
-
-        firesignal(deck["MouseButton1Click"])
-    end
 
     if _G.autoLoad then
         task.wait(1)
