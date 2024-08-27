@@ -639,59 +639,64 @@ function AvHub:Function()
     end
 
     local function isRaidComplete()
-        rsra = replicatedstorage:WaitForChild("RaidActive")
-        currentRaidValue = rsra:WaitForChild("CurrentRaid").Value
         raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
 
-        if raidDamageTracker >= damageThreshold then
-            currentRaidValue = ""
-            return true
-        end
 		return raidDamageTracker >= damageThreshold
     end
 
     local function isRaidActive()
-        currentRaidActiveValue = replicatedstorage:WaitForChild("RaidActive").Value
-        currentRaidValue = replicatedstorage:WaitForChild("RaidActive"):WaitForChild("CurrentRaid").Value
+        local raidBar = playergui:FindFirstChild("RaidBar")
+        local raidBarRaidActive = raidBar:FindFirstChild("RaidActive")
+        local raidActiveValue = raidBarRaidActive.Visible
 
-        if currentRaidActiveValue then
+        if raidActiveValue then
             return true
         else
             return false
         end
-
-        if currentRaidValue == "" then
-            return false
-        elseif currentRaidValue == "Adaptive Titan" then
-            return true
-        end        
 
         return false
     end
 
     local function canRaidCheck()
-        if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
-            return true
-        else
+        if not isAutoRaidActive() then
             return false
+        end
+
+        if isAutoInfiniteActive() then
+            if isRaidActive() and not isRaidComplete() then
+                return true
+            else
+                return false
+            end
+        else
+            return true
         end
     end
 
     local function canInfiniteCheck()
-        if isAutoInfiniteActive() and not canRaidCheck() then
-            return true
-        else    
+        if not isAutoInfiniteActive() then
             return false
+        end
+
+        if isAutoRaidActive() then
+            if isRaidActive() and not isRaidComplete() then
+                return false
+            else
+                return true
+            end
+        else
+            return true
         end
     end
 
     local function toggleProgressBar()
-        local rb = playergui:FindFirstChild("RaidBar")
-        local pb = rb:FindFirstChild("RaidBar")
+        local raidBar = playergui:FindFirstChild("RaidBar")
+        local pb = raidBar:FindFirstChild("RaidBar")
         if pb then
             if canRaidCheck() then
                 pb.Visible = true
-            elseif not canRaidCheck() or canInfiniteCheck() then
+            elseif not canRaidCheck() then
                 pb.Visible = false
             end
         end
@@ -717,11 +722,11 @@ function AvHub:Function()
         end
 
         if targetName == "Adaptive Titan" then
-            if not canRaidCheck() then
+            if not canRaidCheck() or canInfiniteCheck() then
                 return
             end
         elseif targetName == "Heaven Infinite" then
-            if not canInfiniteCheck() then
+            if not canInfiniteCheck() or canRaidCheck() then
                 return
             end
         end
@@ -740,28 +745,14 @@ function AvHub:Function()
         end
     end
     
-    local function isInInfiniteBattle()
-        battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
-
-        if battleLabel then
-			local startTime = tick()
-			local timerThreshold = 2
-
-			while (tick() - startTime) < timerThreshold do
-				if not battleLabel.Parent then
-					return false
-				end
-
-				local labelText = battleLabel.Text
-
-				if labelText:match("CURRENTLY IN BATTLE FLOOR %d+") then
-					return true
-				end
-
-				task.wait(0.1)
-			end
-		end
-
+    self.isInInfiniteBattle = function()
+        task.wait(0.1)
+        local battleTowerStat = stats:FindFirstChild("BattleTower")
+        
+        if battleTowerStat then
+            return battleTowerStat.Value
+        end
+        
         return false
     end
 
@@ -778,14 +769,12 @@ function AvHub:Function()
 
         return false
     end
-
+    
     local function giveUpInfinite(child)
-        if not canRaidCheck() then 
-            return 
-        end
-        if canRaidCheck() then
-            if child.Name == "BATTLETOWERUI" then
-                local giveUpButton = child.Background:FindFirstChild("GiveUp")
+        if child.Name == "BATTLETOWERUI" then
+            local background = child:FindFirstChild("Background")
+            if background then
+                local giveUpButton = background:FindFirstChild("GiveUp")
                 if giveUpButton then
                     guiservice.SelectedObject = giveUpButton
                     virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
@@ -794,29 +783,34 @@ function AvHub:Function()
                 end
             end
         end
-	end
-
-    local function cancelInfiniteBattle()
-		if not canRaidCheck() then 
-            return 
-        end
+    end
+    
+    self.cancelInfiniteBattle = function()
         local towerConnection
+        
+        if not self.isInInfiniteBattle() then
+            return
+        end
+
 		towerConnection = playergui.ChildAdded:Connect(function(child)
             giveUpInfinite(child)
-
-            towerConnection:Disconnect()
         end)
 	end
 
     self.autoRaid = function()
         while canRaidCheck() do
+            canTeleport("Adaptive Titan")
+            
             if not canRaidCheck() then
-                break
+                return
+            end
+
+            if self.isInInfiniteBattle() then
+                self.cancelInfiniteBattle()
             end
 
             guiservice.SelectedObject = nil
 
-            canTeleport("Adaptive Titan")
             toggleProgressBar()
 
             titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
@@ -854,20 +848,32 @@ function AvHub:Function()
 
     self.autoInfinite = function()
         while isAutoInfiniteActive() do
+            canTeleport("Heaven Infinite")
+            
+            if canRaidCheck() then return end
+
             if canInfiniteCheck() then
-                if not canInfiniteCheck() then
-                    break
+                if canRaidCheck() then
+                    return
+                end
+
+                if self.isInInfiniteBattle() then
+                    repeat
+                        if canRaidCheck() then return end
+                        if not canInfiniteCheck() then break end
+                        task.wait(0.1)
+                    until not self.isInInfiniteBattle()
                 end
                 
                 guiservice.SelectedObject = nil
 
-                canTeleport("Heaven Infinite")
                 toggleProgressBar()
 
                 repeat
+                    if canRaidCheck() then return end
                     if not canInfiniteCheck() then break end
                     task.wait(0.1) 
-                until not isInInfiniteBattle()
+                until not self.isInInfiniteBattle()
                 
                 davidHRP = waitForTarget("David", gamenpcs, 10)
                 if davidHRP then
@@ -878,9 +884,10 @@ function AvHub:Function()
                 end
 
                 repeat
+                    if canRaidCheck() then return end
                     if not canInfiniteCheck() then break end
                     
-                    if isInInfiniteBattle() then break end
+                    if self.isInInfiniteBattle() then break end
 
                     if foundDialogue() then
                         handleDialogue()
@@ -889,7 +896,7 @@ function AvHub:Function()
                     end
 
                     task.wait(0.1)
-                until isInInfiniteBattle()
+                until self.isInInfiniteBattle()
 
                 guiservice.SelectedObject = nil
                 closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
@@ -897,9 +904,9 @@ function AvHub:Function()
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
                 end
+            end
 
             task.wait(0.5)
-            end
         end
     end
 
@@ -932,7 +939,7 @@ function AvHub:Function()
 
 			repeat
 				task.wait(0.25)
-			until not isInInfiniteBattle()
+			until not self.isInInfiniteBattle()
 
 			for _, instantroll in ipairs(playergui:GetChildren()) do
 				if instantroll.Name == "InstantRoll" then
@@ -1009,7 +1016,7 @@ function AvHub:Function()
 
             checkFloors()
 
-           if isInInfiniteBattle() or isInRaidBattle() then
+           if self.isInInfiniteBattle() or isInRaidBattle() then
                 battleInProgress = true
             else
                 battleInProgress = false
@@ -1116,9 +1123,13 @@ function AvHub:Function()
     end
 
     -- Coroutine Functions
+    local priority
+    local priorityStatus
+
     self.managePriority = function()
-        local priority
-        while isAutoRaidActive() or isAutoInfiniteActive() do
+        while true do
+            task.wait(1)
+
             if canRaidCheck() then
                 priority = 1
             elseif canInfiniteCheck() then
@@ -1126,32 +1137,55 @@ function AvHub:Function()
             else
                 priority = nil
             end
-    
+
             if priority == 1 then
-                if not raidCoroutine or coroutine.status(raidCoroutine) == "dead" then
-                    raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
+                if priorityStatus ~= "Raid" then
+                    priorityStatus = "Raid"
+
+                    if infiniteCoroutine and coroutine.status(infiniteCoroutine) ~= "dead" then
+                        infiniteCoroutine = self.stopFunction(infiniteCoroutine)
+                    end
+
+                    if self.isInInfiniteBattle() then
+                        repeat 
+                            self.cancelInfiniteBattle()
+                            task.wait(0.1)
+                        until not self.isInInfiniteBattle()
+                    end
+
+                    if not raidCoroutine or coroutine.status(raidCoroutine) == "dead" then
+                        raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
+                    end
                 end
-    
-                if infiniteCoroutine and coroutine.status(infiniteCoroutine) ~= "dead" then
-                    infiniteCoroutine = self.stopFunction(infiniteCoroutine)
-                end
-    
-                cancelInfiniteBattle()
-    
+
             elseif priority == 2 then
-                if not infiniteCoroutine or coroutine.status(infiniteCoroutine) == "dead" then
-                    infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
-                end
-    
-                if raidCoroutine and coroutine.status(raidCoroutine) ~= "dead" then
-                    raidCoroutine = self.stopFunction(raidCoroutine)
+                if priorityStatus ~= "Infinite" then
+                    priorityStatus = "Infinite"
+
+                    if raidCoroutine and coroutine.status(raidCoroutine) ~= "dead" then
+                        raidCoroutine = self.stopFunction(raidCoroutine)
+                    end
+
+                    if not infiniteCoroutine or coroutine.status(infiniteCoroutine) == "dead" then
+                        infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
+                    end
                 end
             end
-    
-            task.wait(1)
+
+            if not priority then
+                priorityStatus = nil
+            end
         end
     end
-    
+
+    self.startManagePriority = function()
+        managePriorityCoroutine = self.startFunction(managePriorityCoroutine, self.managePriority)
+    end
+
+    self.stopManagePriority = function()
+        managePriorityCoroutine = self.stopFunction(managePriorityCoroutine)
+    end
+
     self.startPotionsCoroutine = function()
         potionsCoroutine = self.startFunction(potionsCoroutine, self.getPotions)
     end
@@ -1166,14 +1200,6 @@ function AvHub:Function()
     
     self.stopSwordCoroutine = function()
         swordCoroutine = self.stopFunction(swordCoroutine)
-    end
-
-    self.startManagePriority = function()
-        managePriorityCoroutine = self.startFunction(managePriorityCoroutine, self.managePriority)
-    end
-    
-    self.stopManagePriority = function()
-        managePriorityCoroutine = self.stopFunction(managePriorityCoroutine)
     end
 
     self.startRankedCoroutine = function()
@@ -1262,7 +1288,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.0"
+	local version = "1.5.1"
 	local devs = "Av"
 
     -- Main Tab
@@ -1270,7 +1296,7 @@ function AvHub:GUI()
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "\b",
 		Content = "* Version" 
-		.. "\n->\t" .. "v_" .. version
+		.. "\n->\t" .. "v_" .. version .. " beta"
 		.. "\n\n" .. "* Made By" 
 		.. "\n->\t" .. devs
 
@@ -1487,6 +1513,15 @@ function AvHub:GUI()
             Title = "Tools",
             Icon = "bug"
         })
+
+        self.funcButton = Tabs.Tools:AddButton({
+            Title = "Current Function",
+            Description = "isInInfiniteBattle",
+            Callback = function()
+                print(self.isInInfiniteBattle())
+            end
+        })
+
         self.showToolsButton = Tabs.Tools:AddButton({
             Title = "Show Tools",
             Description = "Adds Tools",
@@ -1668,7 +1703,9 @@ function AvHub:GUI()
             self.manageBattleParagraph()
         elseif not self.autoRaidToggle.Value then
             if managePriorityCoroutine then
-                self.stopManagePriority()
+                if not self.autoInfiniteToggle.Value then
+                    self.stopManagePriority()
+                end
             end
 
             self.manageBattleParagraph()
@@ -1684,7 +1721,9 @@ function AvHub:GUI()
             self.manageBattleParagraph()
         elseif not self.autoInfiniteToggle.Value then
             if managePriorityCoroutine then
-                self.stopManagePriority()
+                if not self.autoRaidToggle.Value then
+                    self.stopManagePriority()
+                end
             end
 
             self.manageBattleParagraph()
