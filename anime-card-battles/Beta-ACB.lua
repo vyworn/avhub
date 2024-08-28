@@ -1929,7 +1929,7 @@ function AvHub:GUI()
             end
         end
 
-        cardDataParagraph:SetDesc("\n" .. detailsString)
+        cardDataParagraph:SetDesc(detailsString)
     end
 
     selectCardDropdown:OnChanged(function(value)
