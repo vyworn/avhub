@@ -835,8 +835,12 @@ function AvHub:Function()
     end
 
     self.autoRaid = function()
-        task.wait(1)
         while isAutoRaidActive() do
+            closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
+            if guiservice.SelectedObject == closeLb then 
+                guiservice.SelectedObject = nil
+            end
+
             if canRaidCheck() then
                 toggleProgressBar()
             
@@ -864,30 +868,29 @@ function AvHub:Function()
                     end
                 end
     
-                repeat
-                    if not canRaidCheck() then
-                        break
-                    end
-                
-                    if self.isInRaidBattle() then
-                        break
-                    end
-                
-                    if not isHandlingDialogue() then
-                        waitForDialogueAndHandle()
-                    end
-                
-                    task.wait(0.1)
-                until self.isInRaidBattle()
-    
-                alreadySelected = false
-                dialogueClicked = false
-                guiservice.SelectedObject = nil
+                if not canRaidCheck() then
+                    break
+                end
+            
+                if self.isInRaidBattle() then
+                    break
+                end
+
+                if not isHandlingDialogue() then
+                    waitForDialogueAndHandle()
+                end
+
+                if guiservice.SelectedObject ~= dialogueOption then
+                    guiservice.SelectedObject = nil
+                end
+
                 closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-    
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
                 end
+
+                alreadySelected = false
+                dialogueClicked = false
             end
     
             task.wait(0.5)
@@ -895,7 +898,13 @@ function AvHub:Function()
     end
     
     self.autoInfinite = function()
+        task.wait(1)
         while isAutoInfiniteActive() do
+            closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
+            if guiservice.SelectedObject == closeLb then 
+                guiservice.SelectedObject = nil
+            end
+
             if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
                 self.cancelInfiniteBattle()
                 break
@@ -920,42 +929,39 @@ function AvHub:Function()
                         task.wait(0.1)
                     end
                 end
+            
+                if canRaidCheck() then
+                    return
+                end
 
-                repeat
-                    if canRaidCheck() then
-                        return
-                    end
+                if not canInfiniteCheck() then
+                    break
+                end
 
-                    if not canInfiniteCheck() then
-                        break
-                    end
+                if self.isInInfiniteBattle() then
+                    break
+                end
 
-                    if self.isInInfiniteBattle() then
-                        break
-                    end
-
-                    if not isHandlingDialogue() then
-                        waitForDialogueAndHandle()
-                    end
-
-                    task.wait(0.1)
-                until self.isInInfiniteBattle()
+                if not isHandlingDialogue() then
+                    waitForDialogueAndHandle()
+                end
                 
                 if self.isInInfiniteBattle() then
                     infRunComplete = false
                 end
 
-                alreadySelected = false
-                dialogueClicked = false
-                guiservice.SelectedObject = nil
-                closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-
-                if guiservice.SelectedObject == closeLb then
+                if guiservice.SelectedObject ~= dialogueOption then
                     guiservice.SelectedObject = nil
                 end
-            else
-            end
 
+                closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
+                if guiservice.SelectedObject == closeLb then 
+                    guiservice.SelectedObject = nil
+                end
+
+                alreadySelected = false
+                dialogueClicked = false
+            end
             task.wait(0.5)
         end
 
@@ -1343,7 +1349,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.8"
+	local version = "1.5.9"
     local release = "beta"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
