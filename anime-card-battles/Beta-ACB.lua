@@ -817,6 +817,7 @@ function AvHub:Function()
     end
 
     self.autoRaid = function()
+        task.wait(1)
         while isAutoRaidActive() do
             if canRaidCheck() then
                 toggleProgressBar()
@@ -1004,6 +1005,11 @@ function AvHub:Function()
     end
 
     local function checkFloors()
+        if self.isInRaidBattle() then
+            currentRunFloor = 0
+            return
+        end
+
         battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 
         if battleLabel then
@@ -1336,7 +1342,7 @@ function AvHub:GUI()
 		.. "\n" .. "* Made By" 
 		.. "\n->\t" .. devs
         .. "\n" .. "* Extra"
-        .. "\n->\t" .. "Add _G.autoLoad = true\n\t   before loadstring to load script on startup"
+        .. "\n->\t" .. "Add _G.autoLoad = true\n\t   before loadstring to load script on\n\t   startup"
 
 		.. "\n"
 	})
@@ -1741,9 +1747,6 @@ function AvHub:GUI()
         if self.autoInfiniteToggle.Value then
             self.manageBattleParagraph()
             local state = true
-            if isRaidActive() then
-                task.wait(1)
-            end
             self.manageInfiniteCoroutine(state)
         elseif not self.autoInfiniteToggle.Value then
             self.manageBattleParagraph()
