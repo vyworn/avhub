@@ -194,7 +194,7 @@ local areaNames =
     "Luck Fountain",
 }
 
-local repeatableBossNames =
+local repeatBossNames =
 {
     "Infernal Pugilist",
 	"Bald Hero",
@@ -248,7 +248,7 @@ local areaPositions =
     ["Luck Fountain"] = Vector3.new(-7811.5751953125, 180.41331481933594, -9278.078125),
 }
 
-local repeatableBossPositions =
+local repeatBossPositions =
 {
     ["Infernal Pugilist"] = Vector3.new(-13618.935547, 249.765564,8330.528320),
     ["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391),
@@ -1280,7 +1280,7 @@ function AvHub:GUI()
 		Title = "UK1",
 		SubTitle = "Anime Card Battles",
 		TabWidth = 80,
-		Size = UDim2.fromOffset(380, 373),
+		Size = UDim2.fromOffset(375, 372.5),
 		Acrylic = true,
 		Theme = "Avalanche",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -1321,52 +1321,45 @@ function AvHub:GUI()
 	}
 
     -- GUI Variables
-    local informationSection, latestSection
     local informationParagraph, latestParagraph
 
     local farmSection, battleSection, miscSection
 
     local bossesSection
-    local interactionsDropdown, battlesDropdown, areasDropdown, repeatableBossDropdown, normalBossDropdown
+    local interactionsDropdown, battlesDropdown, areasDropdown, repeatBossDropdown, normalBossDropdown
 
     local codesSection, codeInfoText
     local codeInfoParagraph, codesParagraph
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.5"
+	local version = "1.5.7"
     local release = "beta"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
 
     -- Main Tab
-    informationSection = Tabs.Main:AddSection("Information")
 	informationParagraph = Tabs.Main:AddParagraph({
-		Title = "\b",
-		Content = "* Version" 
-		.. "\n->\t" .. versionStr
-		.. "\n" .. "* Made By" 
-		.. "\n->\t" .. devs
-        .. "\n" .. "* Extra"
-        .. "\n->\t" .. "Add _G.autoLoad = true\n\t   before loadstring to load script on\n\t   startup"
-
-		.. "\n"
+		Title = "Information" .. "\n",
+		Content = "Version :" 
+		.. "\n" .. versionStr
+		.. "\n\n" .. "Made By :" 
+		.. "\n" .. devs
+        .. "\n\n" .. "Extra :"
+        .. "\n" .. "Add _G.autoLoad = true before loadstring to load script on startup"
 	})
 
-	latestSection = Tabs.Main:AddSection("Latest")
 	latestParagraph = Tabs.Main:AddParagraph({
-		Title = "\b",
-		Content = "* Changes"
-        .. "\n->\t" .. "Added Card Lookup"
-		.. "\n->\t" .. "Fixed Auto Raids"
-        .. "\n->\t" .. "Moved Configs & Interface\n\t   to Settings"
-        .. "\n->\t" .. "Moved Stats to Stats Tab"
-        .. "\n\n" .. "* Coming Soon"
-		.. "\n->\t" .. "Webhooks"
-		.. "\n\n" .. "* Future"
-		.. "\n->\t" .. "Auto Repeatable Bosses"
-
-        .. "\n"
+		Title = "Latest" .. "\n",
+		Content = "Changes :"
+        .. "\n" .. "Added Card Lookup"
+		.. "\n" .. "Fixed Auto Raids"
+        .. "\n" .. "Moved Configs & Interface to Settings"
+        .. "\n" .. "Moved Stats to Stats Tab"
+        .. "\n\n" .. "Coming Soon :"
+		.. "\n" .. "Webhooks"
+		.. "\n\n" .. "Future :"
+		.. "\n" .. "Auto repeat Bosses"
 	})
 
     -- Auto Tab
@@ -1462,9 +1455,9 @@ function AvHub:GUI()
     })
 
     bossesSection = Tabs.Teleports:AddSection("Bosses")
-    repeatableBossDropdown = Tabs.Teleports:AddDropdown("Repeatable", {
-        Title = "Repeatable",
-        Values = repeatableBossNames,
+    repeatBossDropdown = Tabs.Teleports:AddDropdown("Repeat", {
+        Title = "Repeat",
+        Values = repeatBossNames,
         Multi = false,
         Default = nil
     })
@@ -1504,7 +1497,7 @@ function AvHub:GUI()
 
     codesSection = Tabs.Codes:AddSection("List Of Codes")
 
-    local MAX_CODES_PER_PARAGRAPH = 12
+    local MAX_CODES_PER_PARAGRAPH = 11
 
     self.displayCodesInParagraphs = function()
 		local codeCount = #codes
@@ -1818,11 +1811,11 @@ function AvHub:GUI()
             areasDropdown:SetValue(nil)
         end
     end)
-    repeatableBossDropdown:OnChanged(function(value)
-        local destination = repeatableBossPositions[value]
+    repeatBossDropdown:OnChanged(function(value)
+        local destination = repeatBossPositions[value]
         if destination then
             self.characterTeleport(destination)
-            repeatableBossDropdown:SetValue(nil)
+            repeatBossDropdown:SetValue(nil)
         end
     end)
     normalBossDropdown:OnChanged(function(value)
@@ -1895,14 +1888,14 @@ function AvHub:GUI()
     startGetCardData()
     
     selectCardDropdown = Tabs.Cards:AddDropdown("Select Card", { 
-        Title = "Select Card",
+        Title = "Card",
         Values = cardNames,
         Multi = false,
         Default = nil,
     })
 
     cardDataParagraph = Tabs.Cards:AddParagraph({
-        Title = "Card Info",
+        Title = "Card Info" .. "\n",
         Content = fieldString
     })
 
