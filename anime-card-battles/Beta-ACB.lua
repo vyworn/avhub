@@ -283,16 +283,7 @@ local previousPositions =
 -- Codes Table
 local codes = 
 {
-    "RELEASE!",
-    "THANKS4PLAYING!",
-    "1KLIKES!",
-    "2KLIKES!",
     "SUB2VALK!",
-    "4KLIKES!",
-    "5KLIKES!",
-    "6KLIKES!",
-    "500KVISITS!",
-    "SORRYFORSHUTDOWN!",
     "SUB2TOADBOI!",
     "SUB2RIJORO!",
     "SUB2WIRY!",
@@ -300,20 +291,15 @@ local codes =
     "SUB2D1SGUISED!",
     "SUB2ItsHappyYT1!",
     "SUB2Joltzy!",
-    "1MVISITS!",
-    "FOLLOWEXVAR1",
     "10KLIKES!",
     "15KLIKES!",
     "20KLIKES!",
-    "UPDATE2!",
     "5MVISITS!",
-    "SORRYFORALLTHESHUTDOWNS!",
     "DAVIDSTHEBEST!",
     "25KLIKES!",
     "30KLIKES!",
     "10MVISITS!",
     "UPDATE3!",
-    "WEFIXITZ!",
 }
 
 -- Farming Variables
@@ -602,6 +588,7 @@ function AvHub:Function()
         self.characterTeleport(previousPositions["Previous Position Chest"])
     end
 
+    local dialogueFound = false
     -- Battle Functions
     local function isAutoInfiniteActive()
         local value = self.autoInfiniteToggle.Value
@@ -636,36 +623,49 @@ function AvHub:Function()
     end
 
     local function foundDialogue()
-		npcDialogue = playergui:FindFirstChild("NPCDialogue")
-		if npcDialogue then
-			return true
-		else
-			return false
-		end
+		return dialogueFound
 	end
 
     local function handleDialogue()
         waitForBattleCDToEnd()
+
+        local npcDialogue = playergui:FindFirstChild("NPCDialogue")
+        if not npcDialogue then return end
         
-        while foundDialogue() do
-            npcDialogue = playergui:FindFirstChild("NPCDialogue")
-            if npcDialogue then
-                dialogueFrame = npcDialogue:FindFirstChild("DialogueFrame")
-                responseFrame = dialogueFrame and dialogueFrame:FindFirstChild("ResponseFrame")
-                dialogueOption = responseFrame and responseFrame:FindFirstChild("DialogueOption")
+        local dialogueFrame = npcDialogue:FindFirstChild("DialogueFrame")
+        local responseFrame = dialogueFrame and dialogueFrame:FindFirstChild("ResponseFrame")
+        local dialogueOption = responseFrame and responseFrame:FindFirstChild("DialogueOption")
     
-                if dialogueOption then
-                    guiservice.SelectedObject = dialogueOption
-                    virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                    task.wait(0.1)
-                    virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                    task.wait(0.1)
-                end
-            end
+        if dialogueOption then
             task.wait(0.2)
-            
-            waitForBattleCDToEnd()
+
+            guiservice.SelectedObject = dialogueOption
+            virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+            task.wait(0.05)
+            virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
         end
+    end
+
+    local function waitForDialogueAndHandle(battleType)
+        local connection
+        connection = playergui.ChildAdded:Connect(function(child)
+            if child.Name == "NPCDialogue" then
+                dialogueFound = true
+                handleDialogue()
+                connection:Disconnect()
+            end
+        end)
+    
+        task.spawn(function()
+            while true do
+                if (battleType == "infinite" and self.isInInfiniteBattle()) or 
+                   (battleType == "raid" and self.isInRaidBattle()) then
+                    connection:Disconnect()
+                    break
+                end
+                task.wait(0.1)
+            end
+        end)
     end
 
     local function isRaidComplete()
@@ -811,8 +811,11 @@ function AvHub:Function()
         towerConnection = playergui.ChildAdded:Connect(function(child)
             if not canInfiniteCheck() then
                 giveUpInfinite(child)
-            end
 
+                if not isInInfiniteBattle() then
+                    towerConnection:Disconnect()
+                end
+            end
         end)
     end
 
@@ -852,17 +855,17 @@ function AvHub:Function()
                     if not canRaidCheck() then
                         break
                     end
-    
+                
                     if self.isInRaidBattle() then
                         break
                     end
-    
+                
                     if foundDialogue() then
                         handleDialogue()
-                    else
-                        break
+                    elseif not foundDialogue() then
+                        waitForDialogueAndHandle("raid")
                     end
-    
+                
                     task.wait(0.1)
                 until self.isInRaidBattle()
     
@@ -877,6 +880,7 @@ function AvHub:Function()
             task.wait(0.5)
         end
     end
+    
     self.autoInfinite = function()
         while isAutoInfiniteActive() do
             if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
@@ -908,17 +912,19 @@ function AvHub:Function()
                     if canRaidCheck() then
                         return
                     end
+
                     if not canInfiniteCheck() then
                         break
                     end
+
                     if self.isInInfiniteBattle() then
                         break
                     end
 
                     if foundDialogue() then
                         handleDialogue()
-                    else
-                        break
+                    elseif not foundDialogue() then
+                        waitForDialogueAndHandle("infinite")
                     end
 
                     task.wait(0.1)
@@ -1274,7 +1280,7 @@ function AvHub:GUI()
 		Title = "UK1",
 		SubTitle = "Anime Card Battles",
 		TabWidth = 80,
-		Size = UDim2.fromOffset(390, 373),
+		Size = UDim2.fromOffset(380, 373),
 		Acrylic = true,
 		Theme = "Avalanche",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -1328,7 +1334,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.4"
+	local version = "1.5.5"
     local release = "beta"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
