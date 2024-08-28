@@ -289,6 +289,7 @@ local SaveManager = {} do
 		end})
 
         section:AddButton({Title = "Load config", Callback = function()
+            task.wait(1)
             local name = SaveManager.Options.SaveManager_ConfigList.Value
 
             local success, err = self:Load(name)
