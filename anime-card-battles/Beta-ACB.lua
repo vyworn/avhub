@@ -589,6 +589,10 @@ function AvHub:Function()
     end
 
     local dialogueFound = false
+    local infRunComplete = false
+    local handlingDialogue = false
+    local dialogueClicked = false
+    local alreadySelected = false
     -- Battle Functions
     local function isAutoInfiniteActive()
         local value = self.autoInfiniteToggle.Value
@@ -616,54 +620,68 @@ function AvHub:Function()
         return player:FindFirstChild("BattleCD") ~= nil
     end
 
+    local function isInfRunComplete()
+        return infRunComplete
+    end
+
     local function waitForBattleCDToEnd()
         while isBattleCDActive() do
             task.wait(0.1)
         end
     end
 
+    local function isHandlingDialogue()
+        return handlingDialogue
+    end
+
     local function foundDialogue()
 		return dialogueFound
 	end
 
-    local function handleDialogue()
-        waitForBattleCDToEnd()
+    local function handleDialogue(child)
+        if not dialogueClicked then
+            waitForBattleCDToEnd()
 
-        local npcDialogue = playergui:FindFirstChild("NPCDialogue")
-        if not npcDialogue then return end
-        
-        local dialogueFrame = npcDialogue:FindFirstChild("DialogueFrame")
-        local responseFrame = dialogueFrame and dialogueFrame:FindFirstChild("ResponseFrame")
-        local dialogueOption = responseFrame and responseFrame:FindFirstChild("DialogueOption")
-    
-        if dialogueOption then
-            task.wait(0.2)
+            dialogueFrame = child:FindFirstChild("DialogueFrame")
+            responseFrame = dialogueFrame and dialogueFrame:FindFirstChild("ResponseFrame")
+            dialogueOption = responseFrame and responseFrame:FindFirstChild("DialogueOption")
 
-            guiservice.SelectedObject = dialogueOption
-            virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-            task.wait(0.05)
-            virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+            if not alreadySelected and dialogueOption then
+                task.wait(0.3)
+
+                guiservice.SelectedObject = dialogueOption
+                alreadySelected = true
+
+                virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                task.wait(0.05)
+                virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                
+                dialogueClicked = true
+            end
         end
     end
 
-    local function waitForDialogueAndHandle(battleType)
-        local connection
-        connection = playergui.ChildAdded:Connect(function(child)
+    local function waitForDialogueAndHandle()
+        local dialogueConnection
+        handlingDialogue = true 
+
+        for _, dialogue in ipairs (playergui:GetChildren()) do
+            if dialogue.Name == "NPCDialogue" then
+                dialogueFound = true
+                handleDialogue(dialogue)
+                task.wait(0.5)
+                handlingDialogue = false
+                return
+            end
+        end
+
+        dialogueConnection = playergui.ChildAdded:Connect(function(child)
             if child.Name == "NPCDialogue" then
                 dialogueFound = true
-                handleDialogue()
-                connection:Disconnect()
-            end
-        end)
-    
-        task.spawn(function()
-            while true do
-                if (battleType == "infinite" and self.isInInfiniteBattle()) or 
-                   (battleType == "raid" and self.isInRaidBattle()) then
-                    connection:Disconnect()
-                    break
-                end
-                task.wait(0.1)
+                handleDialogue(child)
+                task.wait(0.5)
+                dialogueConnection:Disconnect()
+                handlingDialogue = false
             end
         end)
     end
@@ -811,10 +829,7 @@ function AvHub:Function()
         towerConnection = playergui.ChildAdded:Connect(function(child)
             if not canInfiniteCheck() then
                 giveUpInfinite(child)
-
-                if not isInInfiniteBattle() then
-                    towerConnection:Disconnect()
-                end
+                towerConnection:Disconnect()
             end
         end)
     end
@@ -829,8 +844,6 @@ function AvHub:Function()
                     self.cancelInfiniteBattle()
                     waitForBattleToEnd("infinite")
                 end
-    
-                guiservice.SelectedObject = nil
     
                 if not isInVicinity("Adaptive Titan", 20) then
                     if not self.isInRaidBattle() then
@@ -860,17 +873,17 @@ function AvHub:Function()
                         break
                     end
                 
-                    if foundDialogue() then
-                        handleDialogue()
-                    elseif not foundDialogue() then
-                        waitForDialogueAndHandle("raid")
+                    if not isHandlingDialogue() then
+                        waitForDialogueAndHandle()
                     end
                 
                     task.wait(0.1)
                 until self.isInRaidBattle()
     
+                alreadySelected = false
+                dialogueClicked = false
                 guiservice.SelectedObject = nil
-                local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
+                closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
     
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
@@ -921,15 +934,19 @@ function AvHub:Function()
                         break
                     end
 
-                    if foundDialogue() then
-                        handleDialogue()
-                    elseif not foundDialogue() then
-                        waitForDialogueAndHandle("infinite")
+                    if not isHandlingDialogue() then
+                        waitForDialogueAndHandle()
                     end
 
                     task.wait(0.1)
                 until self.isInInfiniteBattle()
+                
+                if self.isInInfiniteBattle() then
+                    infRunComplete = false
+                end
 
+                alreadySelected = false
+                dialogueClicked = false
                 guiservice.SelectedObject = nil
                 closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
 
@@ -969,18 +986,14 @@ function AvHub:Function()
 
     self.autoCloseResult = function()
         while isAutoCloseResultActive() do
-            inBattle = stats:FindFirstChild("InBattle")
-
-			repeat
-				task.wait(0.25)
-			until not self.isInInfiniteBattle()
-
-			for _, instantroll in ipairs(playergui:GetChildren()) do
-				if instantroll.Name == "InstantRoll" then
-					instantroll:Destroy()
-				end
-			end
-
+			if not self.isInInfiniteBattle() then
+                for _, instantroll in ipairs(playergui:GetChildren()) do
+                    if instantroll.Name == "InstantRoll" then
+                        infRunComplete = true
+                        instantroll:Destroy()
+                    end
+                end
+            end
 			task.wait(0.25)
         end
     end
@@ -1011,11 +1024,6 @@ function AvHub:Function()
     end
 
     local function checkFloors()
-        if self.isInRaidBattle() then
-            currentRunFloor = 0
-            return
-        end
-
         battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 
         if battleLabel then
@@ -1024,11 +1032,13 @@ function AvHub:Function()
                 floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
                 if floorMatch then
                     currentRunFloor = tonumber(floorMatch)
-                    if currentRunFloor > previousRunFloor then
-                        previousRunFloor = currentRunFloor
-                    end
                 end
             end
+        end
+
+        if isInfRunComplete() then
+            previousRunFloor = currentRunFloor
+            currentRunFloor = nil
         end
     end
 
@@ -1280,7 +1290,7 @@ function AvHub:GUI()
 		Title = "UK1",
 		SubTitle = "Anime Card Battles",
 		TabWidth = 80,
-		Size = UDim2.fromOffset(375, 372.5),
+		Size = UDim2.fromOffset(385, 372.5),
 		Acrylic = true,
 		Theme = "Avalanche",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -1333,7 +1343,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.7"
+	local version = "1.5.8"
     local release = "beta"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
@@ -1354,7 +1364,8 @@ function AvHub:GUI()
 		Content = "Changes :"
         .. "\n" .. "Added Card Lookup"
 		.. "\n" .. "Fixed Auto Raids"
-        .. "\n" .. "Moved Configs & Interface to Settings"
+        .. "\n" .. "Moved Configs to Settings"
+        .. "\n" .. "Moved Interface to Misc"
         .. "\n" .. "Moved Stats to Stats Tab"
         .. "\n\n" .. "Coming Soon :"
 		.. "\n" .. "Webhooks"
@@ -1497,28 +1508,36 @@ function AvHub:GUI()
 
     codesSection = Tabs.Codes:AddSection("List Of Codes")
 
-    local MAX_CODES_PER_PARAGRAPH = 11
-
+    local MAX_CODES_PER_PARAGRAPH = 15
     self.displayCodesInParagraphs = function()
-		local codeCount = #codes
-		local startIndex = codeCount
-
-		while startIndex > 0 do
-			local endIndex = math.max(startIndex - MAX_CODES_PER_PARAGRAPH + 1, 1)
-			local codesChunk = ""
-			for i = startIndex, endIndex, -1 do
-				codesChunk = codesChunk .. codes[i]
-				if i > endIndex then
-					codesChunk = codesChunk .. "\n"
-				end
-			end
-			Tabs.Codes:AddParagraph({
-				Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH) .. "\n"),
-				Content = codesChunk
-			})
-			startIndex = endIndex - 1
-		end
-	end
+        local codeCount = #codes
+    
+        local numChunks = math.ceil(codeCount / MAX_CODES_PER_PARAGRAPH)
+    
+        local codesPerChunk = math.ceil(codeCount / numChunks)
+    
+        local startIndex = codeCount
+    
+        while startIndex > 0 do
+            local endIndex = math.max(startIndex - codesPerChunk + 1, 1)
+    
+            local codesChunk = ""
+            for i = startIndex, endIndex, -1 do
+                codesChunk = codesChunk .. codes[i]
+                if i > endIndex then
+                    codesChunk = codesChunk .. "\n"
+                end
+            end
+    
+            Tabs.Codes:AddParagraph({
+                Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / codesPerChunk)) .. "\n",
+                Content = codesChunk
+            })
+    
+            startIndex = endIndex - 1
+        end
+    end
+    
 	self.displayCodesInParagraphs()
 
     -- Misc Tab
@@ -1835,7 +1854,7 @@ function AvHub:GUI()
     -- Interface Section
 	InterfaceManager:SetLibrary(Fluent)
 	InterfaceManager:SetFolder("UK1")
-	InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+	InterfaceManager:BuildInterfaceSection(Tabs.Misc)
 
     local path = game:GetService("ReplicatedStorage").Modules.CardInfo
     local cardInfo = require(path)
