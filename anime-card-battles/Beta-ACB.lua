@@ -1336,7 +1336,7 @@ function AvHub:GUI()
 		.. "\n" .. "* Made By" 
 		.. "\n->\t" .. devs
         .. "\n" .. "* Extra"
-        .. "\n->\t" .. "Add _G.autoLoad = true before\n\t   loadstring to load script on startup"
+        .. "\n->\t" .. "Add _G.autoLoad = true\n\t   before loadstring to load script on startup"
 
 		.. "\n"
 	})
@@ -1347,7 +1347,7 @@ function AvHub:GUI()
 		Content = "* Changes"
         .. "\n->\t" .. "Added Card Lookup"
 		.. "\n->\t" .. "Fixed Auto Raids"
-        .. "\n->\t" .. "Moved Configs & Interface to Settings"
+        .. "\n->\t" .. "Moved Configs & Interface\n\t   to Settings"
         .. "\n->\t" .. "Moved Stats to Stats Tab"
         .. "\n\n" .. "* Coming Soon"
 		.. "\n->\t" .. "Webhooks"
