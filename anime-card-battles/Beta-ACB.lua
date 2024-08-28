@@ -1334,7 +1334,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.5"
+	local version = "1.5.7"
     local release = "beta"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
@@ -1343,12 +1343,12 @@ function AvHub:GUI()
     informationSection = Tabs.Main:AddSection("Information")
 	informationParagraph = Tabs.Main:AddParagraph({
 		Title = "\b",
-		Content = "* Version" 
-		.. "\n->\t" .. versionStr
-		.. "\n" .. "* Made By" 
-		.. "\n->\t" .. devs
-        .. "\n" .. "* Extra"
-        .. "\n->\t" .. "Add _G.autoLoad = true\n\t   before loadstring to load script on\n\t   startup"
+		Content = "-->\t" .. "Version" 
+		.. "\n" .. versionStr
+		.. "\n-->\t" .. "Made By" 
+		.. "\n" .. devs
+        .. "\n-->\t" .. "Extra"
+        .. "\n" .. "Add _G.autoLoad = true before loadstring to load script on startup"
 
 		.. "\n"
 	})
