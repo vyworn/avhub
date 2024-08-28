@@ -1508,28 +1508,36 @@ function AvHub:GUI()
 
     codesSection = Tabs.Codes:AddSection("List Of Codes")
 
-    local MAX_CODES_PER_PARAGRAPH = 11
-
+    local MAX_CODES_PER_PARAGRAPH = 15
     self.displayCodesInParagraphs = function()
-		local codeCount = #codes
-		local startIndex = codeCount
-
-		while startIndex > 0 do
-			local endIndex = math.max(startIndex - MAX_CODES_PER_PARAGRAPH + 1, 1)
-			local codesChunk = ""
-			for i = startIndex, endIndex, -1 do
-				codesChunk = codesChunk .. codes[i]
-				if i > endIndex then
-					codesChunk = codesChunk .. "\n"
-				end
-			end
-			Tabs.Codes:AddParagraph({
-				Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH) .. "\n"),
-				Content = codesChunk
-			})
-			startIndex = endIndex - 1
-		end
-	end
+        local codeCount = #codes
+    
+        local numChunks = math.ceil(codeCount / MAX_CODES_PER_PARAGRAPH)
+    
+        local codesPerChunk = math.ceil(codeCount / numChunks)
+    
+        local startIndex = codeCount
+    
+        while startIndex > 0 do
+            local endIndex = math.max(startIndex - codesPerChunk + 1, 1)
+    
+            local codesChunk = ""
+            for i = startIndex, endIndex, -1 do
+                codesChunk = codesChunk .. codes[i]
+                if i > endIndex then
+                    codesChunk = codesChunk .. "\n"
+                end
+            end
+    
+            Tabs.Codes:AddParagraph({
+                Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / codesPerChunk)) .. "\n",
+                Content = codesChunk
+            })
+    
+            startIndex = endIndex - 1
+        end
+    end
+    
 	self.displayCodesInParagraphs()
 
     -- Misc Tab
