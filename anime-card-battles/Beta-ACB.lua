@@ -657,6 +657,10 @@ function AvHub:Function()
                 virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                 
                 dialogueClicked = true
+
+                if guiservice.SelectedObject == closeLb then
+                    guiservice.SelectedObject = nil
+                end
             end
         end
     end
