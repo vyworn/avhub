@@ -1,6 +1,6 @@
 -- Check If Loaded
 if not game:IsLoaded() then
-	game.Loaded:Wait()
+    game.Loaded:Wait()
 end
 
 local functionsInit = false
@@ -43,34 +43,37 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 local gamebosses = workspace:WaitForChild("Bosses")
 
 -- Libraries
-local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-FluentLibrary.lua")))()
-local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-InterfaceManager.lua")))()
-local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-SaveManager.lua")))()
+local Fluent = (loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-FluentLibrary.lua")))()
+local InterfaceManager = (loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-InterfaceManager.lua")))()
+local SaveManager = (loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-SaveManager.lua")))()
 
 -- Helper Functions
 local function generateRandomKey(length)
-	local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-	local key = ""
-	for i = 1, length do
-		local randIndex = math.random(1, #chars)
-		key = key .. string.sub(chars, randIndex, randIndex)
-		task.wait(0.1)
-	end
-	return key
+    local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    local key = ""
+    for i = 1, length do
+        local randIndex = math.random(1, #chars)
+        key = key .. string.sub(chars, randIndex, randIndex)
+        task.wait(0.1)
+    end
+    return key
 end
 
 local function antiAfk()
-	player.Idled:Connect(function()
-		virtualuser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-		task.wait(0.1)
-		virtualuser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-	end)
+    player.Idled:Connect(function()
+        virtualuser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        task.wait(0.1)
+        virtualuser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    end)
     return true
 end
 
 local function rejoinGame()
-	task.wait(1)
-	teleportservice:Teleport(placeid, player)
+    task.wait(1)
+    teleportservice:Teleport(placeid, player)
 end
 
 local function joinPublicServer()
@@ -98,13 +101,13 @@ end
 local function waitForTarget(targetName, parentObject, timeout)
     local startTime = tick()
     local target = parentObject:FindFirstChild(targetName)
-    
+
     while not target and (tick() - startTime) < (timeout or 10) do
         target = parentObject:FindFirstChild(targetName)
-        
+
         task.wait(0.1)
     end
-    
+
     if target then
         local hrp = target:FindFirstChild("HumanoidRootPart")
         if hrp then
@@ -114,22 +117,16 @@ local function waitForTarget(targetName, parentObject, timeout)
     return nil
 end
 
-local function waitUntil(condition)
-    while not condition() do
-        task.wait(0.1)
-    end
-end
-
 local function waitForProximityPrompt(hrp, timeout)
     local startTime = tick()
     local proximityPrompt = hrp:FindFirstChild("ProximityPrompt")
-    
+
     while not proximityPrompt and (tick() - startTime) < (timeout or 10) do
         proximityPrompt = hrp:FindFirstChild("ProximityPrompt")
-        
+
         task.wait(0.1)
     end
-    
+
     if proximityPrompt then
         fireproximityprompt(proximityPrompt)
         return true
@@ -138,22 +135,22 @@ local function waitForProximityPrompt(hrp, timeout)
 end
 
 -- Developer Check
-local devid = 
-{
-	["av"] = 164011583,
-	["psuw"] = 417954849,
-	["hari"] = 85087803,
+local devid = {
+    ["av"] = 164011583,
+    ["psuw"] = 417954849,
+    ["hari"] = 85087803,
     ["marc"] = 57061551,
+    ["Infestate"] = 69865162
 }
 
 local function isDeveloper(userid)
-	for _, id in pairs(devid) do
-		if id == userid then
-			return true
-		end
-		task.wait(0.1)
-	end
-	return nil
+    for _, id in pairs(devid) do
+        if id == userid then
+            return true
+        end
+        task.wait(0.1)
+    end
+    return nil
 end
 
 -- Library Variables
@@ -164,93 +161,49 @@ local guiWindow = {}
 local AvHub = _G[randomKey]
 
 -- Position Tables
-local interactionNames = 
-{
-    "Raid Shop",
-	"Potion Shop",
-	"Card Fusion",
-	"Card Deconstruction",
-	"Charm Merchant",
-	"Strange Trader",
-	"Card Index",
-	"Card Packs",
-}
+local interactionNames = {"Raid Shop", "Potion Shop", "Card Fusion", "Card Deconstruction", "Charm Merchant",
+                          "Strange Trader", "Card Index", "Card Packs"}
 
-local battleNames = 
-{
-	"Heaven Infinite",
-	"Heaven Tower",
-    "Adaptive Titan",
-}
+local battleNames = {"Heaven Infinite", "Heaven Tower", "Adaptive Titan"}
 
-local areaNames = 
-{
-    "Daily Chest",
-    "Sword",
-	"Spawn",
-    "Follow Leaderboard",
-    "Roll Leaderboard",
-	"Card Leaderboard",
-    "Luck Fountain",
-}
+local areaNames = {"Daily Chest", "Sword", "Spawn", "Follow Leaderboard", "Roll Leaderboard", "Card Leaderboard",
+                   "Luck Fountain"}
 
-local repeatableBossNames =
-{
-    "Infernal Pugilist",
-	"Bald Hero",
-	"Rubber Boy",
-	"Substitute Reaper",
-	"Limitless",
-	"Rogue Ninja",
-	"Knucklehead Ninja",
-	"Prince",
-	"Earth's Mightiest",
-}
+local repeatableBossNames = {"Infernal Pugilist", "Bald Hero", "Rubber Boy", "Substitute Reaper", "Limitless",
+                             "Rogue Ninja", "Knucklehead Ninja", "Prince", "Earth's Mightiest"}
 
-local normalBossNames =
-{
-	"Immortal Demon",
-	"Cosmic Menace",
-	"Wicked Weaver",
-	"Cifer",
-	"King Of Curses",
-	"Shinobi God",
-	"Galactic Tyrant",
-}
+local normalBossNames = {"Immortal Demon", "Cosmic Menace", "Wicked Weaver", "Cifer", "King Of Curses", "Shinobi God",
+                         "Galactic Tyrant"}
 
-local interactionPositions = 
-{
-    ["Raid Shop"] = Vector3.new(-7933.645020, 179.723953,-9347.706055),
+local interactionPositions = {
+    ["Raid Shop"] = Vector3.new(-7933.645020, 179.723953, -9347.706055),
     ["Potion Shop"] = Vector3.new(-7744.11376953125, 180.14158630371094, -9369.5908203125),
-	["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
-	["Card Deconstruction"] = Vector3.new(-7837.935059, 180.831451,-9281.571289),
-	["Charm Merchant"] = Vector3.new(-7764.36572265625, 179.71200561523438, -9194.859375),
-	["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
-	["Card Index"] = Vector3.new(-7846.603515625, 180.50991821289062, -9371.1884765625),
-	["Card Packs"] = Vector3.new(-7708.05810546875, 180.46566772460938, -9310.736328125),
+    ["Card Fusion"] = Vector3.new(13131.391602, 84.905922, 11281.490234),
+    ["Card Deconstruction"] = Vector3.new(-7837.935059, 180.831451, -9281.571289),
+    ["Charm Merchant"] = Vector3.new(-7764.36572265625, 179.71200561523438, -9194.859375),
+    ["Strange Trader"] = Vector3.new(523.097717, 247.374268, 6017.144531),
+    ["Card Index"] = Vector3.new(-7846.603515625, 180.50991821289062, -9371.1884765625),
+    ["Card Packs"] = Vector3.new(-7708.05810546875, 180.46566772460938, -9310.736328125)
 }
 
-local battlePositions = 
-{
-    ["Heaven Infinite"] = Vector3.new(454.615417, 260.529327,5928.994629),
+local battlePositions = {
+    ["Heaven Infinite"] = Vector3.new(454.615417, 260.529327, 5928.994629),
     ["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
-    ["Adaptive Titan"] = Vector3.new(-11600.375000, 250.031403,-11486.458984),
+    ["Adaptive Titan"] = Vector3.new(-11600.375000, 250.031403, -11486.458984)
 }
 
-local areaPositions = 
-{
-	["Daily Chest"] = Vector3.new(-7785.53173828125, 180.8318634033203, -9339.9423828125),
+local areaPositions = {
+    ["Daily Chest"] = Vector3.new(-7785.53173828125, 180.8318634033203, -9339.9423828125),
     ["Sword"] = Vector3.new(-7714.85205078125, 211.64096069335938, -9588.51953125),
-    ["Spawn"] = Vector3.new(-7810.774902, 179.706451,-9363.508789),
-    ["Follow Leaderboard"] = Vector3.new(-7799.123535, 179.436554,-9539.000000),
+    ["Spawn"] = Vector3.new(-7810.774902, 179.706451, -9363.508789),
+    ["Follow Leaderboard"] = Vector3.new(-7799.123535, 179.436554, -9539.000000),
     ["Roll Leaderboard"] = Vector3.new(-7920.541015625, 186.38790893554688, -9144.70703125),
     ["Card Leaderboard"] = Vector3.new(-7920.541015625, 186.38800048828125, -9170.8369140625),
-    ["Luck Fountain"] = Vector3.new(-7811.5751953125, 180.41331481933594, -9278.078125),
+    ["Luck Fountain"] = Vector3.new(-7811.5751953125, 180.41331481933594, -9278.078125)
 }
 
-local repeatableBossPositions =
-{
-    ["Infernal Pugilist"] = Vector3.new(-13618.935547, 249.765564,8330.528320),
+local repeatableBossPositions = {
+    ["Infernal Pugilist"] = Vector3.new(-13618.935547, 249.765564, 8330.528320),
     ["Bald Hero"] = Vector3.new(-11790.704102, 152.171967, -8566.525391),
     ["Rubber Boy"] = Vector3.new(13150.526367, 84.124977, 11365.570312),
     ["Substitute Reaper"] = Vector3.new(-7901.751465, 734.372009, 6714.296875),
@@ -258,63 +211,32 @@ local repeatableBossPositions =
     ["Rogue Ninja"] = Vector3.new(4306.954102, 31.724993, 7506.855469),
     ["Knucklehead Ninja"] = Vector3.new(4219.748535, 31.724997, 7506.525391),
     ["Prince"] = Vector3.new(10987.201172, 344.049896, -5241.321777),
-    ["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169, -5141.633789),
+    ["Earth's Mightiest"] = Vector3.new(10939.111328, 340.554169, -5141.633789)
 }
 
-local normalBossPositions =
-{
-    ["Immortal Demon"] = Vector3.new(-13607.038086, 249.765564,8309.548828),
+local normalBossPositions = {
+    ["Immortal Demon"] = Vector3.new(-13607.038086, 249.765564, 8309.548828),
     ["Cosmic Menace"] = Vector3.new(-11721.826172, 156.702225, -8551.984375),
     ["Wicked Weaver"] = Vector3.new(13107.546875, 84.274979, 11333.648438),
     ["Cifer"] = Vector3.new(-7899.03418, 734.354736, 6741.601562),
     ["King Of Curses"] = Vector3.new(-25.217384, 256.795135, 5882.467773),
     ["Shinobi God"] = Vector3.new(4258.674805, 31.874994, 7444.705078),
-    ["Galactic Tyrant"] = Vector3.new(10927.65918, 352.19986, -5072.885254),
+    ["Galactic Tyrant"] = Vector3.new(10927.65918, 352.19986, -5072.885254)
 }
 
-local previousPositions = 
-{
-    ["Previous Position Sword"] = Vector3.new(0,0,0),
-    ["Previous Position Chest"] = Vector3.new(0,0,0),
-    ["Previous Position Infinite"] = Vector3.new(0,0,0),
-    ["Previous Position Raid"] = Vector3.new(0,0,0),
+local previousPositions = {
+    ["Previous Position Sword"] = Vector3.new(0, 0, 0),
+    ["Previous Position Chest"] = Vector3.new(0, 0, 0),
+    ["Previous Position Infinite"] = Vector3.new(0, 0, 0),
+    ["Previous Position Raid"] = Vector3.new(0, 0, 0)
 }
 
 -- Codes Table
-local codes = 
-{
-    "RELEASE!",
-    "THANKS4PLAYING!",
-    "1KLIKES!",
-    "2KLIKES!",
-    "SUB2VALK!",
-    "4KLIKES!",
-    "5KLIKES!",
-    "6KLIKES!",
-    "500KVISITS!",
-    "SORRYFORSHUTDOWN!",
-    "SUB2TOADBOI!",
-    "SUB2RIJORO!",
-    "SUB2WIRY!",
-    "SUB2CONSUME!",
-    "SUB2D1SGUISED!",
-    "SUB2ItsHappyYT1!",
-    "SUB2Joltzy!",
-    "1MVISITS!",
-    "FOLLOWEXVAR1",
-    "10KLIKES!",
-    "15KLIKES!",
-    "20KLIKES!",
-    "UPDATE2!",
-    "5MVISITS!",
-    "SORRYFORALLTHESHUTDOWNS!",
-    "DAVIDSTHEBEST!",
-    "25KLIKES!",
-    "30KLIKES!",
-    "10MVISITS!",
-    "UPDATE3!",
-    "WEFIXITZ!",
-}
+local codes = {"RELEASE!", "THANKS4PLAYING!", "1KLIKES!", "2KLIKES!", "SUB2VALK!", "4KLIKES!", "5KLIKES!", "6KLIKES!",
+               "500KVISITS!", "SORRYFORSHUTDOWN!", "SUB2TOADBOI!", "SUB2RIJORO!", "SUB2WIRY!", "SUB2CONSUME!",
+               "SUB2D1SGUISED!", "SUB2ItsHappyYT1!", "SUB2Joltzy!", "1MVISITS!", "FOLLOWEXVAR1", "10KLIKES!",
+               "15KLIKES!", "20KLIKES!", "UPDATE2!", "5MVISITS!", "SORRYFORALLTHESHUTDOWNS!", "DAVIDSTHEBEST!",
+               "25KLIKES!", "30KLIKES!", "10MVISITS!", "UPDATE3!", "WEFIXITZ!"}
 
 -- Farming Variables
 local autoPotionsActive, autoSwordActive = false, false
@@ -327,7 +249,6 @@ local swordCooldown, swordObbyCD
 local obbySwordPrompt, swordBlock, swordProximityPrompt
 
 local dailyChest, dailyChestProximityPrompt
-local grabbingChest = false
 
 -- Battle Variables
 local autoRaidActive, autoInfiniteActive = false, false
@@ -340,7 +261,7 @@ local startTime, currentTries, maxTries
 local raidDamageTracker = stats:FindFirstChild("RaidDamageTracker")
 local damageThreshold = 1000000
 local davidNPC, davidHRP, davidProximityPrompt
-local titanBoss, titanHRP, titanProximityPrompt 
+local titanBoss, titanHRP, titanProximityPrompt
 local npcDialogue, dialogueFrame, responseFrame, dialogueOption
 local battleLabel, closeLb
 local hideBattle
@@ -348,7 +269,7 @@ local BATTLETOWERUI
 local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 
 -- Paragraph Variables
-local hubInfoParagraph, farmParagraph, battleParagraph  
+local hubInfoParagraph, farmParagraph, battleParagraph
 local tickCount, uptimeInSeconds, hours, minutes, seconds
 local uptimeText = "N/A hours N/A minutes N/A seconds"
 local timeLeft
@@ -375,7 +296,7 @@ function AvHub:Function()
             coroutine.resume(coroutineVar)
         end
     end
-    
+
     self.stopFunction = function(coroutineVar)
         if coroutineVar then
             coroutine.yield(coroutineVar)
@@ -385,33 +306,34 @@ function AvHub:Function()
 
     -- Character & Positioning Functions
     self.setPrimaryPart = function()
-		player = game.Players.LocalPlayer
-		character = player.Character
+        player = game.Players.LocalPlayer
+        character = player.Character
 
-		if character:FindFirstChild("HumanoidRootPart") then
-			character.PrimaryPart = character.HumanoidRootPart
-		end
-	end
+        if character:FindFirstChild("HumanoidRootPart") then
+            character.PrimaryPart = character.HumanoidRootPart
+        end
+    end
 
     self.setPrimaryPart()
 
-	player.CharacterAdded:Connect(function(newCharacter)
-		player = game.Players.LocalPlayer
-		character = newCharacter
-		humanoidrootpart = character:WaitForChild("HumanoidRootPart")
+    player.CharacterAdded:Connect(function(newCharacter)
+        player = game.Players.LocalPlayer
+        character = newCharacter
+        humanoidrootpart = character:WaitForChild("HumanoidRootPart")
 
-		if humanoidrootpart then
-			character.PrimaryPart = humanoidrootpart
-		end
+        if humanoidrootpart then
+            character.PrimaryPart = humanoidrootpart
+        end
 
         task.wait(0.1)
-	end)
+    end)
 
     self.getPreviousPosition = function(positionKey)
         if character and humanoidrootpart then
             local previousPosition = humanoidrootpart.Position
 
-            previousPositions[positionKey] = Vector3.new(previousPosition.X, (previousPosition.Y + 5), previousPosition.Z)
+            previousPositions[positionKey] = Vector3.new(previousPosition.X, (previousPosition.Y + 5),
+                previousPosition.Z)
         end
     end
 
@@ -425,56 +347,56 @@ function AvHub:Function()
     end
 
     -- Codes Functions
-	self.sendMessage = function(message)
-		if textchannel then
-			local success, result = pcall(function()
-				return textchannel:SendAsync(message)
-			end)
-		else
-			warn("TextChannel not found.")
-		end
-	end
+    self.sendMessage = function(message)
+        if textchannel then
+            local success, result = pcall(function()
+                return textchannel:SendAsync(message)
+            end)
+        else
+            warn("TextChannel not found.")
+        end
+    end
 
-	self.useCodes = function()
-		for i = #codes, 1, -1 do
-			local message = "/code " .. codes[i]
-			self.sendMessage(message)
+    self.useCodes = function()
+        for i = #codes, 1, -1 do
+            local message = "/code " .. codes[i]
+            self.sendMessage(message)
 
-			task.wait(2.5)
-		end
-	end
+            task.wait(2.5)
+        end
+    end
 
-	self.reverseCodes = function()
-		local reversedCodesString = ""
+    self.reverseCodes = function()
+        local reversedCodesString = ""
 
-		for i = #codes, 1, -1 do
-			reversedCodesString = reversedCodesString .. codes[i]
+        for i = #codes, 1, -1 do
+            reversedCodesString = reversedCodesString .. codes[i]
 
-			if i > 1 then
-				reversedCodesString = reversedCodesString .. "\n"
-			end
-
-            task.wait(0.1)
-		end
-
-		return reversedCodesString
-	end
-
-	self.reverseCodesCopy = function()
-		local copyReversedCodesStr = ""
-        
-		for i = #codes, 1, -1 do
-			copyReversedCodesStr = copyReversedCodesStr .. "/code " .. codes[i]
-
-			if i > 1 then
-				copyReversedCodesStr = copyReversedCodesStr .. "\n"
-			end
+            if i > 1 then
+                reversedCodesString = reversedCodesString .. "\n"
+            end
 
             task.wait(0.1)
-		end
+        end
 
-		return copyReversedCodesStr
-	end
+        return reversedCodesString
+    end
+
+    self.reverseCodesCopy = function()
+        local copyReversedCodesStr = ""
+
+        for i = #codes, 1, -1 do
+            copyReversedCodesStr = copyReversedCodesStr .. "/code " .. codes[i]
+
+            if i > 1 then
+                copyReversedCodesStr = copyReversedCodesStr .. "\n"
+            end
+
+            task.wait(0.1)
+        end
+
+        return copyReversedCodesStr
+    end
 
     -- Farming Functions
     local function isAutoSwordActive()
@@ -485,21 +407,17 @@ function AvHub:Function()
         return self.autoPotionsToggle.Value
     end
 
-    local function hasGrabbedSword() 
-		return grabbedSword
-	end
-
-    local function isGrabbingChest()
-        return grabbingChest
+    local function hasGrabbedSword()
+        return grabbedSword
     end
 
     self.getSword = function()
         obbySwordPrompt = workspace:FindFirstChild("ObbySwordPrompt")
         swordBlock = obbySwordPrompt and obbySwordPrompt:FindFirstChild("SwordBlock")
-    
+
         if swordBlock then
             swordProximityPrompt = swordBlock:FindFirstChild("ProximityPrompt")
-    
+
             if swordProximityPrompt then
                 fireproximityprompt(swordProximityPrompt)
                 task.wait(0.2)
@@ -512,36 +430,36 @@ function AvHub:Function()
             end
         end
     end
-    
+
     self.autoGetSword = function()
         while isAutoSwordActive() do
             swordCooldown = stats:FindFirstChild("SwordObbyCD").Value
             swordObbyCD = swordCooldown
-			if swordObbyCD == 0 then
-				grabbedSword = false
+            if swordObbyCD == 0 then
+                grabbedSword = false
                 teleportedBack = false
-                
+
                 self.getPreviousPosition("Previous Position Sword")
-				task.wait(0.2)
+                task.wait(0.2)
                 self.characterTeleport(areaPositions["Sword"])
                 task.wait(0.5)
                 self.getSword()
 
-				if canGoBack and not teleportedBack then
+                if canGoBack and not teleportedBack then
                     task.wait(1)
 
                     self.characterTeleport(previousPositions["Previous Position Sword"])
 
                     teleportedBack = true
                     grabbedSword = true
-					canGoBack = false
-				end
-			elseif swordObbyCD > 0 then
-				grabbedSword = true
-			end
+                    canGoBack = false
+                end
+            elseif swordObbyCD > 0 then
+                grabbedSword = true
+            end
 
-			task.wait(0.2)
-		end
+            task.wait(0.2)
+        end
     end
 
     self.getPotions = function()
@@ -552,13 +470,13 @@ function AvHub:Function()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
         local workspace = game:GetService("Workspace")
         local activePotions = workspace:FindFirstChild("ActivePotions")
-    
+
         local function onPotionGrabbed()
             potionCount = potionCount + 1
         end
-    
+
         activePotions.ChildRemoved:Connect(onPotionGrabbed)
-    
+
         while isAutoPotionsActive() do
             for _, potion in ipairs(activePotions:GetChildren()) do
                 local base = potion:FindFirstChild("Base")
@@ -571,47 +489,45 @@ function AvHub:Function()
             end
             task.wait(0.25)
         end
-    
+
         return potionCount
     end
 
     self.claimDailyChest = function()
-        grabbingChest = true
         self.getPreviousPosition("Previous Position Chest")
         task.wait(0.25)
         self.characterTeleport(areaPositions["Daily Chest"])
         task.wait(0.75)
 
         dailyChest = workspace:FindFirstChild("DailyChestPrompt")
-        
+
         if dailyChest then
             dailyChestProximityPrompt = dailyChest:FindFirstChild("ProximityPrompt")
-            
+
             if dailyChestProximityPrompt then
                 fireproximityprompt(dailyChestProximityPrompt)
             else
                 if waitForProximityPrompt(dailyChest, 10) then
-                    grabbingChest = false
                     task.wait(0.5)
                 end
             end
         end
-        
+
         task.wait(0.75)
-        
+
         self.characterTeleport(previousPositions["Previous Position Chest"])
     end
 
     -- Battle Functions
     local function isAutoInfiniteActive()
         local value = self.autoInfiniteToggle.Value
-		return value
-	end
-
-	local function isAutoRaidActive()
-		local value = self.autoRaidToggle.Value
         return value
-	end
+    end
+
+    local function isAutoRaidActive()
+        local value = self.autoRaidToggle.Value
+        return value
+    end
 
     local function isAutoRankedActive()
         return self.autoRankedToggle.Value
@@ -625,53 +541,37 @@ function AvHub:Function()
         return self.autoHideBattleToggle.Value
     end
 
-    local function isBattleCDActive()
-        return player:FindFirstChild("BattleCD") ~= nil
-    end
-
-    local function waitForBattleCDToEnd()
-        while isBattleCDActive() do
-            task.wait(0.1)
+    local function foundDialogue()
+        npcDialogue = playergui:FindFirstChild("NPCDialogue")
+        if npcDialogue then
+            return true
+        else
+            return false
         end
     end
-
-    local function foundDialogue()
-		npcDialogue = playergui:FindFirstChild("NPCDialogue")
-		if npcDialogue then
-			return true
-		else
-			return false
-		end
-	end
 
     local function handleDialogue()
-        waitForBattleCDToEnd()
-        
-        while foundDialogue() do
-            npcDialogue = playergui:FindFirstChild("NPCDialogue")
-            if npcDialogue then
-                dialogueFrame = npcDialogue:FindFirstChild("DialogueFrame")
-                responseFrame = dialogueFrame and dialogueFrame:FindFirstChild("ResponseFrame")
-                dialogueOption = responseFrame and responseFrame:FindFirstChild("DialogueOption")
-    
-                if dialogueOption then
-                    guiservice.SelectedObject = dialogueOption
-                    virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                    task.wait(0.1)
-                    virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                    task.wait(0.1)
-                end
+        npcDialogue = playergui:FindFirstChild("NPCDialogue")
+        if npcDialogue then
+            dialogueFrame = npcDialogue:FindFirstChild("DialogueFrame")
+            responseFrame = dialogueFrame and dialogueFrame:FindFirstChild("ResponseFrame")
+            dialogueOption = responseFrame and responseFrame:FindFirstChild("DialogueOption")
+
+            if dialogueOption then
+                guiservice.SelectedObject = dialogueOption
+                virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
             end
-            task.wait(0.2)
-            
-            waitForBattleCDToEnd()
         end
+        return false
     end
 
     local function isRaidComplete()
         raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
 
-		return raidDamageTracker >= damageThreshold
+        return raidDamageTracker >= damageThreshold
     end
 
     local function isRaidActive()
@@ -688,13 +588,23 @@ function AvHub:Function()
         return false
     end
 
+    -- local function isRaidActive()
+    --     print("Simulated: Raid is active") -- Debugging
+    --     return true -- Simulate that a raid is always active
+    -- end
+
     local function canRaidCheck()
         return isRaidActive() and isAutoRaidActive() and not isRaidComplete()
     end
 
     local function canInfiniteCheck()
+        -- AutoInfinite should run if:
+        -- 1. AutoRaid is off, OR
+        -- 2. Raid is not active, OR
+        -- 3. Raid is active and complete.
         return isAutoInfiniteActive() and (not isAutoRaidActive() or isRaidComplete() or not isRaidActive())
     end
+
 
     local function toggleProgressBar()
         local raidBar = playergui:FindFirstChild("RaidBar")
@@ -722,20 +632,30 @@ function AvHub:Function()
     end
 
     local function canTeleport(targetName)
-        if targetName == "Adaptive Titan" and (not canRaidCheck() or canInfiniteCheck()) then
-            return
-        elseif targetName == "Heaven Infinite" and (not canInfiniteCheck() or canRaidCheck()) then
-            return
+        if targetName == "Adaptive Titan" then
+            if not canRaidCheck() or canInfiniteCheck() then
+                return
+            end
+        elseif targetName == "Heaven Infinite" then
+            if not canInfiniteCheck() or canRaidCheck() then
+                return
+            end
         end
-    
-        if isAutoSwordActive() then
-            waitUntil(hasGrabbedSword)
+
+        if not isAutoSwordActive() then
+            self.characterTeleport(battlePositions[targetName])
+        elseif isAutoSwordActive() then
+            if hasGrabbedSword() then
+                self.characterTeleport(battlePositions[targetName])
+            else
+                repeat
+                    task.wait(0.1)
+                until hasGrabbedSword()
+                self.characterTeleport(battlePositions[targetName])
+            end
         end
-        waitUntil(function() return not isGrabbingChest() end)
-    
-        self.characterTeleport(battlePositions[targetName])
     end
-    
+
     self.isInInfiniteBattle = function()
         local battleTowerStat = stats:FindFirstChild("BattleTower")
         local isInBattle = battleTowerStat and battleTowerStat.Value
@@ -744,48 +664,40 @@ function AvHub:Function()
                 return true
             end
 
-            return false 
+            return false
         end
-        
+
         return false
     end
 
     self.isInRaidBattle = function()
-        local battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
-        if not battleLabel or battleLabel.Text ~= "CURRENTLY IN BATTLE" then
-            return false
-        end
-    
+        battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
         local battleMenu = playergui:FindFirstChild("BattleMenu")
         local battle = battleMenu and battleMenu:FindFirstChild("Battle")
         local enemyCard = battle and battle:FindFirstChild("EnemyCard")
         local libraryFrame = enemyCard and enemyCard:FindFirstChild("LibraryFrame")
         local cardName = libraryFrame and libraryFrame:FindFirstChild("CardName")
-        
-        if not cardName or cardName.Text ~= "Adaptive Titan" then
-            return false
-        end
-    
+        local name = enemyCardName and enemyCardName.Text
+
         local enemyParty = battle and battle:FindFirstChild("EnemyParty")
-        return enemyParty and #enemyParty:GetChildren() == 2
-    end
-    
-    local function waitForBattleToEnd(battleType)
-        local checkFunction
-        
-        if battleType == "raid" then
-            checkFunction = self.isInRaidBattle
-        elseif battleType == "infinite" then
-            checkFunction = self.isInInfiniteBattle
-        else
-            error("Invalid battle type. Use 'raid' or 'infinite'.")
+        local partyChildren = #enemyParty:GetChildren()
+
+        if battleLabel then
+            local labelText = battleLabel.Text
+            if labelText == "CURRENTLY IN BATTLE" then
+                if partyChildren == 2 then
+                    if libraryFrame then
+                        if name == "Adaptive Titan" then
+                            return true
+                        end
+                    end
+                end
+            end
         end
-    
-        while checkFunction() do
-            task.wait(0.5)
-        end
+
+        return false
     end
-    
+
     local function giveUpInfinite(child)
         if child.Name == "BATTLETOWERUI" then
             local background = child:FindFirstChild("Background")
@@ -800,7 +712,7 @@ function AvHub:Function()
             end
         end
     end
-    
+
     self.cancelInfiniteBattle = function()
         local towerConnection
 
@@ -820,64 +732,65 @@ function AvHub:Function()
         while isAutoRaidActive() do
             if canRaidCheck() then
                 toggleProgressBar()
-            
+
                 if self.isInInfiniteBattle() then
                     self.cancelInfiniteBattle()
-                    waitForBattleToEnd("infinite")
                 end
-    
+
                 guiservice.SelectedObject = nil
-    
+
                 if not isInVicinity("Adaptive Titan", 20) then
                     if not self.isInRaidBattle() then
                         canTeleport("Adaptive Titan")
                     end
                 end
-    
-                local titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
-    
+
+                titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
+
                 if titanHRP then
-                    waitForBattleToEnd("raid")
-    
                     while not waitForProximityPrompt(titanHRP, 10) do
-                        if not canRaidCheck() then 
-                            break 
+                        if not canRaidCheck() then
+                            break
                         end
+
                         task.wait(0.1)
                     end
                 end
-    
+
                 repeat
                     if not canRaidCheck() then
                         break
                     end
-    
                     if self.isInRaidBattle() then
                         break
                     end
-    
+
                     if foundDialogue() then
                         handleDialogue()
                     else
                         break
                     end
-    
+
                     task.wait(0.1)
                 until self.isInRaidBattle()
-    
+
                 guiservice.SelectedObject = nil
-                local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-    
-                if guiservice.SelectedObject == closeLb then 
+                closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
+
+                if guiservice.SelectedObject == closeLb then
                     guiservice.SelectedObject = nil
                 end
             end
-    
+
             task.wait(0.5)
         end
     end
+
     self.autoInfinite = function()
+
         while isAutoInfiniteActive() do
+
+            -- Only cancel autoInfinite if autoRaid is toggled on and a raid is active and not complete
             if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
                 self.cancelInfiniteBattle()
                 break
@@ -891,10 +804,7 @@ function AvHub:Function()
                 toggleProgressBar()
 
                 local davidHRP = waitForTarget("David", gamenpcs, 10)
-
                 if davidHRP then
-                    waitForBattleToEnd("infinite")
-
                     while not waitForProximityPrompt(davidHRP, 10) do
                         if not canInfiniteCheck() then
                             break
@@ -948,10 +858,10 @@ function AvHub:Function()
             BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
             if not BATTLETOWERUI then
                 local success, result = pcall(function()
-					return rankedRemote:FireServer("Queue")
-				end)
+                    return rankedRemote:FireServer("Queue")
+                end)
 
-				task.wait(0.1)
+                task.wait(0.1)
             else
                 task.wait(1)
             end
@@ -964,17 +874,17 @@ function AvHub:Function()
         while isAutoCloseResultActive() do
             inBattle = stats:FindFirstChild("InBattle")
 
-			repeat
-				task.wait(0.25)
-			until not self.isInInfiniteBattle()
+            repeat
+                task.wait(0.25)
+            until not self.isInInfiniteBattle()
 
-			for _, instantroll in ipairs(playergui:GetChildren()) do
-				if instantroll.Name == "InstantRoll" then
-					instantroll:Destroy()
-				end
-			end
+            for _, instantroll in ipairs(playergui:GetChildren()) do
+                if instantroll.Name == "InstantRoll" then
+                    instantroll:Destroy()
+                end
+            end
 
-			task.wait(0.25)
+            task.wait(0.25)
         end
     end
 
@@ -995,9 +905,7 @@ function AvHub:Function()
             swordCooldown = stats.SwordObbyCD.Value
             timeLeft = swordCooldown
 
-            farmParagraph:SetDesc("Potions Collected: " .. potionCount 
-            .. "\n" .. "Sword Cooldown: " .. timeLeft 
-            )
+            farmParagraph:SetDesc("Potions Collected: " .. potionCount .. "\n" .. "Sword Cooldown: " .. timeLeft)
 
             task.wait(0.2)
         end
@@ -1043,7 +951,7 @@ function AvHub:Function()
 
             checkFloors()
 
-           if self.isInInfiniteBattle() or self.isInRaidBattle() then
+            if self.isInInfiniteBattle() or self.isInRaidBattle() then
                 battleInProgress = true
             else
                 battleInProgress = false
@@ -1067,25 +975,23 @@ function AvHub:Function()
             formattedPreviousRunFloor = formatNumberWithCommas(previousRunFloor)
             formattedCurrentRunFloor = formatNumberWithCommas(currentRunFloor)
 
-            battleParagraph:SetDesc("Raid Status: " .. raidText
-                .. "\nTotal Damage: " .. (formattedRaidDamageTracker .. " / " .. formattedThreshold)
-                .. "\nDamage Dealt: " .. formattedDamageDealt
-                .. "\nHighest Floor: " .. formattedHighestFloor
-                .. "\nPrevious Run: " .. formattedPreviousRunFloor
-                .. "\nCurrent Run: " .. formattedCurrentRunFloor
-            )
+            battleParagraph:SetDesc("Raid Status: " .. raidText .. "\nTotal Damage: " ..
+                                        (formattedRaidDamageTracker .. " / " .. formattedThreshold) ..
+                                        "\nDamage Dealt: " .. formattedDamageDealt .. "\nHighest Floor: " ..
+                                        formattedHighestFloor .. "\nPrevious Run: " .. formattedPreviousRunFloor ..
+                                        "\nCurrent Run: " .. formattedCurrentRunFloor)
 
             task.wait(0.2)
         end
     end
 
-    self.updateHubInfoParagraph = function ()
+    self.updateHubInfoParagraph = function()
         while hubInit do
             uptimeInSeconds = tick() - tickCount
-			hours = math.floor(uptimeInSeconds / 3600)
-			minutes = math.floor((uptimeInSeconds % 3600) / 60)
-			seconds = uptimeInSeconds % 60
-			uptimeText = string.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds)
+            hours = math.floor(uptimeInSeconds / 3600)
+            minutes = math.floor((uptimeInSeconds % 3600) / 60)
+            seconds = uptimeInSeconds % 60
+            uptimeText = string.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds)
 
             antiAfkStatus = antiAfk()
             local antiAFKstring
@@ -1095,15 +1001,12 @@ function AvHub:Function()
                 antiAFKstring = "Off"
             end
 
-            hubInfoParagraph:SetDesc(tostring(uptimeText)
-            .. "\n" .. "Anti-AFK: " .. antiAFKstring
-            )
+            hubInfoParagraph:SetDesc(tostring(uptimeText) .. "\n" .. "Anti-AFK: " .. antiAFKstring)
 
             task.wait(0.2)
         end
     end
 
-    -- Coroutine Functions
     self.manageFarmParagraph = function()
         if isAutoSwordActive() or isAutoPotionsActive() then
             if not farmParagraphCoroutine then
@@ -1152,32 +1055,36 @@ function AvHub:Function()
         end
     end
 
-    self.manageRaidCoroutine = function(state)
-        while state do
-            if isAutoRaidActive() and canRaidCheck() then
-                if not raidCoroutine then
-                    raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
-                end
-            elseif raidCoroutine then
-                raidCoroutine = self.stopFunction(raidCoroutine)
+    -- Coroutine Functions
+    self.manageRaidCoroutine = function()
+        if isAutoRaidActive() and canRaidCheck() then
+            if not raidCoroutine then
+                raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
             end
-
-            task.wait(0.5)
+        elseif raidCoroutine then
+            raidCoroutine = self.stopFunction(raidCoroutine)
         end
     end
 
-    self.manageInfiniteCoroutine = function(state)
-        while state do
-            if isAutoInfiniteActive() and canInfiniteCheck() then
-                if not infiniteCoroutine then
-                    infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
-                end
-            elseif infiniteCoroutine then
-                infiniteCoroutine = self.stopFunction(infiniteCoroutine)
+    self.manageInfiniteCoroutine = function()
+        if isAutoInfiniteActive() and canInfiniteCheck() then
+            if not infiniteCoroutine then
+                infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
             end
-            task.wait(0.5)
+        elseif infiniteCoroutine then
+            infiniteCoroutine = self.stopFunction(infiniteCoroutine)
         end
     end
+
+    self.pollingFunction = function()
+        while true do
+            self.manageRaidCoroutine()
+            self.manageInfiniteCoroutine()
+            task.wait(1) 
+        end
+    end
+
+    self.startFunction(nil, self.pollingFunction)
 
     self.managePotionCoroutine = function()
         if isAutoPotionsActive() then
@@ -1264,49 +1171,49 @@ end
 
 function AvHub:GUI()
     -- Window & Tabs
-	guiWindow[randomKey] = Fluent:CreateWindow({
-		Title = "UK1",
-		SubTitle = "Anime Card Battles",
-		TabWidth = 80,
-		Size = UDim2.fromOffset(390, 373),
-		Acrylic = true,
-		Theme = "Avalanche",
-		MinimizeKey = Enum.KeyCode.LeftControl
-	})
-	local Tabs = {
-		Main = guiWindow[randomKey]:AddTab({
-			Title = "Main",
-			Icon = "info"
-		}),
-		Auto = guiWindow[randomKey]:AddTab({
-			Title = "Auto",
-			Icon = "repeat"
-		}),
-		Stats = guiWindow[randomKey]:AddTab({
-			Title = "Stats",
-			Icon = "bar-chart"
-		}),
-		Teleports = guiWindow[randomKey]:AddTab({
-			Title = "Teleports",
-			Icon = "navigation"
-		}),
+    guiWindow[randomKey] = Fluent:CreateWindow({
+        Title = "UK1",
+        SubTitle = "Anime Card Battles",
+        TabWidth = 90,
+        Size = UDim2.fromOffset(450, 375),
+        Acrylic = true,
+        Theme = "Avalanche",
+        MinimizeKey = Enum.KeyCode.LeftControl
+    })
+    local Tabs = {
+        Main = guiWindow[randomKey]:AddTab({
+            Title = "Main",
+            Icon = "info"
+        }),
+        Auto = guiWindow[randomKey]:AddTab({
+            Title = "Auto",
+            Icon = "repeat"
+        }),
+        Stats = guiWindow[randomKey]:AddTab({
+            Title = "Stats",
+            Icon = "bar-chart"
+        }),
+        Teleports = guiWindow[randomKey]:AddTab({
+            Title = "Teleports",
+            Icon = "navigation"
+        }),
         Cards = guiWindow[randomKey]:AddTab({
             Title = "Cards",
             Icon = "book-open"
         }),
-		Codes = guiWindow[randomKey]:AddTab({
-			Title = "Codes",
-			Icon = "baseline"
-		}),
-		Misc = guiWindow[randomKey]:AddTab({
-			Title = "Misc",
-			Icon = "circle-ellipsis"
-		}),
+        Codes = guiWindow[randomKey]:AddTab({
+            Title = "Codes",
+            Icon = "baseline"
+        }),
+        Misc = guiWindow[randomKey]:AddTab({
+            Title = "Misc",
+            Icon = "circle-ellipsis"
+        }),
         Settings = guiWindow[randomKey]:AddTab({
-			Title = "Settings",
-			Icon = "save"
-		}),
-	}
+            Title = "Settings",
+            Icon = "save"
+        })
+    }
 
     -- GUI Variables
     local informationSection, latestSection
@@ -1314,73 +1221,59 @@ function AvHub:GUI()
 
     local farmSection, battleSection, miscSection
 
-    local bossesSection
     local interactionsDropdown, battlesDropdown, areasDropdown, repeatableBossDropdown, normalBossDropdown
 
     local codesSection, codeInfoText
     local codeInfoParagraph, codesParagraph
 
     -- GUI Information
-	local Options = Fluent.Options
-	local version = "1.5.4"
+    local Options = Fluent.Options
+    local version = "1.5.4"
     local release = "beta"
     local versionStr = "v_" .. version .. "_" .. release
-	local devs = "Av"
+    local devs = "Av, marc"
 
     -- Main Tab
     informationSection = Tabs.Main:AddSection("Information")
-	informationParagraph = Tabs.Main:AddParagraph({
-		Title = "\b",
-		Content = "* Version" 
-		.. "\n->\t" .. versionStr
-		.. "\n" .. "* Made By" 
-		.. "\n->\t" .. devs
-        .. "\n" .. "* Extra"
-        .. "\n->\t" .. "Add _G.autoLoad = true\n\t   before loadstring to load script on startup"
+    informationParagraph = Tabs.Main:AddParagraph({
+        Title = "\b",
+        Content = "* Version" .. "\n->\t" .. versionStr .. "\n" .. "* Made By" .. "\n->\t" .. devs .. "\n" .. "* Extra" ..
+            "\n->\t" .. "Add _G.autoLoad = true before\n\t   loadstring to load script on startup" .. "\n"
+    })
 
-		.. "\n"
-	})
-
-	latestSection = Tabs.Main:AddSection("Latest")
-	latestParagraph = Tabs.Main:AddParagraph({
-		Title = "\b",
-		Content = "* Changes"
-        .. "\n->\t" .. "Added Card Lookup"
-		.. "\n->\t" .. "Fixed Auto Raids"
-        .. "\n->\t" .. "Moved Configs & Interface\n\t   to Settings"
-        .. "\n->\t" .. "Moved Stats to Stats Tab"
-        .. "\n\n" .. "* Coming Soon"
-		.. "\n->\t" .. "Webhooks"
-		.. "\n\n" .. "* Future"
-		.. "\n->\t" .. "Auto Repeatable Bosses"
-
-        .. "\n"
-	})
+    latestSection = Tabs.Main:AddSection("Latest")
+    latestParagraph = Tabs.Main:AddParagraph({
+        Title = "\b",
+        Content = "* Changes" .. "\n->\t" .. "Added Card Lookup" .. "\n->\t" .. "Fixed Auto Raids" .. "\n->\t" ..
+            "Moved Configs & Interface to Settings" .. "\n->\t" .. "Moved Stats to Stats Tab" .. "\n\n" ..
+            "* Coming Soon" .. "\n->\t" .. "Webhooks" .. "\n\n" .. "* Future" .. "\n->\t" .. "Auto Repeatable Bosses" ..
+            "\n"
+    })
 
     -- Auto Tab
     farmSection = Tabs.Auto:AddSection("Farm")
     self.autoPotionsToggle = Tabs.Auto:AddToggle("AutoPotions", {
-		Title = "Auto Potions",
-		Description = "Auto Grabs Potions",
-		Default = false
-	})
-	self.autoSwordToggle = Tabs.Auto:AddToggle("AutoSword", {
-		Title = "Auto Sword",
-		Description = "Auto Claims Sword",
-		Default = false
-	})
+        Title = "Auto Potions",
+        Description = "Auto Grabs Potions",
+        Default = false
+    })
+    self.autoSwordToggle = Tabs.Auto:AddToggle("AutoSword", {
+        Title = "Auto Sword",
+        Description = "Auto Claims Sword",
+        Default = false
+    })
 
     battleSection = Tabs.Auto:AddSection("Battle")
     self.autoRaidToggle = Tabs.Auto:AddToggle("AutoRaid", {
-		Title = "Auto Raid",
-		Description = "Auto Starts Raid",
-		Default = false
-	})
-	self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
-		Title = "Auto Infinite",
-		Description = "Auto Starts Infinite",
-		Default = false
-	})
+        Title = "Auto Raid",
+        Description = "Auto Starts Raid",
+        Default = false
+    })
+    self.autoInfiniteToggle = Tabs.Auto:AddToggle("AutoInfinite", {
+        Title = "Auto Infinite",
+        Description = "Auto Starts Infinite",
+        Default = false
+    })
     self.autoRankedToggle = Tabs.Auto:AddToggle("AutoRanked", {
         Title = "Auto Ranked",
         Description = "Auto Starts Ranked",
@@ -1398,38 +1291,34 @@ function AvHub:GUI()
     })
 
     miscSection = Tabs.Auto:AddSection("Misc")
-	self.claimChestButton = Tabs.Auto:AddButton({
-		Title = "Claim Daily Chest",
-		Description = "Claims Daily Chest",
-		Callback = function()
-			task.spawn(self.claimDailyChest)
-		end
-	})
+    self.claimChestButton = Tabs.Auto:AddButton({
+        Title = "Claim Daily Chest",
+        Description = "Claims Daily Chest",
+        Callback = function()
+            task.spawn(self.claimDailyChest)
+        end
+    })
 
     -- Stats Tab
     farmParagraph = Tabs.Stats:AddParagraph({
         Title = "Farm",
-        Content = "Potions Collected: " .. "N/A"
-        .. "\n" .. "Sword Cooldown: " .. "N/A"
+        Content = "Potions Collected: " .. "N/A" .. "\n" .. "Sword Cooldown: " .. "N/A"
     })
     battleParagraph = Tabs.Stats:AddParagraph({
         Title = "Stats",
-        Content = "Raid Status: " .. "N/A"
-        .. "\n" .. "Total Damage: " .. "N/A" .. " / " .. "N/A"
-        .. "\n" .. "Damage Dealt: " .. "N/A"
-        .. "\n" .. "Highest Floor: " .. "N/A"
-        .. "\n" .. "Previous Run: " .. "N/A"
-        .. "\n" .. "Current Run: " .. "N/A"
+        Content = "Raid Status: " .. "N/A" .. "\n" .. "Total Damage: " .. "N/A" .. " / " .. "N/A" .. "\n" ..
+            "Damage Dealt: " .. "N/A" .. "\n" .. "Highest Floor: " .. "N/A" .. "\n" .. "Previous Run: " .. "N/A" .. "\n" ..
+            "Current Run: " .. "N/A"
     })
     hubInfoParagraph = Tabs.Stats:AddParagraph({
         Title = "Uptime",
-        Content = "N/A hours N/A minutes N/A seconds"
-        .. "\n" .. "Anti-AFK: " .. "N/A"
+        Content = "N/A hours N/A minutes N/A seconds" .. "\n" .. "Anti-AFK: " .. "N/A"
     })
 
     -- Teleports Tab
     interactionsDropdown = Tabs.Teleports:AddDropdown("Interactions", {
         Title = "Interactions",
+        Description = "Teleports to Interactions",
         Values = interactionNames,
         Multi = false,
         Default = nil
@@ -1437,6 +1326,7 @@ function AvHub:GUI()
 
     battlesDropdown = Tabs.Teleports:AddDropdown("Battles", {
         Title = "Battles",
+        Description = "Teleports to Battles",
         Values = battleNames,
         Multi = false,
         Default = nil
@@ -1444,21 +1334,23 @@ function AvHub:GUI()
 
     areasDropdown = Tabs.Teleports:AddDropdown("Areas", {
         Title = "Areas",
+        Description = "Teleports to Areas",
         Values = areaNames,
         Multi = false,
         Default = nil
     })
 
-    bossesSection = Tabs.Teleports:AddSection("Bosses")
-    repeatableBossDropdown = Tabs.Teleports:AddDropdown("Repeatable", {
-        Title = "Repeatable",
+    repeatableBossDropdown = Tabs.Teleports:AddDropdown("Repeatable Bosses", {
+        Title = "Repeatable Bosses",
+        Description = "Teleports to Repeatable Bosses",
         Values = repeatableBossNames,
         Multi = false,
         Default = nil
     })
 
-    normalBossDropdown  = Tabs.Teleports:AddDropdown("Normal", {
-        Title = "Normal",
+    normalBossDropdown = Tabs.Teleports:AddDropdown("Normal Bosses", {
+        Title = "Normal Bosses",
+        Description = "Teleports to Normal Bosses",
         Values = normalBossNames,
         Multi = false,
         Default = nil
@@ -1466,24 +1358,22 @@ function AvHub:GUI()
 
     -- Codes Tab
     self.claimCodesButton = Tabs.Codes:AddButton({
-		Title = "Claim All Codes",
-		Description = "Claims all codes",
-		Callback = function()
-			self.useCodes()
-		end
-	})
+        Title = "Claim All Codes",
+        Description = "Claims all codes",
+        Callback = function()
+            self.useCodes()
+        end
+    })
 
-	self.copyCodesButton = Tabs.Codes:AddButton({
-		Title = "Copy All Codes",
-		Description = "Copies all codes",
-		Callback = function()
-			setclipboard(self.reverseCodesCopy())
-		end
-	})
+    self.copyCodesButton = Tabs.Codes:AddButton({
+        Title = "Copy All Codes",
+        Description = "Copies all codes",
+        Callback = function()
+            setclipboard(self.reverseCodesCopy())
+        end
+    })
 
-    codeInfoText = "Total Codes: " .. #codes
-    .. "\n" .. "Some Codes Might Not Work" 
-    .. "\n" .. "Newest -> Oldest"
+    codeInfoText = "Total Codes: " .. #codes .. "\n" .. "Some Codes Might Not Work" .. "\n" .. "Newest -> Oldest"
 
     codeInfoParagraph = Tabs.Codes:AddParagraph({
         Title = "SCROLL DOWN",
@@ -1492,48 +1382,48 @@ function AvHub:GUI()
 
     codesSection = Tabs.Codes:AddSection("List Of Codes")
 
-    local MAX_CODES_PER_PARAGRAPH = 12
+    local MAX_CODES_PER_PARAGRAPH = 15
 
     self.displayCodesInParagraphs = function()
-		local codeCount = #codes
-		local startIndex = codeCount
+        local codeCount = #codes
+        local startIndex = codeCount
 
-		while startIndex > 0 do
-			local endIndex = math.max(startIndex - MAX_CODES_PER_PARAGRAPH + 1, 1)
-			local codesChunk = ""
-			for i = startIndex, endIndex, -1 do
-				codesChunk = codesChunk .. codes[i]
-				if i > endIndex then
-					codesChunk = codesChunk .. "\n"
-				end
-			end
-			Tabs.Codes:AddParagraph({
-				Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH) .. "\n"),
-				Content = codesChunk
-			})
-			startIndex = endIndex - 1
-		end
-	end
-	self.displayCodesInParagraphs()
+        while startIndex > 0 do
+            local endIndex = math.max(startIndex - MAX_CODES_PER_PARAGRAPH + 1, 1)
+            local codesChunk = ""
+            for i = startIndex, endIndex, -1 do
+                codesChunk = codesChunk .. codes[i]
+                if i > endIndex then
+                    codesChunk = codesChunk .. "\n"
+                end
+            end
+            Tabs.Codes:AddParagraph({
+                Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / MAX_CODES_PER_PARAGRAPH) .. "\n"),
+                Content = codesChunk
+            })
+            startIndex = endIndex - 1
+        end
+    end
+    self.displayCodesInParagraphs()
 
     -- Misc Tab
     self.miscRejoinGameButton = Tabs.Misc:AddButton({
-		Title = "Rejoin game",
-		Description = "Rejoins the game",
-		Callback = function()
-			rejoinGame()
-		end
-	})
-	self.miscJoinRandomServerButton = Tabs.Misc:AddButton({
-		Title = "Join Random Server",
-		Description = "Joins a random public server",
-		Callback = function()
-			self.joinPublicServer()
-		end
-	})
+        Title = "Rejoin game",
+        Description = "Rejoins the game",
+        Callback = function()
+            rejoinGame()
+        end
+    })
+    self.miscJoinRandomServerButton = Tabs.Misc:AddButton({
+        Title = "Join Random Server",
+        Description = "Joins a random public server",
+        Callback = function()
+            self.joinPublicServer()
+        end
+    })
 
     -- Tools Tab
-    if isDeveloper(playerid) then 
+    if isDeveloper(playerid) then
         local toolsAdded = false
         Tabs.Tools = guiWindow[randomKey]:AddTab({
             Title = "Tools",
@@ -1545,7 +1435,6 @@ function AvHub:GUI()
             Description = "isInInfiniteBattle",
             Callback = function()
                 local isInInfiniteBattle = self.isInInfiniteBattle()
-                print(isInInfiniteBattle)
             end
         })
 
@@ -1567,7 +1456,7 @@ function AvHub:GUI()
                     end
                     -- Tools Variables
                     local loggedPositionX, loggedPositionY, loggedPositionZ
-                
+
                     -- Tools Functions
                     self.teleportToPosition = function(x, y, z)
                         if character and character.PrimaryPart then
@@ -1613,7 +1502,7 @@ function AvHub:GUI()
                         local server = servers.data[math.random(1, #servers.data)]
                         teleportservice:TeleportToPlaceInstance(placeid, server.id, player)
                     end
-                    
+
                     -- Tools Tab
                     self.toolsRejoinGameButton = Tabs.Tools:AddButton({
                         Title = "Rejoin Game",
@@ -1637,14 +1526,16 @@ function AvHub:GUI()
                     self.toolsRemoteSpyButton = Tabs.Tools:AddButton({
                         Title = "Remote Spy",
                         Callback = function()
-                            local remoteSpyLink = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"
+                            local remoteSpyLink =
+                                "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"
                             (loadstring(game:HttpGet(remoteSpyLink)))()
                         end
                     })
                     self.toolsInfiniteYieldButton = Tabs.Tools:AddButton({
                         Title = "Infinite Yield",
                         Callback = function()
-                            local infiniteYieldLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+                            local infiniteYieldLink =
+                                "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
                             (loadstring(game:HttpGet(infiniteYieldLink)))()
                         end
                     })
@@ -1684,7 +1575,10 @@ function AvHub:GUI()
                             setclipboard(tostring(creatorid))
                         end
                     })
-                    local infodata = "User: " .. username .. " (" .. displayname .. ")" .. "\nPlayer Id: " .. playerid .. "\nAccount Age: " .. playerage .. "\nPlace Id: " .. placeid .. "\nJob Id: " .. jobid .. "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
+                    local infodata =
+                        "User: " .. username .. " (" .. displayname .. ")" .. "\nPlayer Id: " .. playerid ..
+                            "\nAccount Age: " .. playerage .. "\nPlace Id: " .. placeid .. "\nJob Id: " .. jobid ..
+                            "\nCreator Id: " .. creatorid .. " (" .. tostring(creatortype) .. ")"
                     Tabs.Tools:AddParagraph({
                         Title = "Info",
                         Content = infodata
@@ -1726,30 +1620,14 @@ function AvHub:GUI()
     end)
 
     self.autoRaidToggle:OnChanged(function()
-        if self.autoRaidToggle.Value then
-            self.manageBattleParagraph()
-            local state = true
-            self.manageRaidCoroutine(state)
-        elseif not self.autoRaidToggle.Value then
-            self.manageBattleParagraph()
-            local state = false
-            self.manageRaidCoroutine(state)
-        end
+        self.manageRaidCoroutine()
+        self.manageInfiniteCoroutine()
+        self.manageBattleParagraph()
     end)
 
     self.autoInfiniteToggle:OnChanged(function()
-        if self.autoInfiniteToggle.Value then
-            self.manageBattleParagraph()
-            local state = true
-            if isRaidActive() then
-                task.wait(1)
-            end
-            self.manageInfiniteCoroutine(state)
-        elseif not self.autoInfiniteToggle.Value then
-            self.manageBattleParagraph()
-            local state = false
-            self.manageInfiniteCoroutine(state)
-        end
+        self.manageInfiniteCoroutine()
+        self.manageRaidCoroutine()
     end)
 
     self.autoRankedToggle:OnChanged(function()
@@ -1826,14 +1704,14 @@ function AvHub:GUI()
 
     -- Configs Section
     SaveManager:SetLibrary(Fluent)
-	SaveManager:IgnoreThemeSettings()
-	SaveManager:SetFolder("UK1/acb")
-	SaveManager:BuildConfigSection(Tabs.Settings)
+    SaveManager:IgnoreThemeSettings()
+    SaveManager:SetFolder("UK1/acb")
+    SaveManager:BuildConfigSection(Tabs.Settings)
 
     -- Interface Section
-	InterfaceManager:SetLibrary(Fluent)
-	InterfaceManager:SetFolder("UK1")
-	InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+    InterfaceManager:SetLibrary(Fluent)
+    InterfaceManager:SetFolder("UK1")
+    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 
     local path = game:GetService("ReplicatedStorage").Modules.CardInfo
     local cardInfo = require(path)
@@ -1849,10 +1727,10 @@ function AvHub:GUI()
     local cardCoroutine
 
     local function getCardData()
-        for moduleKey, moduleValue in pairs(cardInfo) do        
+        for moduleKey, moduleValue in pairs(cardInfo) do
             table.insert(moduleName, moduleKey)
             moduleTable[moduleKey] = moduleValue
-    
+
             for cardName, cardDetails in pairs(moduleValue) do
                 table.insert(cardNames, cardName)
                 cardTables[cardName] = cardDetails
@@ -1867,29 +1745,28 @@ function AvHub:GUI()
         cardCoroutine = self.startFunction(cardCoroutine, getCardData)
     end
 
-    local fieldOrder = {
-        "Name", "Origin", "Series", "CardPack", "Gender", "Alignment", "Chance", "Passive", "Description"
-    }
+    local fieldOrder = {"Name", "Origin", "Series", "CardPack", "Gender", "Alignment", "Chance", "Passive",
+                        "Description"}
 
     local fieldString = ""
 
     for _, field in ipairs(fieldOrder) do
         if field == "Chance" then
-            fieldString = fieldString .. field .. ": " .. "\n"
+            fieldString = fieldString .. field .. ": " .. "1 / X" .. "\n"
         elseif field == "Description" then
             fieldString = fieldString .. field .. ":"
         else
             fieldString = fieldString .. field .. ": " .. "\n"
         end
     end
-    
+
     startGetCardData()
-    
-    selectCardDropdown = Tabs.Cards:AddDropdown("Select Card", { 
+
+    selectCardDropdown = Tabs.Cards:AddDropdown("Select Card", {
         Title = "Select Card",
         Values = cardNames,
         Multi = false,
-        Default = nil,
+        Default = nil
     })
 
     cardDataParagraph = Tabs.Cards:AddParagraph({
@@ -1944,7 +1821,7 @@ function AvHub:Start()
     antiAfk()
 
     tickCount = tick()
-    
+
     hubInit = true
     self.manageHubInfoParagraph()
 
