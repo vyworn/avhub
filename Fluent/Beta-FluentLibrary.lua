@@ -22,6 +22,7 @@ local Themes = {
         "Sakura",
         "Avalanche",
         "Theme2",
+        "SunsetBlaze",
     },
     Dark = {
         Name = "Dark",
@@ -456,7 +457,63 @@ local Themes = {
         SubText = Color3.fromRGB(230, 220, 220),  -- Light Warm White
         Hover = Color3.fromRGB(190, 60, 60),  -- Soft Crimson
         HoverChange = 0.05,
-    },    
+    },
+    SunsetBlaze = {
+        Name = "SunsetBlaze",
+        Accent = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
+    
+        AcrylicMain = Color3.fromRGB(45, 25, 25),  -- Deep Burgundy
+        AcrylicBorder = Color3.fromRGB(150, 70, 30),  -- Dark Amber
+        AcrylicGradient = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 165, 0)),  -- Fiery Orange
+            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(255, 185, 90)),  -- Warm Golden Yellow
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 100, 0)),  -- Intense Orange
+            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(210, 60, 0)),  -- Deep Sunset Red
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 30, 0)),  -- Dark Ember Red
+        },
+        AcrylicNoise = 0.92,
+    
+        TitleBarLine = Color3.fromRGB(180, 60, 30),  -- Warm Amber
+        Tab = Color3.fromRGB(160, 50, 20),  -- Deep Sunset Orange
+    
+        Element = Color3.fromRGB(255, 135, 0),  -- Bright Sunset Orange
+        ElementBorder = Color3.fromRGB(130, 40, 10),  -- Dark Firebrick
+        InElementBorder = Color3.fromRGB(150, 50, 20),  -- Warm Firebrick
+        ElementTransparency = 0.9,
+    
+        ToggleSlider = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
+        ToggleToggled = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
+        TransparenToggle = 0.7,
+    
+        SliderRail = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
+    
+        DropdownFrame = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
+        DropdownHolder = Color3.fromRGB(180, 60, 30),  -- Warm Amber
+        DropdownBorder = Color3.fromRGB(130, 30, 10),  -- Deep Sunset Red
+        DropdownOption = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
+    
+        Keybind = Color3.fromRGB(255, 100, 0),  -- Intense Orange
+    
+        Input = Color3.fromRGB(255, 100, 0),  -- Intense Orange
+        InputFocused = Color3.fromRGB(255, 185, 90),  -- Warm Golden Yellow
+        InputIndicator = Color3.fromRGB(220, 50, 10),  -- Deep Red-Orange
+        InputIndicatorFocus = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
+    
+        Dialog = Color3.fromRGB(180, 60, 30),  -- Warm Amber
+        DialogHolder = Color3.fromRGB(150, 40, 20),  -- Deep Fire Red
+        DialogHolderLine = Color3.fromRGB(120, 30, 10),  -- Dark Ember Red
+        DialogButton = Color3.fromRGB(180, 60, 30),  -- Warm Amber
+        DialogButtonBorder = Color3.fromRGB(210, 90, 50),  -- Soft Sunset Orange
+        DialogBorder = Color3.fromRGB(160, 50, 30),  -- Deep Sunset Orange
+        DialogInput = Color3.fromRGB(200, 70, 40),  -- Warm Red-Orange
+        DialogInputLine = Color3.fromRGB(255, 150, 90),  -- Soft Golden Orange
+    
+        Text = Color3.fromRGB(255, 245, 230),  -- Soft Warm White
+        SubText = Color3.fromRGB(240, 230, 210),  -- Light Warm White
+        Hover = Color3.fromRGB(255, 100, 0),  -- Intense Orange
+        HoverChange = 0.04,
+    }
+    
 }
 
 local Library = {
