@@ -22,7 +22,7 @@ local Themes = {
         "Sakura",
         "Avalanche",
         "Hellfire",
-        "Nebula".
+        "Nebula",
         "Dusk",
     },
     Dark = {

@@ -480,20 +480,20 @@ function AvHub:Function()
     end
 
     self.getSword = function()
-        obbySwordPrompt = workspace:FindFirstChild("ObbySwordPrompt")
-        swordBlock = obbySwordPrompt and obbySwordPrompt:FindFirstChild("SwordBlock")
-    
-        if swordBlock then
-            swordProximityPrompt = swordBlock:FindFirstChild("ProximityPrompt")
-    
-            if swordProximityPrompt then
-                fireproximityprompt(swordProximityPrompt)
-                task.wait(0.2)
-                canGoBack = true
-            else
-                if waitForProximityPrompt(swordBlock, 10) then
+        local obbySwordPrompt = workspace:FindFirstChild("ObbySwordPrompt")
+        if obbySwordPrompt then
+            local swordBlock = obbySwordPrompt:FindFirstChild("SwordBlock")
+            if swordBlock then
+                local swordProximityPrompt = swordBlock:FindFirstChild("ProximityPrompt")
+                if swordProximityPrompt then
+                    fireproximityprompt(swordProximityPrompt)
                     task.wait(0.2)
                     canGoBack = true
+                else
+                    if waitForProximityPrompt(swordBlock, 10) then
+                        task.wait(0.2)
+                        canGoBack = true
+                    end
                 end
             end
         end
@@ -501,66 +501,59 @@ function AvHub:Function()
     
     self.autoGetSword = function()
         while isAutoSwordActive() do
-            swordCooldown = stats:FindFirstChild("SwordObbyCD").Value
-            swordObbyCD = swordCooldown
-			if swordObbyCD == 0 then
-				grabbedSword = false
+            local swordObbyCD = stats:FindFirstChild("SwordObbyCD").Value
+            if swordObbyCD == 0 then
+                grabbedSword = false
                 teleportedBack = false
-                
+    
                 self.getPreviousPosition("Previous Position Sword")
-				task.wait(0.2)
+                task.wait(0.2)
                 self.characterTeleport(areaPositions["Sword"])
                 task.wait(0.5)
                 self.getSword()
-
-				if canGoBack and not teleportedBack then
+    
+                if canGoBack and not teleportedBack then
                     task.wait(1)
-
                     self.characterTeleport(previousPositions["Previous Position Sword"])
-
                     teleportedBack = true
                     grabbedSword = true
-					canGoBack = false
-				end
-			elseif swordObbyCD > 0 then
-				grabbedSword = true
-			end
-
-			task.wait(0.2)
-		end
+                    canGoBack = false
+                end
+            elseif swordObbyCD > 0 then
+                grabbedSword = true
+            end
+            task.wait(0.2)
+        end
     end
 
     self.getPotions = function()
-        potionCount = 0
-        local players = game:GetService("Players")
-        local player = players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-        local workspace = game:GetService("Workspace")
+        local potionCount = 0
         local activePotions = workspace:FindFirstChild("ActivePotions")
+        
+        if not activePotions then return potionCount end
     
         local function onPotionGrabbed()
             potionCount = potionCount + 1
         end
-    
-        activePotions.ChildRemoved:Connect(onPotionGrabbed)
+        
+        local connection = activePotions.ChildRemoved:Connect(onPotionGrabbed)
     
         while isAutoPotionsActive() do
             for _, potion in ipairs(activePotions:GetChildren()) do
                 local base = potion:FindFirstChild("Base")
                 if base then
-                    firetouchinterest(humanoidRootPart, base, 0)
+                    firetouchinterest(humanoidrootpart, base, 0)
                     task.wait(0.1)
-                    firetouchinterest(humanoidRootPart, base, 1)
+                    firetouchinterest(humanoidrootpart, base, 1)
                 end
                 task.wait(0.1)
             end
             task.wait(0.25)
         end
     
+        connection:Disconnect()
         return potionCount
     end
-
     self.claimDailyChest = function()
         grabbingChest = true
         self.getPreviousPosition("Previous Position Chest")
@@ -589,51 +582,47 @@ function AvHub:Function()
     end
 
     local infRunComplete = false
-    
+
     -- Battle Functions
     local function isAutoInfiniteActive()
-        local value = self.autoInfiniteToggle.Value
-		return value
-	end
-
-	local function isAutoRaidActive()
-		local value = self.autoRaidToggle.Value
-        return value
-	end
-
+        return self.autoInfiniteToggle.Value
+    end
+    
+    local function isAutoRaidActive()
+        return self.autoRaidToggle.Value
+    end
+    
     local function isAutoRankedActive()
         return self.autoRankedToggle.Value
     end
-
+    
     local function isAutoCloseResultActive()
         return self.autoCloseResultToggle.Value
     end
-
+    
     local function isAutoHideBattleActive()
         return self.autoHideBattleToggle.Value
     end
-
+    
     local function isBattleCDActive()
         return player:FindFirstChild("BattleCD") ~= nil
     end
-
+    
     local function waitForBattleCDToEnd()
         while isBattleCDActive() do
             task.wait(0.1)
         end
     end
-
+    
     local function dialogueExists()
-        return playergui:FindFirstChild("NPCDialogue") ~= nil and playergui.NPCDialogue.DialogueFrame.Visible
+        local npcDialogue = playergui:FindFirstChild("NPCDialogue")
+        return npcDialogue and npcDialogue.DialogueFrame.Visible
     end
-
+    
     local function foundDialogue()
-        if dialogueExists() then
-            return true
-        end
-		return false
-	end
-
+        return dialogueExists()
+    end
+    
     local hasSelectedOption = false
     local function handleDialogue()
         waitForBattleCDToEnd()
@@ -648,30 +637,27 @@ function AvHub:Function()
         if not responseFrame then return end
         
         local dialogueOption = responseFrame:FindFirstChild("DialogueOption")
-        if dialogueOption and dialogueOption.Visible then
-            if dialogueOption:IsDescendantOf(playergui) then
-                if not hasSelectedOption then
-                    guiservice.SelectedObject = dialogueOption
-                    hasSelectedOption = true
-                end
-                if guiservice.SelectedObject ~= nil then
-                    virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                    task.wait(0.05)
-                    virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                    hasSelectedOption = false
-                end
+        if dialogueOption and dialogueOption.Visible and dialogueOption:IsDescendantOf(playergui) then
+            if not hasSelectedOption then
+                guiservice.SelectedObject = dialogueOption
+                hasSelectedOption = true
+            end
+            if guiservice.SelectedObject then
+                virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                task.wait(0.05)
+                virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                hasSelectedOption = false
             end
         end
     end
-
+    
     local dialogueConnection
     local function waitForDialogueAndHandle()
-        for _, child in ipairs(playergui:GetChildren()) do
-            if child.Name == "NPCDialogue" then
-                handleDialogue()
-                return
-            end
+        if dialogueExists() then
+            handleDialogue()
+            return
         end
+    
         if not dialogueConnection then
             dialogueConnection = playergui.ChildAdded:Connect(function(child)
                 if child.Name == "NPCDialogue" then
@@ -682,60 +668,45 @@ function AvHub:Function()
             end)
         end
     end
-
+    
     local function isRaidComplete()
-        raidDamageTracker = stats:FindFirstChild("RaidDamageTracker").Value
-
-		return raidDamageTracker >= damageThreshold
-    end
-
-    local function isRaidActive()
-        local raidBar = playergui:FindFirstChild("RaidBar")
-        local raidBarRaidActive = raidBar:FindFirstChild("RaidActive")
-        local raidActiveValue = raidBarRaidActive.Visible
-
-        if raidActiveValue then
-            return true
-        else
-            return false
+        local raidDamageTracker = stats:FindFirstChild("RaidDamageTracker")
+        if raidDamageTracker then
+            return raidDamageTracker.Value >= damageThreshold
         end
-
         return false
     end
-
+    
+    local function isRaidActive()
+        local raidBar = playergui:FindFirstChild("RaidBar")
+        local raidActive = raidBar and raidBar:FindFirstChild("RaidActive")
+        return raidActive and raidActive.Visible
+    end
+    
     local function canRaidCheck()
         return isRaidActive() and isAutoRaidActive() and not isRaidComplete()
     end
-
+    
     local function canInfiniteCheck()
         return isAutoInfiniteActive() and (not isAutoRaidActive() or isRaidComplete() or not isRaidActive())
     end
-
+    
     local function toggleProgressBar()
         local raidBar = playergui:FindFirstChild("RaidBar")
-        local pb = raidBar:FindFirstChild("RaidBar")
+        local pb = raidBar and raidBar:FindFirstChild("RaidBar")
         if pb then
-            if canRaidCheck() then
-                pb.Visible = true
-            elseif not canRaidCheck() then
-                pb.Visible = false
-            end
+            pb.Visible = canRaidCheck()
         end
     end
-
+    
     local function isInVicinity(targetName, margin)
         local targetPosition = battlePositions[targetName]
-
-        if not targetPosition then
-            return false
-        end
-
+        if not targetPosition then return false end
+    
         local playerPosition = humanoidrootpart.Position
-        local distance = (playerPosition - targetPosition).Magnitude
-
-        return distance <= margin
+        return (playerPosition - targetPosition).Magnitude <= margin
     end
-
+    
     local function canTeleport(targetName)
         if targetName == "Adaptive Titan" and (not canRaidCheck() or canInfiniteCheck()) then
             return
@@ -747,24 +718,15 @@ function AvHub:Function()
             waitUntil(hasGrabbedSword)
         end
         waitUntil(function() return not isGrabbingChest() end)
-    
+        
         self.characterTeleport(battlePositions[targetName])
     end
     
     self.isInInfiniteBattle = function()
         local battleTowerStat = stats:FindFirstChild("BattleTower")
-        local isInBattle = battleTowerStat and battleTowerStat.Value
-        if battleTowerStat then
-            if isInBattle then
-                return true
-            end
-
-            return false 
-        end
-        
-        return false
+        return battleTowerStat and battleTowerStat.Value
     end
-
+    
     self.isInRaidBattle = function()
         local battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
         if not battleLabel or battleLabel.Text ~= "CURRENTLY IN BATTLE" then
@@ -773,29 +735,16 @@ function AvHub:Function()
     
         local battleMenu = playergui:FindFirstChild("BattleMenu")
         local battle = battleMenu and battleMenu:FindFirstChild("Battle")
-        local enemyCard = battle and battle:FindFirstChild("EnemyCard")
-        local libraryFrame = enemyCard and enemyCard:FindFirstChild("LibraryFrame")
-        local cardName = libraryFrame and libraryFrame:FindFirstChild("CardName")
-        
-        if not cardName or cardName.Text ~= "Adaptive Titan" then
-            return false
-        end
+        local cardName = battle and battle:FindFirstChild("EnemyCard")
+            and battle:FindFirstChild("LibraryFrame")
+            and battle:FindFirstChild("CardName")
+            and battle:FindFirstChild("CardName").Text
     
-        local enemyParty = battle and battle:FindFirstChild("EnemyParty")
-        return enemyParty and #enemyParty:GetChildren() == 2
+        return cardName == "Adaptive Titan" and #battle:FindFirstChild("EnemyParty"):GetChildren() == 2
     end
     
     local function waitForBattleToEnd(battleType)
-        local checkFunction
-        
-        if battleType == "raid" then
-            checkFunction = self.isInRaidBattle
-        elseif battleType == "infinite" then
-            checkFunction = self.isInInfiniteBattle
-        else
-            error("Invalid battle type. Use 'raid' or 'infinite'.")
-        end
-    
+        local checkFunction = (battleType == "raid") and self.isInRaidBattle or self.isInInfiniteBattle
         while checkFunction() do
             task.wait(0.5)
         end
@@ -803,45 +752,39 @@ function AvHub:Function()
     
     local function giveUpInfinite(child)
         if child.Name == "BATTLETOWERUI" then
-            local background = child:FindFirstChild("Background")
-            if background then
-                local giveUpButton = background:FindFirstChild("GiveUp")
-                if giveUpButton then
-                    guiservice.SelectedObject = giveUpButton
-                    virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                    task.wait(0.1)
-                    virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                end
+            local giveUpButton = child:FindFirstChild("Background"):FindFirstChild("GiveUp")
+            if giveUpButton then
+                guiservice.SelectedObject = giveUpButton
+                virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                task.wait(0.1)
+                virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
             end
         end
     end
     
     self.cancelInfiniteBattle = function()
+        if not self.isInInfiniteBattle() then return end
+    
         local towerConnection
-
-        if not self.isInInfiniteBattle() then
-            return
-        end
-
         towerConnection = playergui.ChildAdded:Connect(function(child)
             if not canInfiniteCheck() then
                 giveUpInfinite(child)
-
                 if not self.isInInfiniteBattle() then
                     towerConnection:Disconnect()
+                    towerConnection = nil
                 end
             end
         end)
     end
-
+    
     self.autoRaid = function()
         task.wait(1)
         while isAutoRaidActive() do
             if canRaidCheck() then
                 toggleProgressBar()
-            
+    
                 if self.isInInfiniteBattle() then
-                    isInfRunComplete = false
+                    infRunComplete = false
                     self.cancelInfiniteBattle()
                     waitForBattleToEnd("infinite")
                 end
@@ -855,45 +798,31 @@ function AvHub:Function()
                 end
     
                 local titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
-    
                 if titanHRP then
                     waitForBattleToEnd("raid")
-    
                     while not waitForProximityPrompt(titanHRP, 10) do
-                        if not canRaidCheck() then 
-                            break 
-                        end
+                        if not canRaidCheck() then break end
                         task.wait(0.1)
                     end
                 end
     
                 repeat
-                    if not canRaidCheck() then
-                        break
-                    end
-                
-                    if self.isInRaidBattle() then
-                        break
-                    end
-                
+                    if not canRaidCheck() or self.isInRaidBattle() then break end
                     if foundDialogue() then
                         handleDialogue()
-                    elseif not foundDialogue() then
+                    else
                         waitUntil(function() return not foundDialogue() end)
                         waitForDialogueAndHandle()
                     end
-                
                     task.wait(0.5)
                 until self.isInRaidBattle()
     
                 guiservice.SelectedObject = nil
                 local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-    
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
                 end
             end
-    
             task.wait(0.5)
         end
     end
@@ -909,81 +838,46 @@ function AvHub:Function()
                         canTeleport("Heaven Infinite")
                     end
                 end
-
+    
                 if self.isInInfiniteBattle() then
-                    isInfRunComplete = false
+                    infRunComplete = false
                     waitForBattleToEnd("infinite")
                 else
-                    isInfRunComplete = true
+                    infRunComplete = true
                 end
-
+    
                 toggleProgressBar()
-
+    
                 local davidHRP = waitForTarget("David", gamenpcs, 10)
-
                 if davidHRP then
                     waitForBattleToEnd("infinite")
-
                     while not waitForProximityPrompt(davidHRP, 10) do
-                        if not canInfiniteCheck() then
-                            break
-                        end
+                        if not canInfiniteCheck() then break end
                         task.wait(0.1)
                     end
                 end
-
+    
                 repeat
-                    if canRaidCheck() then
-                        return
-                    end
-
-                    if not canInfiniteCheck() then
-                        break
-                    end
-
+                    if canRaidCheck() then return end
+                    if not canInfiniteCheck() then break end
                     if foundDialogue() then
                         handleDialogue()
-                    elseif not foundDialogue() then
+                    else
                         waitUntil(function() return not foundDialogue() end)
                         waitForDialogueAndHandle()
                     end
-
                     task.wait(0.1)
                 until self.isInInfiniteBattle()
-
+    
                 guiservice.SelectedObject = nil
-                closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-
+                local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
                 if guiservice.SelectedObject == closeLb then
                     guiservice.SelectedObject = nil
                 end
             end
             task.wait(0.5)
         end
-    end
-
-    self.autoRanked = function()
-        rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
-
-        while isAutoRankedActive() do
-            if not isAutoRankedActive() then
-                break
-            end
-
-            BATTLETOWERUI = playergui:FindFirstChild("BATTLETOWERUI")
-            if not BATTLETOWERUI then
-                local success, result = pcall(function()
-					return rankedRemote:FireServer("Queue")
-				end)
-
-				task.wait(0.1)
-            else
-                task.wait(1)
-            end
-
-            task.wait(0.1)
-        end
-    end
+    end    
 
     self.autoCloseResult = function()
         local connection
@@ -1017,7 +911,6 @@ function AvHub:Function()
             if hideBattle then
                 hideBattle.Value = true
             end
-
             task.wait(1)
         end
     end
@@ -1357,7 +1250,7 @@ function AvHub:GUI()
     -- GUI Information
 	local Options = Fluent.Options
 	local version = "test-build"
-    local release = "alpha"
+    local release = "experimental"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
 
