@@ -21,8 +21,9 @@ local Themes = {
         "Rose",
         "Sakura",
         "Avalanche",
-        "Theme2",
-        "SunsetBlaze",
+        "Hellfire",
+        "Nebula".
+        "Dusk",
     },
     Dark = {
         Name = "Dark",
@@ -403,63 +404,8 @@ local Themes = {
         Hover = Color3.fromRGB(150, 190, 240),  -- Soft Blue
         HoverChange = 0.05,
     },
-    Theme2 = {
-        Name = "Theme2",
-        Accent = Color3.fromRGB(220, 80, 80),  -- Ember Red
-    
-        AcrylicMain = Color3.fromRGB(45, 30, 30),  -- Deep Maroon
-        AcrylicBorder = Color3.fromRGB(90, 70, 70),  -- Dark Burgundy
-        AcrylicGradient = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 80, 80)),  -- Ember Red
-            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(240, 130, 100)),  -- Warm Ember Orange
-            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(190, 60, 60)),  -- Soft Crimson
-            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(140, 50, 50)),  -- Deep Ruby
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 30, 30)),  -- Dark Maroon
-        },
-        AcrylicNoise = 0.85,
-    
-        TitleBarLine = Color3.fromRGB(160, 90, 90),  -- Warm Ruby
-        Tab = Color3.fromRGB(140, 70, 70),  -- Deep Crimson
-    
-        Element = Color3.fromRGB(200, 120, 120),  -- Soft Burgundy
-        ElementBorder = Color3.fromRGB(150, 80, 80),  -- Warm Ember Red
-        InElementBorder = Color3.fromRGB(170, 90, 90),  -- Light Burgundy
-        ElementTransparency = 0.85,
-    
-        ToggleSlider = Color3.fromRGB(220, 80, 80),  -- Ember Red
-        ToggleToggled = Color3.fromRGB(220, 80, 80),  -- Ember Red
-        TransparenToggle = 0.75,
-    
-        SliderRail = Color3.fromRGB(220, 80, 80),  -- Ember Red
-    
-        DropdownFrame = Color3.fromRGB(220, 80, 80),  -- Ember Red
-        DropdownHolder = Color3.fromRGB(170, 90, 90),  -- Light Burgundy
-        DropdownBorder = Color3.fromRGB(130, 60, 60),  -- Deep Crimson
-        DropdownOption = Color3.fromRGB(220, 80, 80),  -- Ember Red
-    
-        Keybind = Color3.fromRGB(190, 60, 60),  -- Soft Crimson
-    
-        Input = Color3.fromRGB(190, 60, 60),  -- Soft Crimson
-        InputFocused = Color3.fromRGB(240, 130, 100),  -- Warm Ember Orange
-        InputIndicator = Color3.fromRGB(160, 50, 50),  -- Dark Ruby
-        InputIndicatorFocus = Color3.fromRGB(220, 80, 80),  -- Ember Red
-    
-        Dialog = Color3.fromRGB(160, 90, 90),  -- Warm Ruby
-        DialogHolder = Color3.fromRGB(130, 60, 60),  -- Deep Crimson
-        DialogHolderLine = Color3.fromRGB(120, 50, 50),  -- Dark Maroon
-        DialogButton = Color3.fromRGB(160, 90, 90),  -- Warm Ruby
-        DialogButtonBorder = Color3.fromRGB(180, 110, 110),  -- Soft Burgundy
-        DialogBorder = Color3.fromRGB(150, 70, 70),  -- Warm Ember Red
-        DialogInput = Color3.fromRGB(170, 90, 90),  -- Light Burgundy
-        DialogInputLine = Color3.fromRGB(240, 120, 120),  -- Warm Ember Red
-    
-        Text = Color3.fromRGB(250, 240, 240),  -- Soft Warm White
-        SubText = Color3.fromRGB(230, 220, 220),  -- Light Warm White
-        Hover = Color3.fromRGB(190, 60, 60),  -- Soft Crimson
-        HoverChange = 0.05,
-    },
-    SunsetBlaze = {
-        Name = "SunsetBlaze",
+    Hellfire = {
+        Name = "Hellfire",
         Accent = Color3.fromRGB(255, 165, 0),  -- Fiery Orange
     
         AcrylicMain = Color3.fromRGB(45, 25, 25),  -- Deep Burgundy
@@ -512,8 +458,117 @@ local Themes = {
         SubText = Color3.fromRGB(240, 230, 210),  -- Light Warm White
         Hover = Color3.fromRGB(255, 100, 0),  -- Intense Orange
         HoverChange = 0.04,
-    }
+    },
+    Nebula = {
+        Name = "Nebula",
+        Accent = Color3.fromRGB(200, 80, 180),  -- Nebula Purple
     
+        AcrylicMain = Color3.fromRGB(20, 20, 40),  -- Deep Space Blue
+        AcrylicBorder = Color3.fromRGB(50, 30, 90),  -- Cosmic Blue
+        AcrylicGradient = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 80, 180)),  -- Nebula Purple
+            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(150, 60, 200)),  -- Deep Magenta
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(80, 60, 160)),  -- Cosmic Blue
+            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(40, 40, 120)),  -- Deep Twilight Blue
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 40)),  -- Deep Space Blue
+        },
+        AcrylicNoise = 0.95,
+    
+        TitleBarLine = Color3.fromRGB(130, 90, 190),  -- Nebula Purple
+        Tab = Color3.fromRGB(100, 70, 170),  -- Deep Magenta
+    
+        Element = Color3.fromRGB(150, 100, 220),  -- Cosmic Purple
+        ElementBorder = Color3.fromRGB(80, 60, 160),  -- Cosmic Blue
+        InElementBorder = Color3.fromRGB(100, 70, 180),  -- Nebula Violet
+        ElementTransparency = 0.9,
+    
+        ToggleSlider = Color3.fromRGB(200, 80, 180),  -- Nebula Purple
+        ToggleToggled = Color3.fromRGB(200, 80, 180),  -- Nebula Purple
+        TransparenToggle = 0.7,
+    
+        SliderRail = Color3.fromRGB(200, 80, 180),  -- Nebula Purple
+    
+        DropdownFrame = Color3.fromRGB(200, 80, 180),  -- Nebula Purple
+        DropdownHolder = Color3.fromRGB(100, 60, 150),  -- Deep Magenta
+        DropdownBorder = Color3.fromRGB(80, 50, 130),  -- Cosmic Violet
+        DropdownOption = Color3.fromRGB(200, 80, 180),  -- Nebula Purple
+    
+        Keybind = Color3.fromRGB(160, 80, 200),  -- Deep Magenta
+    
+        Input = Color3.fromRGB(160, 80, 200),  -- Deep Magenta
+        InputFocused = Color3.fromRGB(230, 100, 240),  -- Bright Nebula Pink
+        InputIndicator = Color3.fromRGB(120, 60, 180),  -- Nebula Violet
+        InputIndicatorFocus = Color3.fromRGB(200, 80, 180),  -- Nebula Purple
+    
+        Dialog = Color3.fromRGB(130, 90, 190),  -- Nebula Purple
+        DialogHolder = Color3.fromRGB(100, 60, 150),  -- Deep Magenta
+        DialogHolderLine = Color3.fromRGB(70, 40, 120),  -- Cosmic Violet
+        DialogButton = Color3.fromRGB(130, 90, 190),  -- Nebula Purple
+        DialogButtonBorder = Color3.fromRGB(150, 110, 220),  -- Cosmic Purple
+        DialogBorder = Color3.fromRGB(100, 70, 170),  -- Deep Magenta
+        DialogInput = Color3.fromRGB(120, 60, 180),  -- Nebula Violet
+        DialogInputLine = Color3.fromRGB(200, 100, 220),  -- Cosmic Magenta
+    
+        Text = Color3.fromRGB(240, 240, 255),  -- Starlight White
+        SubText = Color3.fromRGB(220, 220, 240),  -- Light Frosted White
+        Hover = Color3.fromRGB(150, 100, 220),  -- Cosmic Purple
+        HoverChange = 0.04,
+    },    
+    Dusk = {
+        Name = "Dusk",
+        Accent = Color3.fromRGB(70, 130, 180),  -- Twilight Blue
+    
+        AcrylicMain = Color3.fromRGB(20, 40, 50),  -- Deep Teal
+        AcrylicBorder = Color3.fromRGB(60, 100, 120),  -- Cool Ocean Blue
+        AcrylicGradient = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 130, 180)),  -- Twilight Blue
+            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(100, 160, 200)),  -- Soft Ocean Blue
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(120, 100, 180)),  -- Soft Lavender
+            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(90, 70, 150)),  -- Dusky Purple
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 40, 90)),  -- Deep Teal
+        },
+        AcrylicNoise = 0.92,
+    
+        TitleBarLine = Color3.fromRGB(90, 130, 160),  -- Cool Ocean Blue
+        Tab = Color3.fromRGB(80, 120, 150),  -- Soft Ocean Blue
+    
+        Element = Color3.fromRGB(120, 160, 200),  -- Twilight Blue
+        ElementBorder = Color3.fromRGB(70, 100, 130),  -- Cool Ocean Blue
+        InElementBorder = Color3.fromRGB(90, 130, 170),  -- Soft Twilight Blue
+        ElementTransparency = 0.9,
+    
+        ToggleSlider = Color3.fromRGB(70, 130, 180),  -- Twilight Blue
+        ToggleToggled = Color3.fromRGB(70, 130, 180),  -- Twilight Blue
+        TransparenToggle = 0.7,
+    
+        SliderRail = Color3.fromRGB(70, 130, 180),  -- Twilight Blue
+    
+        DropdownFrame = Color3.fromRGB(70, 130, 180),  -- Twilight Blue
+        DropdownHolder = Color3.fromRGB(80, 120, 150),  -- Soft Ocean Blue
+        DropdownBorder = Color3.fromRGB(60, 90, 120),  -- Cool Ocean Blue
+        DropdownOption = Color3.fromRGB(70, 130, 180),  -- Twilight Blue
+    
+        Keybind = Color3.fromRGB(120, 100, 180),  -- Soft Lavender
+    
+        Input = Color3.fromRGB(120, 100, 180),  -- Soft Lavender
+        InputFocused = Color3.fromRGB(140, 120, 200),  -- Soft Dusky Purple
+        InputIndicator = Color3.fromRGB(100, 80, 160),  -- Dusky Purple
+        InputIndicatorFocus = Color3.fromRGB(70, 130, 180),  -- Twilight Blue
+    
+        Dialog = Color3.fromRGB(90, 130, 160),  -- Cool Ocean Blue
+        DialogHolder = Color3.fromRGB(70, 100, 130),  -- Cool Twilight Blue
+        DialogHolderLine = Color3.fromRGB(50, 70, 90),  -- Deep Teal
+        DialogButton = Color3.fromRGB(90, 130, 160),  -- Cool Ocean Blue
+        DialogButtonBorder = Color3.fromRGB(100, 140, 180),  -- Soft Twilight Blue
+        DialogBorder = Color3.fromRGB(80, 120, 150),  -- Soft Ocean Blue
+        DialogInput = Color3.fromRGB(100, 80, 160),  -- Dusky Purple
+        DialogInputLine = Color3.fromRGB(140, 160, 200),  -- Soft Dusky Purple
+    
+        Text = Color3.fromRGB(230, 240, 250),  -- Soft Light Blue
+        SubText = Color3.fromRGB(210, 220, 230),  -- Light Frost Blue
+        Hover = Color3.fromRGB(120, 160, 200),  -- Twilight Blue
+        HoverChange = 0.04,
+    },    
 }
 
 local Library = {

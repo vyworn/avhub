@@ -1353,9 +1353,9 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.5.7"
-    local release = "test" .. "_1a"
-    local versionStr = "v_" .. version .. " : " .. release
+	local version = "test-build"
+    local release = "1-A"
+    local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
 
     -- Main Tab
