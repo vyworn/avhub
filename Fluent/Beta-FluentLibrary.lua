@@ -21,11 +21,7 @@ local Themes = {
         "Rose",
         "Sakura",
         "Avalanche",
-        "Emerald",
-        "Crimson",
-        "Hallow",
-        "Sun",
-        "Dusk",
+        "Theme2",
     },
     Dark = {
         Name = "Dark",
@@ -406,61 +402,61 @@ local Themes = {
         Hover = Color3.fromRGB(150, 190, 240),  -- Soft Blue
         HoverChange = 0.05,
     },
-    Crimson = {
-        Name = "Crimson",
-        Accent = Color3.fromRGB(231, 76, 60),
+    Theme2 = {
+        Name = "Theme2",
+        Accent = Color3.fromRGB(220, 80, 80),  -- Ember Red
     
-        AcrylicMain = Color3.fromRGB(40, 40, 40),
-        AcrylicBorder = Color3.fromRGB(115, 38, 30),
+        AcrylicMain = Color3.fromRGB(45, 30, 30),  -- Deep Maroon
+        AcrylicBorder = Color3.fromRGB(90, 70, 70),  -- Dark Burgundy
         AcrylicGradient = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(231, 76, 60)),
-            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(241, 148, 138)),
-            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(203, 67, 53)),
-            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(176, 58, 46)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 31)),
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 80, 80)),  -- Ember Red
+            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(240, 130, 100)),  -- Warm Ember Orange
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(190, 60, 60)),  -- Soft Crimson
+            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(140, 50, 50)),  -- Deep Ruby
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 30, 30)),  -- Dark Maroon
         },
-        AcrylicNoise = 0.92,
+        AcrylicNoise = 0.85,
     
-        TitleBarLine = Color3.fromRGB(161, 53, 42),
-        Tab = Color3.fromRGB(115, 38, 30),
+        TitleBarLine = Color3.fromRGB(160, 90, 90),  -- Warm Ruby
+        Tab = Color3.fromRGB(140, 70, 70),  -- Deep Crimson
     
-        Element = Color3.fromRGB(236, 112, 99),
-        ElementBorder = Color3.fromRGB(138, 45, 36),
-        InElementBorder = Color3.fromRGB(161, 53, 42),
-        ElementTransparency = 0.9,
+        Element = Color3.fromRGB(200, 120, 120),  -- Soft Burgundy
+        ElementBorder = Color3.fromRGB(150, 80, 80),  -- Warm Ember Red
+        InElementBorder = Color3.fromRGB(170, 90, 90),  -- Light Burgundy
+        ElementTransparency = 0.85,
     
-        ToggleSlider = Color3.fromRGB(231, 76, 60),
-        ToggleToggled = Color3.fromRGB(231, 76, 60),
-        TransparenToggle = 0.7,
+        ToggleSlider = Color3.fromRGB(220, 80, 80),  -- Ember Red
+        ToggleToggled = Color3.fromRGB(220, 80, 80),  -- Ember Red
+        TransparenToggle = 0.75,
     
-        SliderRail = Color3.fromRGB(231, 76, 60),
+        SliderRail = Color3.fromRGB(220, 80, 80),  -- Ember Red
     
-        DropdownFrame = Color3.fromRGB(231, 76, 60),
-        DropdownHolder = Color3.fromRGB(184, 61, 48),
-        DropdownBorder = Color3.fromRGB(115, 38, 30),
-        DropdownOption = Color3.fromRGB(184, 76, 60),
+        DropdownFrame = Color3.fromRGB(220, 80, 80),  -- Ember Red
+        DropdownHolder = Color3.fromRGB(170, 90, 90),  -- Light Burgundy
+        DropdownBorder = Color3.fromRGB(130, 60, 60),  -- Deep Crimson
+        DropdownOption = Color3.fromRGB(220, 80, 80),  -- Ember Red
     
-        Keybind = Color3.fromRGB(236, 112, 99),
+        Keybind = Color3.fromRGB(190, 60, 60),  -- Soft Crimson
     
-        Input = Color3.fromRGB(236, 112, 99),
-        InputFocused = Color3.fromRGB(200, 200, 200),
-        InputIndicator = Color3.fromRGB(233, 94, 80),
-        InputIndicatorFocus = Color3.fromRGB(231, 76, 60),
+        Input = Color3.fromRGB(190, 60, 60),  -- Soft Crimson
+        InputFocused = Color3.fromRGB(240, 130, 100),  -- Warm Ember Orange
+        InputIndicator = Color3.fromRGB(160, 50, 50),  -- Dark Ruby
+        InputIndicatorFocus = Color3.fromRGB(220, 80, 80),  -- Ember Red
     
-        Dialog = Color3.fromRGB(161, 53, 42),
-        DialogHolder = Color3.fromRGB(138, 45, 36),
-        DialogHolderLine = Color3.fromRGB(115, 38, 30),
-        DialogButton = Color3.fromRGB(161, 53, 42),
-        DialogButtonBorder = Color3.fromRGB(208, 68, 54),
-        DialogBorder = Color3.fromRGB(138, 45, 36),
-        DialogInput = Color3.fromRGB(184, 61, 48),
-        DialogInputLine = Color3.fromRGB(233, 94, 80),
+        Dialog = Color3.fromRGB(160, 90, 90),  -- Warm Ruby
+        DialogHolder = Color3.fromRGB(130, 60, 60),  -- Deep Crimson
+        DialogHolderLine = Color3.fromRGB(120, 50, 50),  -- Dark Maroon
+        DialogButton = Color3.fromRGB(160, 90, 90),  -- Warm Ruby
+        DialogButtonBorder = Color3.fromRGB(180, 110, 110),  -- Soft Burgundy
+        DialogBorder = Color3.fromRGB(150, 70, 70),  -- Warm Ember Red
+        DialogInput = Color3.fromRGB(170, 90, 90),  -- Light Burgundy
+        DialogInputLine = Color3.fromRGB(240, 120, 120),  -- Warm Ember Red
     
-        Text = Color3.fromRGB(240, 240, 240),
-        SubText = Color3.fromRGB(220, 220, 220),
-        Hover = Color3.fromRGB(236, 112, 99),
-        HoverChange = 0.04,
-    },
+        Text = Color3.fromRGB(250, 240, 240),  -- Soft Warm White
+        SubText = Color3.fromRGB(230, 220, 220),  -- Light Warm White
+        Hover = Color3.fromRGB(190, 60, 60),  -- Soft Crimson
+        HoverChange = 0.05,
+    },    
 }
 
 local Library = {
