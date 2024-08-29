@@ -625,7 +625,7 @@ function AvHub:Function()
     
     local hasSelectedOption = false
     local function handleDialogue()
-        waitForBattleCDToEnd()
+        task.wait(1)
         
         local npcDialogue = playergui:FindFirstChild("NPCDialogue")
         if not npcDialogue then return end
@@ -778,8 +778,8 @@ function AvHub:Function()
     end
     
     self.autoRaid = function()
-        task.wait(1)
         while isAutoRaidActive() do
+            task.wait(1)
             if canRaidCheck() then
                 toggleProgressBar()
     
@@ -802,7 +802,7 @@ function AvHub:Function()
                     waitForBattleToEnd("raid")
                     while not waitForProximityPrompt(titanHRP, 10) do
                         if not canRaidCheck() then break end
-                        task.wait(0.1)
+                        task.wait(0.2)
                     end
                 end
     
@@ -813,8 +813,9 @@ function AvHub:Function()
                     else
                         waitUntil(function() return not foundDialogue() end)
                         waitForDialogueAndHandle()
+                        break
                     end
-                    task.wait(0.5)
+                    task.wait(1)
                 until self.isInRaidBattle()
     
                 guiservice.SelectedObject = nil
@@ -823,12 +824,13 @@ function AvHub:Function()
                     guiservice.SelectedObject = nil
                 end
             end
-            task.wait(0.5)
         end
     end
     
     self.autoInfinite = function()
+        task.wait(1)
         while isAutoInfiniteActive() do
+            task.wait(1)
             if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
                 self.cancelInfiniteBattle()
                 break
@@ -853,7 +855,7 @@ function AvHub:Function()
                     waitForBattleToEnd("infinite")
                     while not waitForProximityPrompt(davidHRP, 10) do
                         if not canInfiniteCheck() then break end
-                        task.wait(0.1)
+                        task.wait(0.2)
                     end
                 end
     
@@ -865,8 +867,9 @@ function AvHub:Function()
                     else
                         waitUntil(function() return not foundDialogue() end)
                         waitForDialogueAndHandle()
+                        break
                     end
-                    task.wait(0.1)
+                    task.wait(1)
                 until self.isInInfiniteBattle()
     
                 guiservice.SelectedObject = nil
@@ -875,7 +878,6 @@ function AvHub:Function()
                     guiservice.SelectedObject = nil
                 end
             end
-            task.wait(0.5)
         end
     end    
 
