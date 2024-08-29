@@ -960,19 +960,12 @@ function AvHub:Function()
 
     self.updateBattleParagraph = function()
         while isAutoRaidActive() or isAutoInfiniteActive() do
-            if previousRunDamage ~= raidDamageTracker then
-                raidDamageTracker = stats.RaidDamageTracker.Value
-                damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
-
-                if damageDealt == raidDamageTracker then
-                    damageDealt = 0
-                else
-                    damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
-                end
-
-                previousRunDamage = raidDamageTracker
-            end
-
+            raidDamageTracker = stats.RaidDamageTracker.Value
+            
+            damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+            
+            previousRunDamage = raidDamageTracker
+            
             formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
             formattedThreshold = formatNumberWithCommas(damageThreshold)
             formattedDamageDealt = formatNumberWithCommas(damageDealt)
