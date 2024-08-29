@@ -326,7 +326,7 @@ local damageThreshold = 1000000
 local davidNPC, davidHRP, davidProximityPrompt
 local titanBoss, titanHRP, titanProximityPrompt 
 local npcDialogue, dialogueFrame, responseFrame, dialogueOption
-local battleLabel, closeLb
+local battleLabel
 local hideBattle
 local BATTLETOWERUI
 local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
@@ -622,7 +622,7 @@ function AvHub:Function()
     local hasSelectedOption = false
     local function handleDialogue()
         task.wait(1)
-        
+
         local npcDialogue = playergui:FindFirstChild("NPCDialogue")
         if not npcDialogue then return end
         
@@ -643,6 +643,12 @@ function AvHub:Function()
                 task.wait(0.05)
                 virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                 hasSelectedOption = false
+
+                task.wait(0.5)
+                local closeLb = playergui:FindFirstChild("LeaderBoard"):FindFirstChild("LeaderHolder"):FindFirstChild("CloseUI")
+                if guiservice.SelectedObject == closeLb then 
+                    guiservice.SelectedObject = nil
+                end
             end
         end
     end
@@ -1253,9 +1259,9 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "test-build"
-    local release = "experimental"
-    local versionStr = "v_" .. version .. "_" .. release
+	local version = "experimental"
+    local release = "test-build_" .. "v1"
+    local versionStr = version .. "_" .. release
 	local devs = "Av"
 
     -- Main Tab
