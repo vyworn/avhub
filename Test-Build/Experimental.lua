@@ -821,9 +821,12 @@ function AvHub:Function()
                     task.wait(1)
                 until self.isInRaidBattle()
     
-                local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-                if guiservice.SelectedObject == closeLb then 
-                    guiservice.SelectedObject = nil
+                task.wait(0.5)
+                if self.isInRaidBattle() then
+                    local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
+                    if guiservice.SelectedObject == closeLb then 
+                        guiservice.SelectedObject = nil
+                    end
                 end
             end
         end
@@ -874,9 +877,12 @@ function AvHub:Function()
                     task.wait(1)
                 until self.isInInfiniteBattle()
     
-                local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-                if guiservice.SelectedObject == closeLb then
-                    guiservice.SelectedObject = nil
+                task.wait(0.5)
+                if self.isInInfiniteBattle() then
+                    local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
+                    if guiservice.SelectedObject == closeLb then 
+                        guiservice.SelectedObject = nil
+                    end
                 end
             end
         end
