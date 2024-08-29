@@ -617,14 +617,14 @@ function AvHub:Function()
         return player:FindFirstChild("BattleCD") ~= nil
     end
 
-    local function isInfRunComplete()
-        return infRunComplete
-    end
-
     local function waitForBattleCDToEnd()
         while isBattleCDActive() do
             task.wait(0.1)
         end
+    end
+
+    local function dialogueExists()
+        return playergui:FindFirstChild("NPCDialogue") ~= nil and playergui.NPCDialogue.DialogueFrame.Visible
     end
 
     local function foundDialogue()
@@ -658,7 +658,6 @@ function AvHub:Function()
                     virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                     task.wait(0.05)
                     virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                    dialogueConnection = nil
                     hasSelectedOption = false
                 end
             end
@@ -678,6 +677,7 @@ function AvHub:Function()
                 if child.Name == "NPCDialogue" then
                     handleDialogue()
                     dialogueConnection:Disconnect()
+                    dialogueConnection = nil
                 end
             end)
         end
@@ -826,7 +826,10 @@ function AvHub:Function()
         towerConnection = playergui.ChildAdded:Connect(function(child)
             if not canInfiniteCheck() then
                 giveUpInfinite(child)
-                towerConnection:Disconnect()
+
+                if not self.isInInfiniteBattle() then
+                    towerConnection:Disconnect()
+                end
             end
         end)
     end
@@ -838,6 +841,7 @@ function AvHub:Function()
                 toggleProgressBar()
             
                 if self.isInInfiniteBattle() then
+                    isInfRunComplete = false
                     self.cancelInfiniteBattle()
                     waitForBattleToEnd("infinite")
                 end
@@ -906,6 +910,13 @@ function AvHub:Function()
                     end
                 end
 
+                if self.isInInfiniteBattle() then
+                    isInfRunComplete = false
+                    waitForBattleToEnd("infinite")
+                else
+                    isInfRunComplete = true
+                end
+
                 toggleProgressBar()
 
                 local davidHRP = waitForTarget("David", gamenpcs, 10)
@@ -927,10 +938,6 @@ function AvHub:Function()
                     end
 
                     if not canInfiniteCheck() then
-                        break
-                    end
-
-                    if self.isInInfiniteBattle() then
                         break
                     end
 
@@ -1042,7 +1049,7 @@ function AvHub:Function()
             end
         end
 
-        if isInfRunComplete() then
+        if isInfRunComplete then
             previousRunFloor = currentRunFloor
             currentRunFloor = nil
         end
@@ -1349,8 +1356,8 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.6.0"
-    local release = "beta"
+	local version = "test-build"
+    local release = "alpha"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
 

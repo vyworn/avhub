@@ -43,7 +43,7 @@ local gamenpcs = workspace:WaitForChild("NPCs")
 local gamebosses = workspace:WaitForChild("Bosses")
 
 -- Libraries
-local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/update/Fluent/Beta-FluentLibrary.lua")))()
+local Fluent = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-FluentLibrary.lua")))()
 local InterfaceManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-InterfaceManager.lua")))()
 local SaveManager = (loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/avhub/main/Fluent/Beta-SaveManager.lua")))()
 
@@ -336,7 +336,7 @@ local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 -- Paragraph Variables
 local hubInfoParagraph, farmParagraph, battleParagraph  
 local tickCount, uptimeInSeconds, hours, minutes, seconds
-local uptimeText = "N/Ah N/Am N/As"
+local uptimeText = "N/A hours N/A minutes N/A seconds"
 local timeLeft
 local damageDealt, previousRunDamage = 0, 0
 local battleLabelText, raidText
@@ -588,8 +588,6 @@ function AvHub:Function()
         self.characterTeleport(previousPositions["Previous Position Chest"])
     end
 
-    local infRunComplete = false
-    
     -- Battle Functions
     local function isAutoInfiniteActive()
         local value = self.autoInfiniteToggle.Value
@@ -617,14 +615,14 @@ function AvHub:Function()
         return player:FindFirstChild("BattleCD") ~= nil
     end
 
-    local function isInfRunComplete()
-        return infRunComplete
-    end
-
     local function waitForBattleCDToEnd()
         while isBattleCDActive() do
             task.wait(0.1)
         end
+    end
+
+    local function dialogueExists()
+        return playergui:FindFirstChild("NPCDialogue") ~= nil and playergui.NPCDialogue.DialogueFrame.Visible
     end
 
     local function foundDialogue()
@@ -826,7 +824,10 @@ function AvHub:Function()
         towerConnection = playergui.ChildAdded:Connect(function(child)
             if not canInfiniteCheck() then
                 giveUpInfinite(child)
-                towerConnection:Disconnect()
+
+                if not self.isInInfiniteBattle() then
+                    towerConnection:Disconnect()
+                end
             end
         end)
     end
@@ -1030,6 +1031,11 @@ function AvHub:Function()
     end
 
     local function checkFloors()
+        if self.isInRaidBattle() then
+            currentRunFloor = 0
+            return
+        end
+
         battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
 
         if battleLabel then
@@ -1038,13 +1044,11 @@ function AvHub:Function()
                 floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
                 if floorMatch then
                     currentRunFloor = tonumber(floorMatch)
+                    if currentRunFloor > previousRunFloor then
+                        previousRunFloor = currentRunFloor
+                    end
                 end
             end
-        end
-
-        if isInfRunComplete() then
-            previousRunFloor = currentRunFloor
-            currentRunFloor = nil
         end
     end
 
@@ -1113,7 +1117,7 @@ function AvHub:Function()
 			hours = math.floor(uptimeInSeconds / 3600)
 			minutes = math.floor((uptimeInSeconds % 3600) / 60)
 			seconds = uptimeInSeconds % 60
-			uptimeText = string.format("%dh %dm %ds", hours, minutes, seconds)
+			uptimeText = string.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds)
 
             antiAfkStatus = antiAfk()
             local antiAFKstring
@@ -1296,7 +1300,7 @@ function AvHub:GUI()
 		Title = "UK1",
 		SubTitle = "Anime Card Battles",
 		TabWidth = 80,
-		Size = UDim2.fromOffset(385, 372.5),
+		Size = UDim2.fromOffset(375, 372.5),
 		Acrylic = true,
 		Theme = "Avalanche",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -1349,8 +1353,8 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "1.6.0"
-    local release = "beta"
+	local version = "test-build"
+    local release = "1-A"
     local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
 
@@ -1370,8 +1374,7 @@ function AvHub:GUI()
 		Content = "Changes :"
         .. "\n" .. "Added Card Lookup"
 		.. "\n" .. "Fixed Auto Raids"
-        .. "\n" .. "Moved Configs to Settings"
-        .. "\n" .. "Moved Interface to Misc"
+        .. "\n" .. "Moved Configs & Interface to Settings"
         .. "\n" .. "Moved Stats to Stats Tab"
         .. "\n\n" .. "Coming Soon :"
 		.. "\n" .. "Webhooks"
@@ -1445,7 +1448,7 @@ function AvHub:GUI()
     })
     hubInfoParagraph = Tabs.Stats:AddParagraph({
         Title = "Uptime",
-        Content = "N/Ah N/Am N/As"
+        Content = "N/A hours N/A minutes N/A seconds"
         .. "\n" .. "Anti-AFK: " .. "N/A"
     })
 
@@ -1515,18 +1518,19 @@ function AvHub:GUI()
     codesSection = Tabs.Codes:AddSection("List Of Codes")
 
     local MAX_CODES_PER_PARAGRAPH = 15
+
     self.displayCodesInParagraphs = function()
         local codeCount = #codes
-    
+
         local numChunks = math.ceil(codeCount / MAX_CODES_PER_PARAGRAPH)
-    
+
         local codesPerChunk = math.ceil(codeCount / numChunks)
-    
+
         local startIndex = codeCount
-    
+
         while startIndex > 0 do
             local endIndex = math.max(startIndex - codesPerChunk + 1, 1)
-    
+
             local codesChunk = ""
             for i = startIndex, endIndex, -1 do
                 codesChunk = codesChunk .. codes[i]
@@ -1534,16 +1538,16 @@ function AvHub:GUI()
                     codesChunk = codesChunk .. "\n"
                 end
             end
-    
+
             Tabs.Codes:AddParagraph({
                 Title = "Page " .. tostring(math.ceil((codeCount - startIndex + 1) / codesPerChunk)) .. "\n",
                 Content = codesChunk
             })
-    
+
             startIndex = endIndex - 1
         end
     end
-    
+
 	self.displayCodesInParagraphs()
 
     -- Misc Tab
@@ -1860,7 +1864,7 @@ function AvHub:GUI()
     -- Interface Section
 	InterfaceManager:SetLibrary(Fluent)
 	InterfaceManager:SetFolder("UK1")
-	InterfaceManager:BuildInterfaceSection(Tabs.Misc)
+	InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 
     local path = game:GetService("ReplicatedStorage").Modules.CardInfo
     local cardInfo = require(path)
