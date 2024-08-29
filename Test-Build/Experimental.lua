@@ -788,8 +788,6 @@ function AvHub:Function()
                     waitForBattleToEnd("infinite")
                 end
     
-                guiservice.SelectedObject = nil
-    
                 if not isInVicinity("Adaptive Titan", 20) then
                     if not self.isInRaidBattle() then
                         canTeleport("Adaptive Titan")
@@ -817,7 +815,6 @@ function AvHub:Function()
                     task.wait(1)
                 until self.isInRaidBattle()
     
-                guiservice.SelectedObject = nil
                 local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
                 if guiservice.SelectedObject == closeLb then 
                     guiservice.SelectedObject = nil
@@ -871,7 +868,6 @@ function AvHub:Function()
                     task.wait(1)
                 until self.isInInfiniteBattle()
     
-                guiservice.SelectedObject = nil
                 local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
                 if guiservice.SelectedObject == closeLb then
                     guiservice.SelectedObject = nil
