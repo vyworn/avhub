@@ -337,7 +337,6 @@ local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 local hubInfoParagraph, farmParagraph, battleParagraph  
 local tickCount, uptimeInSeconds, hours, minutes, seconds
 local uptimeText = "N/Ah N/Am N/As"
-local timeLeft
 local damageDealt, previousRunDamage = 0, 0
 local battleLabelText, raidText
 local highestFloor, previousRunFloor, currentRunFloor = 0, 0, 0
@@ -1017,9 +1016,10 @@ function AvHub:Function()
 
     -- Paragraph Functions    
     self.updateFarmParagraph = function()
+        local timeLeft, swordTimer
         while isAutoSwordActive() or isAutoPotionsActive() do
-            swordCooldown = stats.SwordObbyCD.Value
-            timeLeft = swordCooldown
+            swordTimer = stats.SwordObbyCD.Value
+            timeLeft = swordTimer
 
             farmParagraph:SetDesc("Potions Collected: " .. potionCount 
             .. "\n" .. "Sword Cooldown: " .. timeLeft 

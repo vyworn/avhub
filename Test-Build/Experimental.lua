@@ -54,7 +54,6 @@ local function generateRandomKey(length)
 	for i = 1, length do
 		local randIndex = math.random(1, #chars)
 		key = key .. string.sub(chars, randIndex, randIndex)
-		task.wait(0.1)
 	end
 	return key
 end
@@ -151,7 +150,6 @@ local function isDeveloper(userid)
 		if id == userid then
 			return true
 		end
-		task.wait(0.1)
 	end
 	return nil
 end
@@ -305,7 +303,7 @@ local codes =
 -- Farming Variables
 local autoPotionsActive, autoSwordActive = false, false
 
-local potionCount
+local potionCount = 0
 local activePotions
 
 local canGoBack, grabbedSword, teleportedBack = false, false, false
@@ -337,7 +335,6 @@ local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 local hubInfoParagraph, farmParagraph, battleParagraph  
 local tickCount, uptimeInSeconds, hours, minutes, seconds
 local uptimeText = "N/Ah N/Am N/As"
-local timeLeft
 local damageDealt, previousRunDamage = 0, 0
 local battleLabelText, raidText
 local highestFloor, previousRunFloor, currentRunFloor = 0, 0, 0
@@ -423,10 +420,9 @@ function AvHub:Function()
 
 	self.useCodes = function()
 		for i = #codes, 1, -1 do
+			task.wait(2.5)
 			local message = "/code " .. codes[i]
 			self.sendMessage(message)
-
-			task.wait(2.5)
 		end
 	end
 
@@ -434,13 +430,13 @@ function AvHub:Function()
 		local reversedCodesString = ""
 
 		for i = #codes, 1, -1 do
-			reversedCodesString = reversedCodesString .. codes[i]
+            task.wait(0.1)
+			
+            reversedCodesString = reversedCodesString .. codes[i]
 
 			if i > 1 then
 				reversedCodesString = reversedCodesString .. "\n"
 			end
-
-            task.wait(0.1)
 		end
 
 		return reversedCodesString
@@ -450,13 +446,13 @@ function AvHub:Function()
 		local copyReversedCodesStr = ""
         
 		for i = #codes, 1, -1 do
-			copyReversedCodesStr = copyReversedCodesStr .. "/code " .. codes[i]
+            task.wait(0.1)
+			
+            copyReversedCodesStr = copyReversedCodesStr .. "/code " .. codes[i]
 
 			if i > 1 then
 				copyReversedCodesStr = copyReversedCodesStr .. "\n"
 			end
-
-            task.wait(0.1)
 		end
 
 		return copyReversedCodesStr
@@ -501,6 +497,7 @@ function AvHub:Function()
     
     self.autoGetSword = function()
         while isAutoSwordActive() do
+            task.wait(1)
             local swordObbyCD = stats:FindFirstChild("SwordObbyCD").Value
             if swordObbyCD == 0 then
                 grabbedSword = false
@@ -522,15 +519,13 @@ function AvHub:Function()
             elseif swordObbyCD > 0 then
                 grabbedSword = true
             end
-            task.wait(0.2)
         end
     end
 
     self.getPotions = function()
-        local potionCount = 0
         local activePotions = workspace:FindFirstChild("ActivePotions")
         
-        if not activePotions then return potionCount end
+        if not activePotions then return end
     
         local function onPotionGrabbed()
             potionCount = potionCount + 1
@@ -539,21 +534,22 @@ function AvHub:Function()
         local connection = activePotions.ChildRemoved:Connect(onPotionGrabbed)
     
         while isAutoPotionsActive() do
+            task.wait(0.5)
             for _, potion in ipairs(activePotions:GetChildren()) do
+                task.wait(0.5)
                 local base = potion:FindFirstChild("Base")
                 if base then
                     firetouchinterest(humanoidrootpart, base, 0)
-                    task.wait(0.1)
+                    task.wait(0.05)
                     firetouchinterest(humanoidrootpart, base, 1)
                 end
-                task.wait(0.1)
             end
-            task.wait(0.25)
         end
     
         connection:Disconnect()
-        return potionCount
+        return
     end
+
     self.claimDailyChest = function()
         grabbingChest = true
         self.getPreviousPosition("Previous Position Chest")
@@ -610,7 +606,7 @@ function AvHub:Function()
     
     local function waitForBattleCDToEnd()
         while isBattleCDActive() do
-            task.wait(0.1)
+            task.wait(0.2)
         end
     end
     
@@ -653,6 +649,7 @@ function AvHub:Function()
     
     local dialogueConnection
     local function waitForDialogueAndHandle()
+        task.wait(0.2)
         if dialogueExists() then
             handleDialogue()
             return
@@ -716,7 +713,9 @@ function AvHub:Function()
     
         if isAutoSwordActive() then
             waitUntil(hasGrabbedSword)
+            task.wait(0.5)
         end
+
         waitUntil(function() return not isGrabbingChest() end)
         
         self.characterTeleport(battlePositions[targetName])
@@ -891,14 +890,15 @@ function AvHub:Function()
         end
     
         for _, child in ipairs(playergui:GetChildren()) do
+            task.wait(0.2)
             destroyInstantRoll(child)
         end
     
         while isAutoCloseResultActive() do
+            task.wait(0.2)
             if not connection then
                 connection = playergui.ChildAdded:Connect(destroyInstantRoll)
             end
-            task.wait(0.1)
         end
     
         if connection then
@@ -919,15 +919,21 @@ function AvHub:Function()
 
     -- Paragraph Functions    
     self.updateFarmParagraph = function()
+        local timeLeft, swordTimer
         while isAutoSwordActive() or isAutoPotionsActive() do
-            swordCooldown = stats.SwordObbyCD.Value
-            timeLeft = swordCooldown
-
-            farmParagraph:SetDesc("Potions Collected: " .. potionCount 
-            .. "\n" .. "Sword Cooldown: " .. timeLeft 
-            )
-
             task.wait(0.2)
+            
+            swordTimer = stats:FindFirstChild("SwordObbyCD").Value
+
+            if swordTimer then
+                timeLeft = swordTimer
+            else
+                timeLeft = "N/A"
+            end
+
+            farmParagraph:SetDesc("Potions Collected: " .. tostring(potionCount) 
+            .. "\n" .. "Sword Cooldown: " .. tostring(timeLeft) 
+            )
         end
     end
 
@@ -1239,7 +1245,7 @@ function AvHub:GUI()
 	}
 
     -- GUI Variables
-    local informationParagraph, latestParagraph
+    local informationParagraph, latestParagraph, previousUpdateParagraph
 
     local farmSection, battleSection, miscSection
 
@@ -1270,6 +1276,18 @@ function AvHub:GUI()
 	latestParagraph = Tabs.Main:AddParagraph({
 		Title = "Latest" .. "\n",
 		Content = "Changes :"
+        .. "\n" .. "Fixed Auto Raids Lag"
+        .. "\n" .. "Fixed Auto Infinite Lag"
+        .. "\n" .. "Added 3 new themes: Hellfire, Nebula, Dusk"
+        .. "\n\n" .. "Coming Soon :"
+		.. "\n" .. "Webhooks"
+		.. "\n\n" .. "Future :"
+		.. "\n" .. "Auto repeat Bosses"
+	})
+
+    previousUpdateParagraph = Tabs.Main:AddParagraph({
+        Title = "Previous Update" .. "\n",
+        Content = "Changes :"
         .. "\n" .. "Added Card Lookup"
 		.. "\n" .. "Fixed Auto Raids"
         .. "\n" .. "Moved Configs to Settings"
@@ -1279,7 +1297,7 @@ function AvHub:GUI()
 		.. "\n" .. "Webhooks"
 		.. "\n\n" .. "Future :"
 		.. "\n" .. "Auto repeat Bosses"
-	})
+    })
 
     -- Auto Tab
     farmSection = Tabs.Auto:AddSection("Farm")
@@ -1778,7 +1796,7 @@ function AvHub:GUI()
     local cardCoroutine
 
     local function getCardData()
-        for moduleKey, moduleValue in pairs(cardInfo) do        
+        for moduleKey, moduleValue in pairs(cardInfo) do
             table.insert(moduleName, moduleKey)
             moduleTable[moduleKey] = moduleValue
     
@@ -1836,6 +1854,7 @@ function AvHub:GUI()
         local detailsString = ""
 
         for _, field in ipairs(fieldOrder) do
+            task.wait(0.1)
             local value = cardDetails[field]
             if value then
                 if field == "Chance" then
