@@ -54,7 +54,6 @@ local function generateRandomKey(length)
 	for i = 1, length do
 		local randIndex = math.random(1, #chars)
 		key = key .. string.sub(chars, randIndex, randIndex)
-		task.wait(0.1)
 	end
 	return key
 end
@@ -102,7 +101,7 @@ local function waitForTarget(targetName, parentObject, timeout)
     while not target and (tick() - startTime) < (timeout or 10) do
         target = parentObject:FindFirstChild(targetName)
         
-        task.wait(0.1)
+        task.wait(0.5)
     end
     
     if target then
@@ -116,7 +115,7 @@ end
 
 local function waitUntil(condition)
     while not condition() do
-        task.wait(0.1)
+        task.wait(0.5)
     end
 end
 
@@ -127,7 +126,7 @@ local function waitForProximityPrompt(hrp, timeout)
     while not proximityPrompt and (tick() - startTime) < (timeout or 10) do
         proximityPrompt = hrp:FindFirstChild("ProximityPrompt")
         
-        task.wait(0.1)
+        task.wait(0.5)
     end
     
     if proximityPrompt then
@@ -151,7 +150,6 @@ local function isDeveloper(userid)
 		if id == userid then
 			return true
 		end
-		task.wait(0.1)
 	end
 	return nil
 end
@@ -305,7 +303,7 @@ local codes =
 -- Farming Variables
 local autoPotionsActive, autoSwordActive = false, false
 
-local potionCount
+local potionCount = 0
 local activePotions
 
 local canGoBack, grabbedSword, teleportedBack = false, false, false
@@ -328,7 +326,7 @@ local damageThreshold = 1000000
 local davidNPC, davidHRP, davidProximityPrompt
 local titanBoss, titanHRP, titanProximityPrompt 
 local npcDialogue, dialogueFrame, responseFrame, dialogueOption
-local battleLabel, closeLb
+local battleLabel
 local hideBattle
 local BATTLETOWERUI
 local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
@@ -337,7 +335,6 @@ local rankedRemote = remotes:FindFirstChild("RankedMenuEvents")
 local hubInfoParagraph, farmParagraph, battleParagraph  
 local tickCount, uptimeInSeconds, hours, minutes, seconds
 local uptimeText = "N/Ah N/Am N/As"
-local timeLeft
 local damageDealt, previousRunDamage = 0, 0
 local battleLabelText, raidText
 local highestFloor, previousRunFloor, currentRunFloor = 0, 0, 0
@@ -347,25 +344,21 @@ local formattedHighestFloor, formattedPreviousRunFloor, formattedCurrentRunFloor
 local battleInProgress = false
 
 -- Coroutine Variables
-local potionsCoroutine, swordCoroutine
-local raidCoroutine, infiniteCoroutine, rankedCoroutine, managePriorityCoroutine
-local hideBattleCoroutine, closeResultCoroutine
-local hubInfoParagraphCoroutine, farmParagraphCoroutine, battleParagraphCoroutine
+local coroutinesTable = {}
 
 function AvHub:Function()
-    self.startFunction = function(coroutineVar, func)
-        if not coroutineVar then
-            coroutineVar = coroutine.create(func)
-            coroutine.resume(coroutineVar)
-        elseif coroutineVar then
-            coroutine.resume(coroutineVar)
+    -- Coroutine Functions
+    self.startFunction = function(id, func)
+        if not coroutinesTable[id] then
+            local coro = coroutine.create(func)
+            coroutinesTable[id] = coro
+            coroutine.resume(coro)
         end
     end
-    
-    self.stopFunction = function(coroutineVar)
-        if coroutineVar then
-            coroutine.yield(coroutineVar)
-            coroutineVar = nil
+
+    self.stopFunction = function(id)
+        if coroutinesTable[id] then
+            coroutinesTable[id] = nil
         end
     end
 
@@ -423,10 +416,9 @@ function AvHub:Function()
 
 	self.useCodes = function()
 		for i = #codes, 1, -1 do
+			task.wait(2.5)
 			local message = "/code " .. codes[i]
 			self.sendMessage(message)
-
-			task.wait(2.5)
 		end
 	end
 
@@ -434,13 +426,13 @@ function AvHub:Function()
 		local reversedCodesString = ""
 
 		for i = #codes, 1, -1 do
-			reversedCodesString = reversedCodesString .. codes[i]
+            task.wait(0.1)
+			
+            reversedCodesString = reversedCodesString .. codes[i]
 
 			if i > 1 then
 				reversedCodesString = reversedCodesString .. "\n"
 			end
-
-            task.wait(0.1)
 		end
 
 		return reversedCodesString
@@ -450,13 +442,13 @@ function AvHub:Function()
 		local copyReversedCodesStr = ""
         
 		for i = #codes, 1, -1 do
-			copyReversedCodesStr = copyReversedCodesStr .. "/code " .. codes[i]
+            task.wait(0.1)
+			
+            copyReversedCodesStr = copyReversedCodesStr .. "/code " .. codes[i]
 
 			if i > 1 then
 				copyReversedCodesStr = copyReversedCodesStr .. "\n"
 			end
-
-            task.wait(0.1)
 		end
 
 		return copyReversedCodesStr
@@ -501,6 +493,7 @@ function AvHub:Function()
     
     self.autoGetSword = function()
         while isAutoSwordActive() do
+            task.wait(1)
             local swordObbyCD = stats:FindFirstChild("SwordObbyCD").Value
             if swordObbyCD == 0 then
                 grabbedSword = false
@@ -522,15 +515,13 @@ function AvHub:Function()
             elseif swordObbyCD > 0 then
                 grabbedSword = true
             end
-            task.wait(0.2)
         end
     end
 
     self.getPotions = function()
-        local potionCount = 0
         local activePotions = workspace:FindFirstChild("ActivePotions")
         
-        if not activePotions then return potionCount end
+        if not activePotions then return end
     
         local function onPotionGrabbed()
             potionCount = potionCount + 1
@@ -539,21 +530,22 @@ function AvHub:Function()
         local connection = activePotions.ChildRemoved:Connect(onPotionGrabbed)
     
         while isAutoPotionsActive() do
+            task.wait(0.5)
             for _, potion in ipairs(activePotions:GetChildren()) do
+                task.wait(0.5)
                 local base = potion:FindFirstChild("Base")
                 if base then
                     firetouchinterest(humanoidrootpart, base, 0)
-                    task.wait(0.1)
+                    task.wait(0.05)
                     firetouchinterest(humanoidrootpart, base, 1)
                 end
-                task.wait(0.1)
             end
-            task.wait(0.25)
         end
     
         connection:Disconnect()
-        return potionCount
+        return
     end
+
     self.claimDailyChest = function()
         grabbingChest = true
         self.getPreviousPosition("Previous Position Chest")
@@ -610,7 +602,7 @@ function AvHub:Function()
     
     local function waitForBattleCDToEnd()
         while isBattleCDActive() do
-            task.wait(0.1)
+            task.wait(0.2)
         end
     end
     
@@ -625,8 +617,6 @@ function AvHub:Function()
     
     local hasSelectedOption = false
     local function handleDialogue()
-        task.wait(1)
-        
         local npcDialogue = playergui:FindFirstChild("NPCDialogue")
         if not npcDialogue then return end
         
@@ -643,16 +633,21 @@ function AvHub:Function()
                 hasSelectedOption = true
             end
             if guiservice.SelectedObject then
+                waitForBattleCDToEnd()
                 virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                 task.wait(0.05)
                 virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                 hasSelectedOption = false
             end
         end
+
+        task.wait(0.5)
+        guiservice.SelectedObject = nil
     end
     
     local dialogueConnection
     local function waitForDialogueAndHandle()
+        task.wait(0.2)
         if dialogueExists() then
             handleDialogue()
             return
@@ -716,7 +711,9 @@ function AvHub:Function()
     
         if isAutoSwordActive() then
             waitUntil(hasGrabbedSword)
+            task.wait(0.5)
         end
+
         waitUntil(function() return not isGrabbingChest() end)
         
         self.characterTeleport(battlePositions[targetName])
@@ -742,8 +739,8 @@ function AvHub:Function()
     
         return cardName == "Adaptive Titan" and #battle:FindFirstChild("EnemyParty"):GetChildren() == 2
     end
-    
     local function waitForBattleToEnd(battleType)
+    
         local checkFunction = (battleType == "raid") and self.isInRaidBattle or self.isInInfiniteBattle
         while checkFunction() do
             task.wait(0.5)
@@ -776,20 +773,18 @@ function AvHub:Function()
             end
         end)
     end
-    
+
     self.autoRaid = function()
         while isAutoRaidActive() do
-            task.wait(1)
+            task.wait(0.5)
             if canRaidCheck() then
                 toggleProgressBar()
     
                 if self.isInInfiniteBattle() then
                     infRunComplete = false
-                    self.cancelInfiniteBattle()
                     waitForBattleToEnd("infinite")
+                    self.cancelInfiniteBattle()
                 end
-    
-                guiservice.SelectedObject = nil
     
                 if not isInVicinity("Adaptive Titan", 20) then
                     if not self.isInRaidBattle() then
@@ -797,6 +792,7 @@ function AvHub:Function()
                     end
                 end
     
+
                 local titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
                 if titanHRP then
                     waitForBattleToEnd("raid")
@@ -808,78 +804,78 @@ function AvHub:Function()
     
                 repeat
                     if not canRaidCheck() or self.isInRaidBattle() then break end
-                    if foundDialogue() then
+                    local hasDialogue = foundDialogue()
+                    if hasDialogue then
                         handleDialogue()
                     else
-                        waitUntil(function() return not foundDialogue() end)
+                        waitUntil(function() return not hasDialogue end)
                         waitForDialogueAndHandle()
                         break
                     end
                     task.wait(1)
                 until self.isInRaidBattle()
     
-                guiservice.SelectedObject = nil
-                local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-                if guiservice.SelectedObject == closeLb then 
-                    guiservice.SelectedObject = nil
-                end
+                task.wait(0.5)
             end
         end
-    end
-    
+    end    
+
     self.autoInfinite = function()
         task.wait(1)
         while isAutoInfiniteActive() do
-            task.wait(1)
+            task.wait(0.5)
+    
             if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
+                print("raid priority")
                 self.cancelInfiniteBattle()
                 break
-            elseif canInfiniteCheck() then
-                if not isInVicinity("Heaven Infinite", 20) then
-                    if not self.isInInfiniteBattle() then
-                        canTeleport("Heaven Infinite")
-                    end
+            end
+    
+            if canInfiniteCheck() then
+                if not isInVicinity("Heaven Infinite", 20) and not self.isInInfiniteBattle() then
+                    canTeleport("Heaven Infinite")
                 end
     
                 if self.isInInfiniteBattle() then
                     infRunComplete = false
-                    waitForBattleToEnd("infinite")
-                else
+                    repeat 
+                        if not canInfiniteCheck() then return end
+                        task.wait(0.5) 
+                    until not self.isInInfiniteBattle()
                     infRunComplete = true
                 end
-    
+                
                 toggleProgressBar()
     
                 local davidHRP = waitForTarget("David", gamenpcs, 10)
                 if davidHRP then
                     waitForBattleToEnd("infinite")
                     while not waitForProximityPrompt(davidHRP, 10) do
-                        if not canInfiniteCheck() then break end
+                        if not canInfiniteCheck() then return end
                         task.wait(0.2)
                     end
                 end
     
+                local dialogueFound = foundDialogue()
                 repeat
                     if canRaidCheck() then return end
-                    if not canInfiniteCheck() then break end
-                    if foundDialogue() then
+                    if not canInfiniteCheck() then return end
+    
+                    if dialogueFound then
                         handleDialogue()
                     else
-                        waitUntil(function() return not foundDialogue() end)
+                        waitUntil(function() return not dialogueFound end)
                         waitForDialogueAndHandle()
                         break
                     end
+    
                     task.wait(1)
                 until self.isInInfiniteBattle()
     
-                guiservice.SelectedObject = nil
-                local closeLb = playergui.LeaderBoard.LeaderHolder.CloseUI
-                if guiservice.SelectedObject == closeLb then
-                    guiservice.SelectedObject = nil
-                end
+                task.wait(0.5)
             end
         end
-    end    
+    end   
 
     self.autoCloseResult = function()
         local connection
@@ -891,14 +887,15 @@ function AvHub:Function()
         end
     
         for _, child in ipairs(playergui:GetChildren()) do
+            task.wait(0.2)
             destroyInstantRoll(child)
         end
     
         while isAutoCloseResultActive() do
+            task.wait(0.2)
             if not connection then
                 connection = playergui.ChildAdded:Connect(destroyInstantRoll)
             end
-            task.wait(0.1)
         end
     
         if connection then
@@ -919,15 +916,21 @@ function AvHub:Function()
 
     -- Paragraph Functions    
     self.updateFarmParagraph = function()
+        local timeLeft, swordTimer
         while isAutoSwordActive() or isAutoPotionsActive() do
-            swordCooldown = stats.SwordObbyCD.Value
-            timeLeft = swordCooldown
-
-            farmParagraph:SetDesc("Potions Collected: " .. potionCount 
-            .. "\n" .. "Sword Cooldown: " .. timeLeft 
-            )
-
             task.wait(0.2)
+            
+            swordTimer = stats:FindFirstChild("SwordObbyCD").Value
+
+            if swordTimer then
+                timeLeft = swordTimer
+            else
+                timeLeft = "N/A"
+            end
+
+            farmParagraph:SetDesc("Potions Collected: " .. tostring(potionCount) 
+            .. "\n" .. "Sword Cooldown: " .. tostring(timeLeft) 
+            )
         end
     end
 
@@ -952,19 +955,12 @@ function AvHub:Function()
 
     self.updateBattleParagraph = function()
         while isAutoRaidActive() or isAutoInfiniteActive() do
-            if previousRunDamage ~= raidDamageTracker then
-                raidDamageTracker = stats.RaidDamageTracker.Value
-                damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
-
-                if damageDealt == raidDamageTracker then
-                    damageDealt = 0
-                else
-                    damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
-                end
-
-                previousRunDamage = raidDamageTracker
-            end
-
+            raidDamageTracker = stats.RaidDamageTracker.Value
+            
+            damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+            
+            previousRunDamage = raidDamageTracker
+            
             formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
             formattedThreshold = formatNumberWithCommas(damageThreshold)
             formattedDamageDealt = formatNumberWithCommas(damageDealt)
@@ -1036,62 +1032,42 @@ function AvHub:Function()
     -- Coroutine Functions
     self.manageFarmParagraph = function()
         if isAutoSwordActive() or isAutoPotionsActive() then
-            if not farmParagraphCoroutine then
-                farmParagraphCoroutine = self.startFunction(farmParagraphCoroutine, self.updateFarmParagraph)
-            end
-        elseif not isAutoSwordActive() and not isAutoPotionsActive() then
-            if farmParagraphCoroutine then
-                farmParagraphCoroutine = self.stopFunction(farmParagraphCoroutine)
-            else
-                return
+            if not coroutinesTable["farmParagraph"] then
+                self.startFunction("farmParagraph", self.updateFarmParagraph)
             end
         else
-            return
+            self.stopFunction("farmParagraph")
         end
     end
 
     self.manageBattleParagraph = function()
         if isAutoRaidActive() or isAutoInfiniteActive() then
-            if not battleParagraphCoroutine then
-                battleParagraphCoroutine = self.startFunction(battleParagraphCoroutine, self.updateBattleParagraph)
-            else
-                return
-            end
-        elseif not isAutoRaidActive() and not isAutoInfiniteActive() then
-            if battleParagraphCoroutine then
-                battleParagraphCoroutine = self.stopFunction(battleParagraphCoroutine)
-            else
-                return
+            if not coroutinesTable["battleParagraph"] then
+                self.startFunction("battleParagraph", self.updateBattleParagraph)
             end
         else
-            return
+            self.stopFunction("battleParagraph")
         end
     end
 
-    self.manageHubInfoParagraph = function()
-        if hubInit then
-            if not hubInfoParagraphCoroutine then
-                hubInfoParagraphCoroutine = self.startFunction(hubInfoParagraphCoroutine, self.updateHubInfoParagraph)
-            end
+    self.manageHubInfoParagraph = function(state)
+        if state then
+            self.startFunction("hubInfoParagraph", self.updateHubInfoParagraph)
         else
-            if hubInfoParagraphCoroutine then
-                hubInfoParagraphCoroutine = self.stopFunction(hubInfoParagraphCoroutine)
-            else
-                return
-            end
+            self.stopFunction("hubInfoParagraph")
         end
     end
 
     self.manageRaidCoroutine = function(state)
-        while state do
+        while state do 
             if isAutoRaidActive() and canRaidCheck() then
-                if not raidCoroutine then
-                    raidCoroutine = self.startFunction(raidCoroutine, self.autoRaid)
+                if not coroutinesTable["raid"] then
+                    self.startFunction("raid", self.autoRaid)
+                    self.manageBattleParagraph()
                 end
-            elseif raidCoroutine then
-                raidCoroutine = self.stopFunction(raidCoroutine)
+            else
+                self.stopFunction("raid")
             end
-
             task.wait(0.5)
         end
     end
@@ -1099,95 +1075,84 @@ function AvHub:Function()
     self.manageInfiniteCoroutine = function(state)
         while state do
             if isAutoInfiniteActive() and canInfiniteCheck() then
-                if not infiniteCoroutine then
-                    infiniteCoroutine = self.startFunction(infiniteCoroutine, self.autoInfinite)
+                if not coroutinesTable["infinite"] then
+                    self.startFunction("infinite", self.autoInfinite)
+                    self.manageBattleParagraph()
                 end
-            elseif infiniteCoroutine then
-                infiniteCoroutine = self.stopFunction(infiniteCoroutine)
+            else
+                self.stopFunction("infinite")
             end
             task.wait(0.5)
         end
     end
 
-    self.managePotionCoroutine = function()
-        if isAutoPotionsActive() then
-            if not potionsCoroutine then
-                potionsCoroutine = self.startFunction(potionsCoroutine, self.getPotions)
-            end
-        elseif not isAutoPotionsActive() then
-            if potionsCoroutine then
-                potionsCoroutine = self.stopFunction(potionsCoroutine)
+    self.managePotionsCoroutine = function(state)
+        while state do
+            if isAutoPotionsActive() then
+                if not coroutinesTable["potions"] then
+                    self.startFunction("potions", self.getPotions)
+                    self.manageFarmParagraph()
+                end
             else
-                return
+                self.stopFunction("potions")
             end
-        else
-            return
+            task.wait(0.5)
         end
     end
 
-    self.manageSwordCoroutine = function()
-        if isAutoSwordActive() then
-            if not swordCoroutine then
-                swordCoroutine = self.startFunction(swordCoroutine, self.autoGetSword)
-            end
-        elseif not isAutoSwordActive() then
-            if swordCoroutine then
-                swordCoroutine = self.stopFunction(swordCoroutine)
+    self.manageSwordCoroutine = function(state)
+        while state do
+            if isAutoSwordActive() then
+                if not coroutinesTable["sword"] then
+                    self.startFunction("sword", self.autoGetSword)
+                    self.manageFarmParagraph()
+                end
             else
-                return
+                self.stopFunction("sword")
             end
-        else
-            return
+            task.wait(0.5)
         end
     end
 
-    self.manageRankedCoroutine = function()
-        if isAutoRankedActive() then
-            if not rankedCoroutine then
-                rankedCoroutine = self.startFunction(rankedCoroutine, self.autoRanked)
-            end
-        elseif not isAutoRankedActive() then
-            if rankedCoroutine then
-                rankedCoroutine = self.stopFunction(rankedCoroutine)
+    self.manageRankedCoroutine = function(state)
+        while state do
+            if isAutoRankedActive() then
+                if not coroutinesTable["ranked"] then
+                    self.startFunction("ranked", self.autoRanked)
+                end
             else
-                return
+                self.stopFunction("ranked")
             end
-        else
-            return
+            task.wait(0.5)
         end
     end
 
-    self.manageCloseResultCoroutine = function()
-        if isAutoCloseResultActive() then
-            if not closeResultCoroutine then
-                closeResultCoroutine = self.startFunction(closeResultCoroutine, self.autoCloseResult)
-            end
-        elseif not isAutoCloseResultActive() then
-            if closeResultCoroutine then
-                closeResultCoroutine = self.stopFunction(closeResultCoroutine)
+    self.manageCloseResultCoroutine = function(state)
+        while state do
+            if isAutoCloseResultActive() then
+                if not coroutinesTable["closeResult"] then
+                    self.startFunction("closeResult", self.autoCloseResult)
+                end
             else
-                return
+                self.stopFunction("closeResult")
             end
-        else
-            return
+            task.wait(0.5)
         end
     end
 
-    self.manageHideBattleCoroutine = function()
-        if isAutoHideBattleActive() then
-            if not hideBattleCoroutine then
-                hideBattleCoroutine = self.startFunction(hideBattleCoroutine, self.autoHideBattle)
-            end
-        elseif not isAutoHideBattleActive() then
-            if hideBattleCoroutine then
-                hideBattleCoroutine = self.stopFunction(hideBattleCoroutine)
+    self.manageHideBattleCoroutine = function(state)
+        while state do
+            if isAutoHideBattleActive() then
+                if not coroutinesTable["hideBattle"] then
+                    self.startFunction("hideBattle", self.autoHideBattle)
+                end
             else
-                return
+                self.stopFunction("hideBattle")
             end
-        else
-            return
+            task.wait(0.5)
         end
     end
+
 
     functionsInit = true
 end
@@ -1239,7 +1204,7 @@ function AvHub:GUI()
 	}
 
     -- GUI Variables
-    local informationParagraph, latestParagraph
+    local informationParagraph, latestParagraph, previousUpdateParagraph
 
     local farmSection, battleSection, miscSection
 
@@ -1251,9 +1216,9 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "test-build"
-    local release = "experimental"
-    local versionStr = "v_" .. version .. "_" .. release
+	local version = "experimental"
+    local release = "test-build_" .. "v1.6.1"
+    local versionStr = version .. "_" .. release
 	local devs = "Av"
 
     -- Main Tab
@@ -1270,6 +1235,18 @@ function AvHub:GUI()
 	latestParagraph = Tabs.Main:AddParagraph({
 		Title = "Latest" .. "\n",
 		Content = "Changes :"
+        .. "\n" .. "Fixed Auto Raids Lag"
+        .. "\n" .. "Fixed Auto Infinite Lag"
+        .. "\n" .. "Added 3 new themes: Hellfire, Nebula, Dusk"
+        .. "\n\n" .. "Coming Soon :"
+		.. "\n" .. "Webhooks"
+		.. "\n\n" .. "Future :"
+		.. "\n" .. "Auto repeat Bosses"
+	})
+
+    previousUpdateParagraph = Tabs.Main:AddParagraph({
+        Title = "Previous Update" .. "\n",
+        Content = "Changes :"
         .. "\n" .. "Added Card Lookup"
 		.. "\n" .. "Fixed Auto Raids"
         .. "\n" .. "Moved Configs to Settings"
@@ -1279,7 +1256,7 @@ function AvHub:GUI()
 		.. "\n" .. "Webhooks"
 		.. "\n\n" .. "Future :"
 		.. "\n" .. "Auto repeat Bosses"
-	})
+    })
 
     -- Auto Tab
     farmSection = Tabs.Auto:AddSection("Farm")
@@ -1631,89 +1608,71 @@ function AvHub:GUI()
     -- OnChanged
     self.autoPotionsToggle:OnChanged(function()
         if self.autoPotionsToggle.Value then
-            if not potionsCoroutine then
-                self.managePotionCoroutine()
-            end
-            self.manageFarmParagraph()
+            local potionState = true
+            self.managePotionsCoroutine(potionState)
         elseif not self.autoPotionsToggle.Value then
-            if potionsCoroutine then
-                self.managePotionCoroutine()
-            end
-            self.manageFarmParagraph()
+            local potionState = false
+            self.managePotionsCoroutine(potionState)
         end
     end)
 
     self.autoSwordToggle:OnChanged(function()
         if self.autoSwordToggle.Value then
-            if not swordCoroutine then
-                self.manageSwordCoroutine()
-            end
-            self.manageFarmParagraph()
+            local swordState = true
+            self.manageSwordCoroutine(swordState)
         elseif not self.autoSwordToggle.Value then
-            if swordCoroutine then
-                self.manageSwordCoroutine()
-            end
-            self.manageFarmParagraph()
+            local swordState = false
+            self.manageSwordCoroutine(swordState)
         end
     end)
 
     self.autoRaidToggle:OnChanged(function()
         if self.autoRaidToggle.Value then
-            self.manageBattleParagraph()
-            local state = true
-            self.manageRaidCoroutine(state)
+            local raidState = true
+            self.manageRaidCoroutine(raidState)
         elseif not self.autoRaidToggle.Value then
-            self.manageBattleParagraph()
-            local state = false
-            self.manageRaidCoroutine(state)
+            local raidState = false
+            self.manageRaidCoroutine(raidState)
         end
     end)
 
     self.autoInfiniteToggle:OnChanged(function()
         if self.autoInfiniteToggle.Value then
-            self.manageBattleParagraph()
-            local state = true
-            self.manageInfiniteCoroutine(state)
+            local infiniteState = true
+            self.manageInfiniteCoroutine(infiniteState)
         elseif not self.autoInfiniteToggle.Value then
-            self.manageBattleParagraph()
-            local state = false
-            self.manageInfiniteCoroutine(state)
+            local infiniteState = false
+            self.manageInfiniteCoroutine(infiniteState)
         end
     end)
 
     self.autoRankedToggle:OnChanged(function()
         if self.autoRankedToggle.Value then
-            if not rankedCoroutine then
-                self.manageRankedCoroutine()
-            end
+            local rankedState = true
+            self.manageRankedCoroutine(rankedState)
         elseif not self.autoRankedToggle.Value then
-            if rankedCoroutine then
-                self.manageRankedCoroutine()
-            end
+            local rankedState = false
+            self.manageRankedCoroutine(rankedState)
         end
     end)
 
     self.autoCloseResultToggle:OnChanged(function()
         if self.autoCloseResultToggle.Value then
-            if not closeResultCoroutine then
-                self.manageCloseResultCoroutine()
-            end
+            local state = true
+            self.manageCloseResultCoroutine(state)
         elseif not self.autoCloseResultToggle.Value then
-            if closeResultCoroutine then
-                self.manageCloseResultCoroutine()
-            end
+            local state = false
+            self.manageCloseResultCoroutine(state)
         end
     end)
 
     self.autoHideBattleToggle:OnChanged(function()
         if self.autoHideBattleToggle.Value then
-            if not hideBattleCoroutine then
-                self.manageHideBattleCoroutine()
-            end
+            local state = true
+            self.manageHideBattleCoroutine(state)
         elseif not self.autoHideBattleToggle.Value then
-            if hideBattleCoroutine then
-                self.manageHideBattleCoroutine()
-            end
+            local state = false
+            self.manageHideBattleCoroutine(state)
         end
     end)
 
@@ -1778,7 +1737,7 @@ function AvHub:GUI()
     local cardCoroutine
 
     local function getCardData()
-        for moduleKey, moduleValue in pairs(cardInfo) do        
+        for moduleKey, moduleValue in pairs(cardInfo) do
             table.insert(moduleName, moduleKey)
             moduleTable[moduleKey] = moduleValue
     
@@ -1793,7 +1752,8 @@ function AvHub:GUI()
     end
 
     local function startGetCardData()
-        cardCoroutine = self.startFunction(cardCoroutine, getCardData)
+        cardCoroutine = coroutine.create(getCardData)
+        coroutine.resume(cardCoroutine)
     end
 
     local fieldOrder = {
@@ -1836,6 +1796,7 @@ function AvHub:GUI()
         local detailsString = ""
 
         for _, field in ipairs(fieldOrder) do
+            task.wait(0.1)
             local value = cardDetails[field]
             if value then
                 if field == "Chance" then
@@ -1875,7 +1836,7 @@ function AvHub:Start()
     tickCount = tick()
     
     hubInit = true
-    self.manageHubInfoParagraph()
+    self.manageHubInfoParagraph(hubInit)
 
     guiWindow[randomKey]:SelectTab(1)
 
