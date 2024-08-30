@@ -972,12 +972,12 @@ function AvHub:Function()
             raidDamageTracker = stats.RaidDamageTracker.Value
             
             if raidDamageTracker > previousRunDamage then
-                damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+                if not raidDamageTracker >= damageThreshold then
+                    damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+                else
+                    damageDealt = 0
+                end
                 previousRunDamage = raidDamageTracker
-            end
-
-            if raidDamageTracker >= damageThreshold then
-                previousRunDamage = 0
             end
 
             formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
