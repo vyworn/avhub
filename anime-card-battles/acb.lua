@@ -298,6 +298,9 @@ local codes =
     "30KLIKES!",
     "10MVISITS!",
     "UPDATE3!",
+    "2KTWITTERFOLLOWS!",
+    "20MVISITS!",
+    "UPDATE3.5!",
 }
 
 -- Farming Variables
