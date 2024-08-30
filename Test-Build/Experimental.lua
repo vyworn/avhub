@@ -838,6 +838,7 @@ function AvHub:Function()
                 if self.isInInfiniteBattle() then
                     infRunComplete = false
                     repeat 
+                        if canRaidCheck() then return end
                         if not canInfiniteCheck() then return end
                         task.wait(0.5) 
                     until not self.isInInfiniteBattle()
