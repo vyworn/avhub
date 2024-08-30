@@ -782,8 +782,8 @@ function AvHub:Function()
     
                 if self.isInInfiniteBattle() then
                     infRunComplete = false
-                    waitForBattleToEnd("infinite")
                     self.cancelInfiniteBattle()
+                    waitForBattleToEnd("infinite")
                 end
     
                 if not isInVicinity("Adaptive Titan", 20) then
@@ -826,7 +826,6 @@ function AvHub:Function()
             task.wait(0.5)
     
             if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
-                print("raid priority")
                 self.cancelInfiniteBattle()
                 break
             end
@@ -1217,7 +1216,7 @@ function AvHub:GUI()
     -- GUI Information
 	local Options = Fluent.Options
 	local version = "experimental"
-    local release = "test-build_" .. "v1.6.1"
+    local release = "test-build_" .. "v1.6.2"
     local versionStr = version .. "_" .. release
 	local devs = "Av"
 
