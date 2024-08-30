@@ -934,9 +934,9 @@ function AvHub:Function()
         end
     end
 
-    local loggedHighestFloor
+    local loggedHighestFloor = 0
     local function logHighestFloor()
-        if previousRunFloor > 0 then
+        if previousRunFloor > 1 then
             loggedHighestFloor = previousRunFloor
         end
     end
@@ -953,14 +953,14 @@ function AvHub:Function()
                     currentRunFloor = tonumber(floorMatch)
                     if currentRunFloor >= previousRunFloor then
                         previousRunFloor = currentRunFloor
+                        logHighestFloor()
                     end
+                else
+                    logHighestFloor()
+                    previousRunFloor = 0
+                    currentRunFloor = 0
                 end
-            else
-                logHighestFloor()
-                previousRunFloor = 0
-                currentRunFloor = 0
-            end
-        else
+        elseif not self.isInInfiniteBattle() then
             logHighestFloor()
             highestFloor = 0
             currentRunFloor = 0
@@ -972,7 +972,7 @@ function AvHub:Function()
             raidDamageTracker = stats.RaidDamageTracker.Value
             
             if raidDamageTracker > previousRunDamage then
-                if not raidDamageTracker >= damageThreshold then
+                if raidDamageTracker <= damageThreshold then
                     damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
                 else
                     damageDealt = 0
@@ -986,7 +986,9 @@ function AvHub:Function()
 
             highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
 
-            checkFloors()
+            if self.isInInfiniteBattle() then
+                checkFloors()
+            end
 
            if self.isInInfiniteBattle() or self.isInRaidBattle() then
                 battleInProgress = true
@@ -1236,7 +1238,7 @@ function AvHub:GUI()
     -- GUI Information
 	local Options = Fluent.Options
 	local version = "experimental"
-    local release = "test-build_" .. "v1.6.3"
+    local release = "test-build_" .. "v1.6.4"
     local versionStr = version .. "_" .. release
 	local devs = "Av"
 
