@@ -340,7 +340,7 @@ local battleLabelText, raidText
 local highestFloor, previousRunFloor, currentRunFloor = 0, 0, 0
 local floorMatch
 local formattedRaidDamageTracker, formattedDamageDealt, formattedThreshold
-local formattedHighestFloor, formattedPreviousRunFloor, formattedCurrentRunFloor
+local formattedHighestFloor, formattedLoggedHighestFloor, formattedCurrentRunFloor
 local battleInProgress = false
 
 -- Coroutine Variables
@@ -934,22 +934,36 @@ function AvHub:Function()
         end
     end
 
+    local loggedHighestFloor
+    local function logHighestFloor()
+        if previousRunFloor > 0 then
+            loggedHighestFloor = previousRunFloor
+        end
+    end
+    
     local function checkFloors()
-        battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
-
+        local hideBattle = playergui:WaitForChild("HideBattle")
+        battleLabel = hideBattle:FindFirstChild("BATTLE")
+    
         if battleLabel then
-            battleLabelText = battleLabel.Text
+            local battleLabelText = battleLabel.Text
             if battleLabelText:match("CURRENTLY IN BATTLE") then
-                floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
+                local floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
                 if floorMatch then
                     currentRunFloor = tonumber(floorMatch)
+                    if currentRunFloor >= previousRunFloor then
+                        previousRunFloor = currentRunFloor
+                    end
                 end
+            else
+                logHighestFloor()
+                previousRunFloor = 0
+                currentRunFloor = 0
             end
-        end
-
-        if isInfRunComplete then
-            previousRunFloor = currentRunFloor
-            currentRunFloor = nil
+        else
+            logHighestFloor()
+            highestFloor = 0
+            currentRunFloor = 0
         end
     end
 
@@ -957,10 +971,15 @@ function AvHub:Function()
         while isAutoRaidActive() or isAutoInfiniteActive() do
             raidDamageTracker = stats.RaidDamageTracker.Value
             
-            damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
-            
-            previousRunDamage = raidDamageTracker
-            
+            if raidDamageTracker > previousRunDamage then
+                damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+                previousRunDamage = raidDamageTracker
+            end
+
+            if raidDamageTracker >= damageThreshold then
+                previousRunDamage = 0
+            end
+
             formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
             formattedThreshold = formatNumberWithCommas(damageThreshold)
             formattedDamageDealt = formatNumberWithCommas(damageDealt)
@@ -990,18 +1009,18 @@ function AvHub:Function()
             end
 
             formattedHighestFloor = formatNumberWithCommas(highestFloor)
-            formattedPreviousRunFloor = formatNumberWithCommas(previousRunFloor)
+            formattedLoggedHighestFloor = formatNumberWithCommas(loggedHighestFloor)
             formattedCurrentRunFloor = formatNumberWithCommas(currentRunFloor)
 
             battleParagraph:SetDesc("Raid Status: " .. raidText
                 .. "\nTotal Damage: " .. (formattedRaidDamageTracker .. " / " .. formattedThreshold)
                 .. "\nDamage Dealt: " .. formattedDamageDealt
                 .. "\nHighest Floor: " .. formattedHighestFloor
-                .. "\nPrevious Run: " .. formattedPreviousRunFloor
+                .. "\nPrevious Run: " .. formattedLoggedHighestFloor
                 .. "\nCurrent Run: " .. formattedCurrentRunFloor
             )
 
-            task.wait(0.2)
+            task.wait(0.5)
         end
     end
 
@@ -1217,7 +1236,7 @@ function AvHub:GUI()
     -- GUI Information
 	local Options = Fluent.Options
 	local version = "experimental"
-    local release = "test-build_" .. "v1.6.2"
+    local release = "test-build_" .. "v1.6.3"
     local versionStr = version .. "_" .. release
 	local devs = "Av"
 
