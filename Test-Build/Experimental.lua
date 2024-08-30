@@ -340,7 +340,7 @@ local battleLabelText, raidText
 local highestFloor, previousRunFloor, currentRunFloor = 0, 0, 0
 local floorMatch
 local formattedRaidDamageTracker, formattedDamageDealt, formattedThreshold
-local formattedHighestFloor, formattedPreviousRunFloor, formattedCurrentRunFloor
+local formattedHighestFloor, formattedLoggedHighestFloor, formattedCurrentRunFloor
 local battleInProgress = false
 
 -- Coroutine Variables
@@ -782,8 +782,8 @@ function AvHub:Function()
     
                 if self.isInInfiniteBattle() then
                     infRunComplete = false
-                    waitForBattleToEnd("infinite")
                     self.cancelInfiniteBattle()
+                    waitForBattleToEnd("infinite")
                 end
     
                 if not isInVicinity("Adaptive Titan", 20) then
@@ -826,7 +826,6 @@ function AvHub:Function()
             task.wait(0.5)
     
             if isAutoRaidActive() and isRaidActive() and not isRaidComplete() then
-                print("raid priority")
                 self.cancelInfiniteBattle()
                 break
             end
@@ -839,6 +838,7 @@ function AvHub:Function()
                 if self.isInInfiniteBattle() then
                     infRunComplete = false
                     repeat 
+                        if canRaidCheck() then return end
                         if not canInfiniteCheck() then return end
                         task.wait(0.5) 
                     until not self.isInInfiniteBattle()
@@ -934,22 +934,36 @@ function AvHub:Function()
         end
     end
 
+    local loggedHighestFloor = 0
+    local function logHighestFloor()
+        if previousRunFloor > 1 then
+            loggedHighestFloor = previousRunFloor
+        end
+    end
+    
     local function checkFloors()
-        battleLabel = playergui:WaitForChild("HideBattle"):FindFirstChild("BATTLE")
-
+        local hideBattle = playergui:WaitForChild("HideBattle")
+        battleLabel = hideBattle:FindFirstChild("BATTLE")
+    
         if battleLabel then
-            battleLabelText = battleLabel.Text
+            local battleLabelText = battleLabel.Text
             if battleLabelText:match("CURRENTLY IN BATTLE") then
-                floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
+                local floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
                 if floorMatch then
                     currentRunFloor = tonumber(floorMatch)
+                    if currentRunFloor >= previousRunFloor then
+                        previousRunFloor = currentRunFloor
+                        logHighestFloor()
+                    end
+                else
+                    logHighestFloor()
+                    previousRunFloor = 0
+                    currentRunFloor = 0
                 end
-            end
-        end
-
-        if isInfRunComplete then
-            previousRunFloor = currentRunFloor
-            currentRunFloor = nil
+        elseif not self.isInInfiniteBattle() then
+            logHighestFloor()
+            highestFloor = 0
+            currentRunFloor = 0
         end
     end
 
@@ -957,17 +971,24 @@ function AvHub:Function()
         while isAutoRaidActive() or isAutoInfiniteActive() do
             raidDamageTracker = stats.RaidDamageTracker.Value
             
-            damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
-            
-            previousRunDamage = raidDamageTracker
-            
+            if raidDamageTracker > previousRunDamage then
+                if raidDamageTracker <= damageThreshold then
+                    damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
+                else
+                    damageDealt = 0
+                end
+                previousRunDamage = raidDamageTracker
+            end
+
             formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
             formattedThreshold = formatNumberWithCommas(damageThreshold)
             formattedDamageDealt = formatNumberWithCommas(damageDealt)
 
             highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
 
-            checkFloors()
+            if self.isInInfiniteBattle() then
+                checkFloors()
+            end
 
            if self.isInInfiniteBattle() or self.isInRaidBattle() then
                 battleInProgress = true
@@ -990,18 +1011,18 @@ function AvHub:Function()
             end
 
             formattedHighestFloor = formatNumberWithCommas(highestFloor)
-            formattedPreviousRunFloor = formatNumberWithCommas(previousRunFloor)
+            formattedLoggedHighestFloor = formatNumberWithCommas(loggedHighestFloor)
             formattedCurrentRunFloor = formatNumberWithCommas(currentRunFloor)
 
             battleParagraph:SetDesc("Raid Status: " .. raidText
                 .. "\nTotal Damage: " .. (formattedRaidDamageTracker .. " / " .. formattedThreshold)
                 .. "\nDamage Dealt: " .. formattedDamageDealt
                 .. "\nHighest Floor: " .. formattedHighestFloor
-                .. "\nPrevious Run: " .. formattedPreviousRunFloor
+                .. "\nPrevious Run: " .. formattedLoggedHighestFloor
                 .. "\nCurrent Run: " .. formattedCurrentRunFloor
             )
 
-            task.wait(0.2)
+            task.wait(0.5)
         end
     end
 
@@ -1217,7 +1238,7 @@ function AvHub:GUI()
     -- GUI Information
 	local Options = Fluent.Options
 	local version = "experimental"
-    local release = "test-build_" .. "v1.6.1"
+    local release = "test-build_" .. "v1.6.4"
     local versionStr = version .. "_" .. release
 	local devs = "Av"
 
