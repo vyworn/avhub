@@ -3,6 +3,20 @@ if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
 
+local version = "1.6.5"
+local release = "stable"
+
+_G.versionControl = version .. "_" .. release
+
+if _G.desiredVersion ~= nil and _G.desiredVersion ~= _G.versionControl then
+    warn("\t\t\t  [ avhub ]")
+    warn("Version Mismatch Detected")
+    warn("Desired Version: " .. tostring(_G.desiredVersion))
+    warn("Current Version: " .. tostring(_G.versionControl))
+    _G.desiredVersion = nil 
+    return
+end
+
 local functionsInit = false
 local guiInit = false
 local hubInit = false
@@ -1249,9 +1263,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "v_1.6.4"
-    local release = "stable"
-    local versionStr = version .. "_" .. release
+    local versionStr = "v_" .. version .. "_" .. release
 	local devs = "Av"
 
     -- Main Tab
@@ -1262,15 +1274,21 @@ function AvHub:GUI()
 		.. "\n\n" .. "Made By :" 
 		.. "\n" .. devs
         .. "\n\n" .. "Extra :"
-        .. "\n" .. "Add _G.autoLoad = true before loadstring to load script on startup"
+        .. "\n" .. "Add the following before the loadstring to customise"
+        .. "\n" .. "_G.autoLoad = true"
+        .. "\n" .. "loads config on startup"
+        .. "\n" .. "_G.desiredVersion = \"" .. tostring(_G.versionControl)  .. "\""
+        .. "\n" .. "checks for desired version, prints error if not found"
 	})
 
 	latestParagraph = Tabs.Main:AddParagraph({
 		Title = "Latest" .. "\n",
 		Content = "Changes :"
+        .. "\n" .. "Auto Raid pauses Infinite instead of giving up now"
         .. "\n" .. "Fixed Auto Raids Lag"
         .. "\n" .. "Fixed Auto Infinite Lag"
         .. "\n" .. "Added 3 new themes:\nHellfire, Nebula, Dusk"
+        
         .. "\n\n" .. "Coming Soon :"
 		.. "\n" .. "Webhooks"
 		.. "\n\n" .. "Future :"
@@ -1285,10 +1303,6 @@ function AvHub:GUI()
         .. "\n" .. "Moved Configs to Settings"
         .. "\n" .. "Moved Interface to Misc"
         .. "\n" .. "Moved Stats to Stats Tab"
-        .. "\n\n" .. "Coming Soon :"
-		.. "\n" .. "Webhooks"
-		.. "\n\n" .. "Future :"
-		.. "\n" .. "Auto repeat Bosses"
     })
 
     -- Auto Tab
