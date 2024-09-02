@@ -749,15 +749,17 @@ function AvHub:Function()
             task.wait(0.5)
         end
     end
+    local infStatus = ""
     
-    local function giveUpInfinite(child)
+    local function pauseInfinite(child)
         if child.Name == "BATTLETOWERUI" then
-            local giveUpButton = child:FindFirstChild("Background"):FindFirstChild("GiveUp")
+            local giveUpButton = child:FindFirstChild("Background"):FindFirstChild("PauseButton")
             if giveUpButton then
                 guiservice.SelectedObject = giveUpButton
                 virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                 task.wait(0.1)
                 virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                infStatus = " paused"
             end
         end
     end
@@ -768,7 +770,7 @@ function AvHub:Function()
         local towerConnection
         towerConnection = playergui.ChildAdded:Connect(function(child)
             if not canInfiniteCheck() then
-                giveUpInfinite(child)
+                pauseInfinite(child)
                 if not self.isInInfiniteBattle() then
                     towerConnection:Disconnect()
                     towerConnection = nil
@@ -973,13 +975,15 @@ function AvHub:Function()
 
     self.updateBattleParagraph = function()
         while isAutoRaidActive() or isAutoInfiniteActive() do
+            if isRaidComplete() then
+                previousRunDamage = 0
+            end
+
             raidDamageTracker = stats.RaidDamageTracker.Value
             
             if raidDamageTracker > previousRunDamage then
                 if raidDamageTracker <= damageThreshold then
                     damageDealt = (tonumber(raidDamageTracker) - tonumber(previousRunDamage))
-                else
-                    damageDealt = 0
                 end
                 previousRunDamage = raidDamageTracker
             end
@@ -1014,6 +1018,10 @@ function AvHub:Function()
                 raidText = raidText .. " (waiting)"
             end
 
+            if (isRaidComplete() or not self.isInRaidBattle()) and self.isInInfiniteBattle() then
+                infStatus = ""
+            end
+
             formattedHighestFloor = formatNumberWithCommas(highestFloor)
             formattedLoggedHighestFloor = formatNumberWithCommas(loggedHighestFloor)
             formattedCurrentRunFloor = formatNumberWithCommas(currentRunFloor)
@@ -1023,7 +1031,7 @@ function AvHub:Function()
                 .. "\nDamage Dealt: " .. formattedDamageDealt
                 .. "\nHighest Floor: " .. formattedHighestFloor
                 .. "\nPrevious Run: " .. formattedLoggedHighestFloor
-                .. "\nCurrent Run: " .. formattedCurrentRunFloor
+                .. "\nCurrent Run: " .. formattedCurrentRunFloor .. infStatus
             )
 
             task.wait(0.5)
@@ -1241,7 +1249,7 @@ function AvHub:GUI()
 
     -- GUI Information
 	local Options = Fluent.Options
-	local version = "v_1.6.2"
+	local version = "v_1.6.4"
     local release = "stable"
     local versionStr = version .. "_" .. release
 	local devs = "Av"
