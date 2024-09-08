@@ -424,6 +424,7 @@ local function sendChangedWebhook(old, new, name)
     local contentStr = " "
     local userStr = tostring(player)
     local changeStr = "From:\n" .. tostring(old) .. "\n" .. "To:\n" .. tostring(new)
+    local descStr = "Changed by: " .. userStr
 
     if discordId and discordId ~= "" and discordId ~= 0 and "0" then
         contentStr = "<@!" .. discordId .. ">"
