@@ -346,6 +346,17 @@ local battleInProgress = false
 -- Coroutine Variables
 local coroutinesTable = {}
 
+-- Webhook URL
+local webhookUrl = "https://discord.com/api/webhooks/1277157282882261075/LBx0-Xe0qRKMbZDK5naySAqc24B9mjQw4-WC7xOKlpTYvAgHon96di4jrLl3KyQm7len"
+local request = syn and syn.request or http and http.request or http_request or request or (v2 and v2.request)
+
+-- Maximum number of cards to process
+local maxCardsToProcess = 1
+local cardsProcessed = 0
+local cardChanceThreshold = 5
+
+local userId = "320895102694195211"
+
 function AvHub:Function()
     -- Coroutine Functions
     self.startFunction = function(id, func)
@@ -360,6 +371,61 @@ function AvHub:Function()
         if coroutinesTable[id] then
             coroutinesTable[id] = nil
         end
+    end
+
+    -- 
+    -- Function to send a webhook
+    local function sendCardWebhook(cardChance, cardRarity, cardName, packType)
+        local data = {
+            content = "<@!" .. userId .. ">",
+            username = tostring(player) .. " (" .. tostring(player.UserId) .. ")",
+            embeds = {{
+                title = "Rare Card Obtained",
+                color = 8900340,
+                fields = {
+                    { name = "Card Chance", value = tostring(cardChance), inline = false },
+                    { name = "Card Rarity", value = cardRarity, inline = false },
+                    { name = "Card Name", value = cardName, inline = false },
+                    { name = "Pack Type", value = packType, inline = false }
+                }
+            }}
+        }
+
+        local success, response = pcall(function()
+            return request({
+                Url = webhookUrl,
+                Method = "POST",
+                Body = httpservice:JSONEncode(data),
+                Headers = { ["Content-Type"] = "application/json" }
+            })
+        end)
+
+        if not success then
+            warn("Failed to send webhook:", response)
+        end
+    end
+
+    -- Function to handle RemoteEvent data
+    local function handleRemoteEvent(remoteEvent)
+        remoteEvent.OnClientEvent:Connect(function(...)
+            if cardsProcessed >= maxCardsToProcess then
+                return
+            end
+            
+            local args = {...}
+            if args[1] == "OpenQuickPack" then
+                local cardChance = args[2].CardChance
+                if cardChance and cardChance > cardChanceThreshold then
+                    sendCardWebhook(
+                        cardChance,
+                        args[2].CardRarity,
+                        args[2].CardName,
+                        args[2].PackType
+                    )
+                    cardsProcessed = cardsProcessed + 1
+                end
+            end
+        end)
     end
 
     -- Character & Positioning Functions
@@ -594,6 +660,10 @@ function AvHub:Function()
     
     local function isAutoHideBattleActive()
         return self.autoHideBattleToggle.Value
+    end
+
+    local function isWebhookToggleActive()
+        return self.webhookToggle.Value
     end
     
     local function isBattleCDActive()
@@ -914,6 +984,17 @@ function AvHub:Function()
         end
     end
 
+    self.handleWebhooks = function()
+        while isWebhookToggleActive() do
+            for _, remote in pairs(ReplicatedStorage.Remotes:GetChildren()) do
+                if remote:IsA("RemoteEvent") and remote.Name == "ClientEffects" then
+                    handleRemoteEvent(remote)
+                end
+            end
+            task.wait(1)
+        end
+    end
+
     -- Paragraph Functions    
     self.updateFarmParagraph = function()
         local timeLeft, swordTimer
@@ -1174,6 +1255,19 @@ function AvHub:Function()
         end
     end
 
+    -- Coroutine function to manage webhook sending
+    self.manageWebhookCoroutine = function(state)
+        while state do
+            if isWebhookToggleActive() then
+                if not coroutinesTable["webhooks"] then
+                    self.startWebhookFunction("webhooks", self.handleWebhooks)
+                end
+            else
+                self.stopWebhookFunction("webhooks")
+            end
+            task.wait(0.5)
+        end
+    end
 
     functionsInit = true
 end
@@ -1327,6 +1421,44 @@ function AvHub:GUI()
 			task.spawn(self.claimDailyChest)
 		end
 	})
+
+    self.webhookToggle = Tabs.Auto:AddToggle("WebhookToggle", {
+        Title = "Enable Webhook",
+        Description = "Toggle to enable or disable webhook sending",
+        Default = false
+    })
+
+    -- Add a textbox for user ID input
+    self.userIdInput = Tabs.Auto:AddInput("UserIDInput", {
+        Title = "Discord User ID",
+        Default = "",  -- Default value is empty
+        Placeholder = "Enter your Discord user ID",
+        Numeric = true,
+        Finished = false,
+        Callback = function(Value)
+            self.userId = Value
+        end
+    })
+
+    -- Add a textbox for webhook URL input
+    self.webhookUrlInput = Tabs.Auto:AddInput("WebhookUrlInput", {
+        Title = "Webhook URL",
+        Default = "",  -- Default value is empty
+        Placeholder = "Enter your webhook URL",
+        Numeric = false,
+        Finished = false,
+        Callback = function(Value)
+            self.webhookUrl = Value
+        end
+    })
+
+    self.userIdInput:OnChanged(function(Value)
+        self.userId = Value
+    end)
+
+    self.webhookUrlInput:OnChanged(function(Value)
+        self.webhookUrl = Value
+    end)
 
     -- Stats Tab
     farmParagraph = Tabs.Stats:AddParagraph({
@@ -1694,6 +1826,17 @@ function AvHub:GUI()
         elseif not self.autoHideBattleToggle.Value then
             local state = false
             self.manageHideBattleCoroutine(state)
+        end
+    end)
+
+    -- Update the webhook toggle functionality
+    self.webhookToggle:OnChanged(function()
+        if self.webhookToggle.Value then
+            local webhookState = true
+            self.manageWebhookCoroutine(webhookState)
+        else
+            local webhookState = false
+            self.manageWebhookCoroutine(webhookState)
         end
     end)
 

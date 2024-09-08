@@ -3,10 +3,11 @@ if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
 
-local version = "1.6.5"
+local name = "UK1 Hub"
+local version = "1.6.6"
 local release = "stable"
 
-_G.versionControl = version .. "_" .. release
+_G.versionControl = version .. "." .. release
 
 if _G.desiredVersion ~= nil and _G.desiredVersion ~= _G.versionControl then
     warn("\t\t\t  [ avhub ]")
@@ -193,6 +194,8 @@ local battleNames =
 	"Heaven Infinite",
 	"Heaven Tower",
     "Adaptive Titan",
+    "Black Sea Warlord",
+    "Starlight Devourer",
 }
 
 local areaNames = 
@@ -247,6 +250,8 @@ local battlePositions =
     ["Heaven Infinite"] = Vector3.new(454.615417, 260.529327,5928.994629),
     ["Heaven Tower"] = Vector3.new(451.595367, 247.374268, 5980.721191),
     ["Adaptive Titan"] = Vector3.new(-11600.375000, 250.031403,-11486.458984),
+    ["Black Sea Warlord"] = Vector3.new(-23600.302734, 172.318451,-9145.819336),
+    ["Starlight Devourer"] = Vector3.new(-13947.146484, 250.910126,-9549.314453),
 }
 
 local areaPositions = 
@@ -363,18 +368,215 @@ local battleInProgress = false
 -- Coroutine Variables
 local coroutinesTable = {}
 
+-- Webhook Stuff
+local webhookUrl = "https://discord.com/api/webhooks/1282383049803436052/SZV7j2tQQvUYcA-_x_o-ILSljzI6q98LGA0Vk5AuIak_ar7k5G2izQVIsLYy6QMIUUvE"
+local discordId
+local cardChanceThreshold = 1000000
+local request = syn and syn.request or http and http.request or http_request or request or (v2 and v2.request)
+
+local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local function escapeDiscordFormatting(text)
+    return text:gsub("([>_*~`|])", "\\%1")
+end
+
+local function convertToRobloxCdnUrl(assetId)
+    return string.format("https://assetdelivery.roblox.com/v1/asset/?id=%s", assetId)
+end
+
+local footerIconAssetId = 123957080365902
+local footerIconUrl = footerIconAssetId and convertToRobloxCdnUrl(footerIconAssetId) or nil
+
+local function getUniverseId()
+    return game.GameId
+end
+
+local function getPlaceThumbnailUrl()
+    local universeId = getUniverseId()
+    if not universeId then
+        return
+    end
+    
+    local apiUrl = "https://thumbnails.roblox.com/v1/games/icons?universeIds=" .. universeId .. "&size=512x512&format=Png&isCircular=false"
+    
+    local success, response = pcall(function()
+        return request({
+            Url = apiUrl,
+            Method = "GET"
+        })
+    end)
+
+    if success and response.StatusCode == 200 then
+        local data = HttpService:JSONDecode(response.Body)
+        if data and data.data and #data.data > 0 then
+            return data.data[1].imageUrl
+        end
+    end
+end
+
+local function sendRolledWebhook(cardChance, cardRarity, cardName, packType)
+    if webhookUrl == "" or webhookUrl == nil then
+        warn("Webhook URL not set.")
+        return
+    end
+
+    local contentStr = " "
+    local userStr = tostring(player)
+    local descStr = "Obtained by: " .. userStr .. "\n" .. "Threshold: " ..  tostring(cardChanceThreshold)
+
+    if discordId and discordId ~= "" and discordId ~= 0 and "0" then
+        contentStr = "<@!" .. discordId .. ">"
+    end
+    
+    local data = {
+        content = contentStr .. "\n ",
+        username = "Anime Card Battles",
+        avatar_url = getPlaceThumbnailUrl(),
+        embeds = {{
+            title = "Rare Card Obtained",
+            description = descStr,
+            color = 5459883,
+            fields = {
+                { name = "From: ", value = "Card Roll", inline = false },
+                { name = "Card Chance", value = "1 / " .. formatNumberWithCommas(cardChance), inline = false },
+                { name = "Card Rarity", value = cardRarity, inline = false },
+                { name = "Card Name", value = cardName, inline = false },
+                { name = "Pack Type", value = packType, inline = false }
+            },
+            footer = {
+                text = "UK1 Hub by Av" .. " | " .. "v_" .. _G.versionControl,
+                icon_url = footerIconUrl
+            }
+        }}
+    }
+    
+    local success, response = pcall(function()
+        return request({
+            Url = webhookUrl,
+            Method = "POST",
+            Body = httpservice:JSONEncode(data),
+            Headers = { ["Content-Type"] = "application/json" }
+        })
+    end)
+    
+    if not success then
+        warn("Failed to send webhook:", response)
+    end
+end
+
+local function sendInfiniteWebhook(cardChance, cardName, cardRarity)
+    if webhookUrl == "" or webhookUrl == nil then
+        warn("Webhook URL not set.")
+        return
+    end
+
+    local contentStr = " "
+    local userStr = tostring(player)
+    local descStr = "Obtained by: " .. userStr .. "\n" .. "Threshold: " ..  tostring(cardChanceThreshold)
+
+    if discordId and discordId ~= "" and discordId ~= 0 and "0" then
+        contentStr = "<@!" .. discordId .. ">"
+    end
+
+    local data = {
+        content = contentStr .. "\n ",
+        username = "Anime Card Battles",
+        avatar_url = getPlaceThumbnailUrl(),
+        embeds = {{
+            title = "Rare Card Obtained",
+            description = descStr,
+            color = 16761889,
+            fields = {
+                { name = "From: ", value = "Infinite Mode", inline = false },
+                { name = "Card Chance", value = "1 / " .. formatNumberWithCommas(cardChance), inline = false },
+                { name = "Card Rarity", value = cardRarity, inline = false },
+                { name = "Card Name", value = cardName, inline = false },
+            },
+            footer = {
+                text = "UK1 Hub by Av" .. " | " .. "v_" .. _G.versionControl,
+                icon_url = footerIconUrl
+            }
+        }}
+    }
+    
+    local success, response = pcall(function()
+        return request({
+            Url = webhookUrl,
+            Method = "POST",
+            Body = httpservice:JSONEncode(data),
+            Headers = { ["Content-Type"] = "application/json" }
+        })
+    end)
+    
+    if not success then
+        warn("Failed to send webhook:", response)
+    end
+end
+
+local function sendTestWebhook()
+    if webhookUrl == "" or webhookUrl == nil then
+        warn("Webhook URL not set.")
+        return
+    end
+
+    local contentStr = "> " .. name .. "\n" .. "> " .. "v_" .. _G.versionControl .. "\n "
+    local escapedContent = escapeDiscordFormatting(contentStr)
+    local userStr = tostring(player)
+
+    local idStr = "Not Set"
+    if discordId and discordId ~= "" and discordId ~= 0 and "0" then
+        idStr = "<@!" .. discordId .. ">"
+    end
+
+    local data = {
+        content = escapedContent,
+        username = "Anime Card Battles",
+        avatar_url = getPlaceThumbnailUrl(),
+        embeds = {{
+            title = "Webhook Test",
+            description = "Checking Webhook Functionality",
+            color = 65280,
+            fields = {
+                { name = "Card Threshold", value = formatNumberWithCommas(cardChanceThreshold), inline = false },
+                { name = "Discord ID", value = idStr, inline = false },
+                { name = "User", value = userStr, inline = false },
+                { name = "Place ID", value = tostring(game.PlaceId), inline = false },
+                { name = "Thumbnail", value = "[Click Here](" .. getPlaceThumbnailUrl() .. ")", inline = false }
+            },
+            footer = {
+                text = "UK1 Hub by Av" .. " | " .. "v_" .. _G.versionControl,
+                icon_url = footerIconUrl
+            },
+        }}
+    }
+    
+    local success, response = pcall(function()
+        return request({
+            Url = webhookUrl,
+            Method = "POST",
+            Body = httpservice:JSONEncode(data),
+            Headers = { ["Content-Type"] = "application/json" }
+        })
+    end)
+    
+    if not success then
+        warn("Failed to send test webhook:", response)
+    end
+end
+
 function AvHub:Function()
     -- Coroutine Functions
     self.startFunction = function(id, func)
         if not coroutinesTable[id] then
-            local coro = coroutine.create(func)
-            coroutinesTable[id] = coro
-            coroutine.resume(coro)
+            coroutinesTable[id] = coroutine.create(func)
+            coroutine.resume(coroutinesTable[id], true)
         end
     end
-
+    
     self.stopFunction = function(id)
         if coroutinesTable[id] then
+            coroutine.close(coroutinesTable[id])
             coroutinesTable[id] = nil
         end
     end
@@ -612,6 +814,10 @@ function AvHub:Function()
     local function isAutoHideBattleActive()
         return self.autoHideBattleToggle.Value
     end
+
+    local function isWebhookToggleActive()
+        return self.webhookToggle.Value
+    end
     
     local function isBattleCDActive()
         return player:FindFirstChild("BattleCD") ~= nil
@@ -719,21 +925,62 @@ function AvHub:Function()
         return (playerPosition - targetPosition).Magnitude <= margin
     end
     
-    local function canTeleport(targetName)
-        if targetName == "Adaptive Titan" and (not canRaidCheck() or canInfiniteCheck()) then
-            return
-        elseif targetName == "Heaven Infinite" and (not canInfiniteCheck() or canRaidCheck()) then
-            return
+    local bossConditions = {
+        ["Adaptive Titan"] = function()
+            return canRaidCheck() and not canInfiniteCheck()
+        end,
+        ["Black Sea Warlord"] = function()
+            return canRaidCheck() and not canInfiniteCheck()
+        end,
+        ["Starlight Devourer"] = function()
+            return canRaidCheck() and not canInfiniteCheck()
         end
-    
+    }
+
+    local function canTeleport(targetName)
         if isAutoSwordActive() then
             waitUntil(hasGrabbedSword)
             task.wait(0.5)
         end
 
         waitUntil(function() return not isGrabbingChest() end)
-        
+
         self.characterTeleport(battlePositions[targetName])
+    end
+    
+    self.checkRaidBoss = function()
+        local currentRaidBoss
+        local rsCurrentRaid = replicatedstorage:FindFirstChild("RaidActive"):FindFirstChild("CurrentRaid").Value
+        local guiRaidBoss = playergui:FindFirstChild("RaidBar"):FindFirstChild("RaidBar"):FindFirstChild("RaidBoss").Text
+        
+        if rsCurrentRaid == guiRaidBoss then
+            currentRaidBoss = tostring(rsCurrentRaid)
+            return currentRaidBoss
+        end
+    end
+
+    local function decideAndTeleport(desiredBoss, current)
+        if desiredBoss == "raid" then
+            for _, bossName in ipairs(battleNames) do
+                if current == bossName then
+                    local condition = bossConditions[bossName]
+                    if condition and not condition() then
+                        return
+                    end
+
+                    if not isInVicinity(bossName, 20) and not self.isInRaidBattle() then
+                        canTeleport(bossName)
+                    end
+        
+                    break
+                end
+            end
+        elseif desiredBoss == "Heaven Infinite" then
+            if not isInVicinity("Heaven Infinite", 20) then
+                canTeleport("Heaven Infinite")
+            end
+            return
+        end
     end
     
     self.isInInfiniteBattle = function()
@@ -756,6 +1003,7 @@ function AvHub:Function()
     
         return cardName == "Adaptive Titan" and #battle:FindFirstChild("EnemyParty"):GetChildren() == 2
     end
+
     local function waitForBattleToEnd(battleType)
     
         local checkFunction = (battleType == "raid") and self.isInRaidBattle or self.isInInfiniteBattle
@@ -763,8 +1011,8 @@ function AvHub:Function()
             task.wait(0.5)
         end
     end
-    local infStatus = ""
     
+    local infStatus = ""
     local function pauseInfinite(child)
         if child.Name == "BATTLETOWERUI" then
             local giveUpButton = child:FindFirstChild("Background"):FindFirstChild("PauseButton")
@@ -773,7 +1021,7 @@ function AvHub:Function()
                 virtualinput:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                 task.wait(0.1)
                 virtualinput:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                infStatus = " paused"
+                infStatus = "paused"
             end
         end
     end
@@ -804,15 +1052,14 @@ function AvHub:Function()
                     self.cancelInfiniteBattle()
                     waitForBattleToEnd("infinite")
                 end
-    
-                if not isInVicinity("Adaptive Titan", 20) then
-                    if not self.isInRaidBattle() then
-                        canTeleport("Adaptive Titan")
-                    end
-                end
-    
+                
+                local current = self.checkRaidBoss()
 
-                local titanHRP = waitForTarget("Adaptive Titan", gamebosses, 10)
+                if not self.isInRaidBattle() then
+                    decideAndTeleport("raid", current)
+                end
+
+                local titanHRP = waitForTarget(current, gamebosses, 10)
                 if titanHRP then
                     waitForBattleToEnd("raid")
                     while not waitForProximityPrompt(titanHRP, 10) do
@@ -850,8 +1097,8 @@ function AvHub:Function()
             end
     
             if canInfiniteCheck() then
-                if not isInVicinity("Heaven Infinite", 20) and not self.isInInfiniteBattle() then
-                    canTeleport("Heaven Infinite")
+                if not self.isInInfiniteBattle() then
+                    decideAndTeleport("Heaven Infinite", "Heaven Infinite")
                 end
     
                 if self.isInInfiniteBattle() then
@@ -890,20 +1137,206 @@ function AvHub:Function()
     
                     task.wait(1)
                 until self.isInInfiniteBattle()
-    
+                
+                infStatus = "running"
                 task.wait(0.5)
             end
         end
     end   
 
-    self.autoCloseResult = function()
-        local connection
+    self.autoHideBattle = function()
+        while isAutoHideBattleActive() do
+            hideBattle = stats:FindFirstChild("HideBattle")
+            if hideBattle then
+                hideBattle.Value = true
+            end
+            task.wait(1)
+        end
+    end
+
+    local function handleRemoteEvent(remoteEvent)
+        remoteEvent.OnClientEvent:Connect(function(...)
+            if not isWebhookToggleActive() then
+                return
+            end
     
-        local function destroyInstantRoll(instance)
-            if instance.Name == "InstantRoll" then
-                instance:Destroy()
+            local args = {...}
+            if args[1] == "OpenQuickPack" then
+                local cardChance = args[2].CardChance
+                if cardChance and cardChance >= cardChanceThreshold then
+                    sendRolledWebhook(
+                        cardChance,
+                        args[2].CardRarity,
+                        args[2].CardName,
+                        args[2].PackType
+                    )
+                end
+            end
+
+            local args = {...}
+            if args[1] == "OpenQuickPack" or args[1] == "OpenCardPack" then 
+                
+            end
+        end)
+    end
+
+    local function getCardInfo(itemName)
+        local rarities = {"Normal", "Gold", "Rainbow", "Universal"}
+       
+        local nameParts = string.split(itemName, " ")
+        
+        local cardRarity = "Unknown"
+        local cardName = itemName
+        
+        for _, rarity in ipairs(rarities) do
+            if nameParts[1] == rarity then
+                cardRarity = rarity
+                cardName = table.concat(nameParts, " ", 2)
+                break
             end
         end
+        
+        return cardRarity, cardName
+    end    
+
+    local function destroyInstantRoll(instance)
+        if instance.Name == "InstantRoll" then
+            task.wait(0.5)
+
+            instance:Destroy()
+        end
+    end
+
+    local currentlyChecking = false
+    local doneProcessing = false
+    local function checkInventory()
+
+        if doneProcessing then
+            return true
+        end
+        
+        if currentlyChecking then
+            return false
+        end
+
+        currentlyChecking = true
+
+        local inventory
+        for _, child in ipairs(playergui:GetChildren()) do
+            task.wait(0.2)
+            if child.Name == "InstantRoll" then
+                inventory = playergui.InstantRoll.InstantPullLibrary.Inventory
+                break
+            end
+        end
+    
+        inventory = inventory or playergui.InstantRoll.InstantPullLibrary.Inventory
+        local cardChances = {}
+        local totalItems = #inventory:GetChildren()
+        local itemsProcessed = 1
+    
+        for _, item in pairs(inventory:GetChildren()) do
+            local cardChanceText = item:FindFirstChild("CardChance")
+            local cardRarity, cardName = getCardInfo(item.Name)
+    
+            if cardChanceText and tonumber(cardChanceText.Text) then
+                local cardChance = tonumber(cardChanceText.Text)
+    
+                if math.floor(cardChance) == cardChance then
+                    table.insert(cardChances, cardChance)
+                    itemsProcessed = itemsProcessed + 1
+                    
+                    if cardChance >= cardChanceThreshold then
+                        if isWebhookToggleActive() then
+                            sendInfiniteWebhook(cardChance, cardName, cardRarity)
+                        end
+                    end
+                end
+            end
+        end
+    
+        if itemsProcessed == totalItems then
+
+            doneProcessing = true
+            currentlyChecking = false
+        
+            destroyInstantRoll(playergui.InstantRoll)
+
+            return true
+        end
+        return itemsProcessed == totalItems
+    end    
+
+    local function waitUntilAllCardsLogged()
+        return function()
+            return currentlyChecking
+        end
+    end
+
+    local cardConnection, instantConnection
+    local function onInstantAdded(child)
+        if child:IsA("InstantRoll") then
+            if child.Name == "InstantRoll" then
+                checkInventory()
+            end
+        else
+            return
+        end
+    end
+
+    self.handleWebhooks = function()
+        local function onRemoteAdded(remote)
+            if not isWebhookToggleActive() then
+                if cardConnection then
+                    cardConnection:Disconnect()
+                    cardConnection = nil
+                end
+                return
+            end
+    
+            if remote:IsA("RemoteEvent") and remote.Name == "ClientEffects" then
+                handleRemoteEvent(remote)
+            end
+        end
+    
+        for _, remote in pairs(replicatedstorage.Remotes:GetChildren()) do
+            if not isWebhookToggleActive() then
+                return
+            end
+            onRemoteAdded(remote)
+        end
+    
+        for _, child in ipairs(playergui:GetChildren()) do
+            if child.Name == "InstantRoll" then
+                checkInventory()
+                break
+            end
+        end
+
+        if not cardConnection then
+            cardConnection = replicatedstorage.Remotes.ChildAdded:Connect(onRemoteAdded) 
+        end
+
+        while isWebhookToggleActive() do
+            task.wait(0.5)
+            if not instantConnection then
+                instantConnection = playergui.ChildAdded:Connect(onInstantAdded)
+            end
+        end
+    
+        if cardConnection then
+            cardConnection:Disconnect()
+            cardConnection = nil
+        end
+
+        if instantConnection then
+            instantConnection:Disconnect()
+            instantConnection = nil
+        end
+    end  
+    
+    self.autoCloseResult = function()
+        local connection
     
         for _, child in ipairs(playergui:GetChildren()) do
             task.wait(0.2)
@@ -920,16 +1353,6 @@ function AvHub:Function()
         if connection then
             connection:Disconnect()
             connection = nil
-        end
-    end
-
-    self.autoHideBattle = function()
-        while isAutoHideBattleActive() do
-            hideBattle = stats:FindFirstChild("HideBattle")
-            if hideBattle then
-                hideBattle.Value = true
-            end
-            task.wait(1)
         end
     end
 
@@ -955,32 +1378,19 @@ function AvHub:Function()
 
     local loggedHighestFloor = 0
     local function logHighestFloor()
-        if previousRunFloor > 1 then
+        if previousRunFloor > 0 then
             loggedHighestFloor = previousRunFloor
         end
     end
     
     local function checkFloors()
-        local hideBattle = playergui:WaitForChild("HideBattle")
-        battleLabel = hideBattle:FindFirstChild("BATTLE")
-    
-        if battleLabel then
-            local battleLabelText = battleLabel.Text
-            if battleLabelText:match("CURRENTLY IN BATTLE") then
-                local floorMatch = string.match(battleLabelText, "CURRENTLY IN BATTLE FLOOR (%d+)")
-                if floorMatch then
-                    currentRunFloor = tonumber(floorMatch)
-                    if currentRunFloor >= previousRunFloor then
-                        previousRunFloor = currentRunFloor
-                        logHighestFloor()
-                    end
-                else
-                    logHighestFloor()
-                    previousRunFloor = 0
-                    currentRunFloor = 0
-                end
+        local currentFloorValue = stats:FindFirstChild("CurrentInfFloorProgress").Value
+        if self.isInInfiniteBattle() then
+            currentRunFloor = currentFloorValue
+            if currentRunFloor >= previousRunFloor then
+                previousRunFloor = currentRunFloor
             end
-        elseif not self.isInInfiniteBattle() then
+        else
             logHighestFloor()
             highestFloor = 0
             currentRunFloor = 0
@@ -1002,11 +1412,18 @@ function AvHub:Function()
                 previousRunDamage = raidDamageTracker
             end
 
+            if previousRunDamage == raidDamageTracker then
+                damageDealt = 0
+            end
+
             formattedRaidDamageTracker = formatNumberWithCommas(raidDamageTracker)
             formattedThreshold = formatNumberWithCommas(damageThreshold)
             formattedDamageDealt = formatNumberWithCommas(damageDealt)
 
             highestFloor = stats:FindFirstChild("HeavensArenaInfiniteFloor").Value
+
+            local percentage = (raidDamageTracker / damageThreshold) * 100
+            local formattedPercentage = string.format("%.2f", percentage)
 
             if self.isInInfiniteBattle() then
                 checkFloors()
@@ -1032,20 +1449,26 @@ function AvHub:Function()
                 raidText = raidText .. " (waiting)"
             end
 
-            if (isRaidComplete() or not self.isInRaidBattle()) and self.isInInfiniteBattle() then
-                infStatus = ""
-            end
-
             formattedHighestFloor = formatNumberWithCommas(highestFloor)
             formattedLoggedHighestFloor = formatNumberWithCommas(loggedHighestFloor)
             formattedCurrentRunFloor = formatNumberWithCommas(currentRunFloor)
 
+            local runStr = ""
+            if infStatus == "paused" then
+                runStr = "Paused on: " .. formattedCurrentRunFloor
+            elseif infStatus == "running" then
+                runStr = "Current Floor: " .. formattedCurrentRunFloor
+            elseif infStatus == "" then
+                runStr = "Current Floor: N/A"
+            end
+
             battleParagraph:SetDesc("Raid Status: " .. raidText
-                .. "\nTotal Damage: " .. (formattedRaidDamageTracker .. " / " .. formattedThreshold)
-                .. "\nDamage Dealt: " .. formattedDamageDealt
+                .. "\nRaid Progress: " .. formattedPercentage .. "%"
+                .. "\nRaid Damage: " .. formattedRaidDamageTracker
+                .. "\nPrevious Attempt: " .. formattedDamageDealt
                 .. "\nHighest Floor: " .. formattedHighestFloor
                 .. "\nPrevious Run: " .. formattedLoggedHighestFloor
-                .. "\nCurrent Run: " .. formattedCurrentRunFloor .. infStatus
+                .. "\n" .. runStr
             )
 
             task.wait(0.5)
@@ -1068,8 +1491,17 @@ function AvHub:Function()
                 antiAFKstring = "Off"
             end
 
-            hubInfoParagraph:SetDesc(tostring(uptimeText)
+            local autoLoadStatus
+            if _G.autoLoad then
+                autoLoadStatus = "On"
+            else
+                autoLoadStatus = "Off"
+            end
+
+            hubInfoParagraph:SetDesc(
+            "Uptime: " .. tostring(uptimeText)
             .. "\n" .. "Anti-AFK: " .. antiAFKstring
+            .. "\n" .. "Autoload: " .. autoLoadStatus
             )
 
             task.wait(0.2)
@@ -1097,110 +1529,113 @@ function AvHub:Function()
         end
     end
 
-    self.manageHubInfoParagraph = function(state)
-        if state then
+    self.manageHubInfoParagraph = function()
+        if hubInit then
             self.startFunction("hubInfoParagraph", self.updateHubInfoParagraph)
         else
             self.stopFunction("hubInfoParagraph")
         end
     end
 
-    self.manageRaidCoroutine = function(state)
-        while state do 
-            if isAutoRaidActive() and canRaidCheck() then
-                if not coroutinesTable["raid"] then
-                    self.startFunction("raid", self.autoRaid)
-                    self.manageBattleParagraph()
-                end
-            else
-                self.stopFunction("raid")
+    self.manageRaidCoroutine = function()
+        while isAutoRaidActive() and canRaidCheck() do
+            if not coroutinesTable["raid"] then
+                self.startFunction("raid", self.autoRaid)
+                self.manageBattleParagraph()
             end
             task.wait(0.5)
         end
-    end
-
-    self.manageInfiniteCoroutine = function(state)
-        while state do
-            if isAutoInfiniteActive() and canInfiniteCheck() then
-                if not coroutinesTable["infinite"] then
-                    self.startFunction("infinite", self.autoInfinite)
-                    self.manageBattleParagraph()
-                end
-            else
-                self.stopFunction("infinite")
-            end
-            task.wait(0.5)
+        if not isAutoRaidActive() or not canRaidCheck() then
+            self.stopFunction("raid")
         end
     end
 
-    self.managePotionsCoroutine = function(state)
-        while state do
-            if isAutoPotionsActive() then
-                if not coroutinesTable["potions"] then
-                    self.startFunction("potions", self.getPotions)
-                    self.manageFarmParagraph()
-                end
-            else
-                self.stopFunction("potions")
+    self.manageInfiniteCoroutine = function()
+        while isAutoInfiniteActive() and canInfiniteCheck() do
+            if not coroutinesTable["infinite"] then
+                self.startFunction("infinite", self.autoInfinite)
+                self.manageBattleParagraph()
             end
             task.wait(0.5)
         end
-    end
-
-    self.manageSwordCoroutine = function(state)
-        while state do
-            if isAutoSwordActive() then
-                if not coroutinesTable["sword"] then
-                    self.startFunction("sword", self.autoGetSword)
-                    self.manageFarmParagraph()
-                end
-            else
-                self.stopFunction("sword")
-            end
-            task.wait(0.5)
+        if not isAutoInfiniteActive() and not canInfiniteCheck() then
+            self.stopFunction("infinite")
         end
     end
 
-    self.manageRankedCoroutine = function(state)
-        while state do
-            if isAutoRankedActive() then
-                if not coroutinesTable["ranked"] then
-                    self.startFunction("ranked", self.autoRanked)
-                end
-            else
-                self.stopFunction("ranked")
+    self.managePotionsCoroutine = function()
+        while isAutoPotionsActive() do
+            if not coroutinesTable["potions"] then
+                self.startFunction("potions", self.getPotions)
+                self.manageFarmParagraph()
             end
             task.wait(0.5)
         end
-    end
-
-    self.manageCloseResultCoroutine = function(state)
-        while state do
-            if isAutoCloseResultActive() then
-                if not coroutinesTable["closeResult"] then
-                    self.startFunction("closeResult", self.autoCloseResult)
-                end
-            else
-                self.stopFunction("closeResult")
-            end
-            task.wait(0.5)
+        if not isAutoPotionsActive() then
+            self.stopFunction("potions")
         end
     end
 
-    self.manageHideBattleCoroutine = function(state)
-        while state do
-            if isAutoHideBattleActive() then
-                if not coroutinesTable["hideBattle"] then
-                    self.startFunction("hideBattle", self.autoHideBattle)
-                end
-            else
-                self.stopFunction("hideBattle")
+    self.manageSwordCoroutine = function()
+        while isAutoSwordActive() do
+            if not coroutinesTable["sword"] then
+                self.startFunction("sword", self.autoGetSword)
+                self.manageFarmParagraph()
             end
             task.wait(0.5)
         end
+        if not isAutoSwordActive() then
+            self.stopFunction("sword")
+        end
     end
 
+    self.manageRankedCoroutine = function()
+        while isAutoRankedActive() do
+            if not coroutinesTable["ranked"] then
+                self.startFunction("ranked", self.autoRanked)
+            end
+            task.wait(0.5)
+        end
+        if not isAutoRankedActive() then
+            self.stopFunction("ranked")
+        end
+    end
 
+    self.manageCloseResultCoroutine = function()
+        while isAutoCloseResultActive() do
+            if not coroutinesTable["closeResult"] then
+                self.startFunction("closeResult", self.autoCloseResult)
+            end
+            task.wait(0.5)
+        end
+        if not isAutoCloseResultActive() then
+            self.stopFunction("closeResult")
+        end
+    end
+
+    self.manageHideBattleCoroutine = function()
+        while isAutoHideBattleActive() do
+            if not coroutinesTable["hideBattle"] then
+                self.startFunction("hideBattle", self.autoHideBattle)
+            end
+            task.wait(0.5)
+        end
+        if not isAutoHideBattleActive() then
+            self.stopFunction("hideBattle")
+        end
+    end
+
+    self.manageWebhookCoroutine = function()
+        while isWebhookToggleActive() do
+            if not coroutinesTable["webhook"] then
+                self.startFunction("webhook", self.handleWebhooks)
+            end
+            task.wait(0.5)
+        end
+        if not isWebhookToggleActive() then
+            self.stopFunction("webhook")
+        end
+    end
     functionsInit = true
 end
 
@@ -1210,7 +1645,7 @@ function AvHub:GUI()
 		Title = "UK1",
 		SubTitle = "Anime Card Battles",
 		TabWidth = 80,
-		Size = UDim2.fromOffset(385, 372.5),
+		Size = UDim2.fromOffset(420, 372.5),
 		Acrylic = true,
 		Theme = "Avalanche",
 		MinimizeKey = Enum.KeyCode.LeftControl
@@ -1284,11 +1719,9 @@ function AvHub:GUI()
 	latestParagraph = Tabs.Main:AddParagraph({
 		Title = "Latest" .. "\n",
 		Content = "Changes :"
-        .. "\n" .. "Auto Raid pauses Infinite instead of giving up now"
-        .. "\n" .. "Fixed Auto Raids Lag"
-        .. "\n" .. "Fixed Auto Infinite Lag"
-        .. "\n" .. "Added 3 new themes:\nHellfire, Nebula, Dusk"
-        
+        .. "\n" .. "Added new bosses to Auto Raid"
+        .. "\n" .. "Added Webhooks in Settings"
+
         .. "\n\n" .. "Coming Soon :"
 		.. "\n" .. "Webhooks"
 		.. "\n\n" .. "Future :"
@@ -1298,11 +1731,10 @@ function AvHub:GUI()
     previousUpdateParagraph = Tabs.Main:AddParagraph({
         Title = "Previous Update" .. "\n",
         Content = "Changes :"
-        .. "\n" .. "Added Card Lookup"
-		.. "\n" .. "Fixed Auto Raids"
-        .. "\n" .. "Moved Configs to Settings"
-        .. "\n" .. "Moved Interface to Misc"
-        .. "\n" .. "Moved Stats to Stats Tab"
+        .. "\n" .. "Auto Raid pauses Infinite instead of giving up now"
+        .. "\n" .. "Fixed Auto Raids Lag"
+        .. "\n" .. "Fixed Auto Infinite Lag"
+        .. "\n" .. "Added 3 new themes:\nHellfire, Nebula, Dusk"
     })
 
     -- Auto Tab
@@ -1354,6 +1786,93 @@ function AvHub:GUI()
 		end
 	})
 
+    self.webhookToggle = Tabs.Settings:AddToggle("WebhookToggle", {
+        Title = "Enable Webhooks",
+        Description = "Sends Webhooks for Rare Cards",
+        Default = false
+    })
+
+    self.testWebhook = Tabs.Settings:AddButton({
+        Title = "Test Webhook",
+        Callback = function()
+            sendTestWebhook()
+        end
+    })
+
+    self.cardThresholdInput = Tabs.Settings:AddInput("CardThresholdInput", {
+        Title = "Card Threshold",
+        Default = cardChanceThreshold,
+        Placeholder = formatNumberWithCommas(cardChanceThreshold),
+        Numeric = true,
+        Finished = false,
+        Callback = function(Value)
+            cardChanceThreshold = tonumber(Value)
+        end
+    })
+
+    self.discordIdInput = Tabs.Settings:AddInput("discordIdInput", {
+        Title = "Discord User ID",
+        Default = discordId,
+        Placeholder = "Discord User ID",
+        Numeric = true,
+        Finished = false,
+        Callback = function(Value)
+            discordId = Value
+        end
+    })
+
+    self.webhookUrlInput = Tabs.Settings:AddInput("WebhookUrlInput", {
+        Title = "Webhook URL",
+        Default = webhookUrl,
+        Placeholder = "Webhook URL",
+        Numeric = false,
+        Finished = false,
+        Callback = function(Value)
+            webhookUrl = Value
+        end
+    })
+
+    self.webhookToggle:OnChanged(function()
+        if self.webhookToggle.Value then
+            if webhookUrl == "" then
+                guiWindow[randomKey]:Dialog({
+                    Title = "Error",
+                    Content = "Please enter your Discord UserId & Webhook URL",
+                    Buttons = {
+                        {
+                            Title = "Confirm",
+                            Callback = function()
+                                self.webhookToggle.Value = false
+                                self.webhookToggle:SetValue(false)
+                            end
+                        }
+                    }
+                })
+                self.webhookToggle.Value = false
+                self.webhookToggle:SetValue(false)
+                return
+            end
+    
+            local state = true
+            self.manageWebhookCoroutine(state)
+        elseif not self.webhookToggle.Value then
+            local state = false
+            self.manageWebhookCoroutine(state)
+        end
+    end)
+    
+    self.discordIdInput:OnChanged(function(Value)
+        discordId = Value
+    end)
+
+    self.webhookUrlInput:OnChanged(function(Value)
+        webhookUrl = Value
+    end)
+
+    self.cardThresholdInput:OnChanged(function(Value)
+        cardChanceThreshold = tonumber(Value)
+    end)
+
     -- Stats Tab
     farmParagraph = Tabs.Stats:AddParagraph({
         Title = "Farm",
@@ -1361,7 +1880,7 @@ function AvHub:GUI()
         .. "\n" .. "Sword Cooldown: " .. "N/A"
     })
     battleParagraph = Tabs.Stats:AddParagraph({
-        Title = "Stats",
+        Title = "Battle",
         Content = "Raid Status: " .. "N/A"
         .. "\n" .. "Total Damage: " .. "N/A" .. " / " .. "N/A"
         .. "\n" .. "Damage Dealt: " .. "N/A"
@@ -1370,9 +1889,10 @@ function AvHub:GUI()
         .. "\n" .. "Current Run: " .. "N/A"
     })
     hubInfoParagraph = Tabs.Stats:AddParagraph({
-        Title = "Uptime",
-        Content = "N/Ah N/Am N/As"
+        Title = "Extra",
+        Content = "Uptime: " .. "N/A"
         .. "\n" .. "Anti-AFK: " .. "N/A"
+        .. "\n" .. "AutoLoad: " .. "N/A"
     })
 
     -- Teleports Tab
@@ -1496,22 +2016,38 @@ function AvHub:GUI()
             Icon = "bug"
         })
 
-        self.funcButton = Tabs.Tools:AddButton({
+        self.funcButton1 = Tabs.Tools:AddButton({
             Title = "Current Function",
             Description = "isInInfiniteBattle",
             Callback = function()
                 local isInInfiniteBattle = self.isInInfiniteBattle()
-                print(isInInfiniteBattle)
             end
         })
 
-        self.funcButton = Tabs.Tools:AddButton({
+        local funcPos2
+        self.funcInput2 = Tabs.Tools:AddInput("Function Input", {
+            Title = "Function Input",
+            Default = "",
+            Placeholder = "Function Input",
+            Numeric = false,
+            Finished = false,
+            Callback = function(Value)
+                local x, y, z = Value:match("^%s*([%d.-]+),%s*([%d.-]+),%s*([%d.-]+)%s*$")
+                if x and y and z then
+                    funcPos2 = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
+                end
+            end
+        })
+        
+        self.funcButton2 = Tabs.Tools:AddButton({
             Title = "Current Function",
             Description = "characterTeleport",
             Callback = function()
-                self.characterTeleport(previousPositions["Previous Position Sword"])
+                if funcPos2 then
+                    self.characterTeleport(funcPos2)
+                end
             end
-        })
+        })        
 
         self.showToolsButton = Tabs.Tools:AddButton({
             Title = "Show Tools",
@@ -1654,12 +2190,11 @@ function AvHub:GUI()
 
     -- OnChanged
     self.autoPotionsToggle:OnChanged(function()
+        local state = self.autoPotionsToggle.Value
         if self.autoPotionsToggle.Value then
-            local potionState = true
-            self.managePotionsCoroutine(potionState)
+            self.managePotionsCoroutine(state)
         elseif not self.autoPotionsToggle.Value then
-            local potionState = false
-            self.managePotionsCoroutine(potionState)
+            self.managePotionsCoroutine(state)
         end
     end)
 
@@ -1883,7 +2418,7 @@ function AvHub:Start()
     tickCount = tick()
     
     hubInit = true
-    self.manageHubInfoParagraph(hubInit)
+    self.manageHubInfoParagraph()
 
     guiWindow[randomKey]:SelectTab(1)
 
