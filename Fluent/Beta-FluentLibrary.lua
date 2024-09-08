@@ -6,6 +6,7 @@ local TweenService = game:GetService("TweenService")
 local Camera = game:GetService("Workspace").CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 local httpService = game:GetService("HttpService")
+local TextService = game:GetService("TextService")
 
 local RenderStepped = RunService.RenderStepped
 
