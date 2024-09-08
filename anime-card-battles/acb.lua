@@ -415,6 +415,52 @@ local function getPlaceThumbnailUrl()
     end
 end
 
+local function sendChangedWebhook(old, new, name)
+    if webhookUrl == "" or webhookUrl == nil then
+        warn("Webhook URL not set.")
+        return
+    end
+
+    local contentStr = " "
+    local userStr = tostring(player)
+    local changeStr = "From:\n" .. tostring(old) .. "\n" .. "To:\n" .. tostring(new)
+    local descStr = "Changed by: " .. userStr
+
+    if discordId and discordId ~= "" and discordId ~= 0 and "0" then
+        contentStr = "<@!" .. discordId .. ">"
+    end
+    
+    local data = {
+        content = contentStr .. "\n ",
+        username = "Anime Card Battles",
+        avatar_url = getPlaceThumbnailUrl(),
+        embeds = {{
+            title = "Changed Value",
+            color = 14239544,
+            fields = {
+                { name = "Changed: " .. tostring(name), value = changeStr , inline = false },
+            },
+            footer = {
+                text = "UK1 Hub by Av" .. " | " .. "v_" .. _G.versionControl,
+                icon_url = footerIconUrl
+            }
+        }}
+    }
+    
+    local success, response = pcall(function()
+        return request({
+            Url = webhookUrl,
+            Method = "POST",
+            Body = httpservice:JSONEncode(data),
+            Headers = { ["Content-Type"] = "application/json" }
+        })
+    end)
+    
+    if not success then
+        warn("Failed to send webhook:", response)
+    end
+end
+
 local function sendRolledWebhook(cardChance, cardRarity, cardName, packType)
     if webhookUrl == "" or webhookUrl == nil then
         warn("Webhook URL not set.")
@@ -1795,7 +1841,7 @@ function AvHub:GUI()
     self.testWebhook = Tabs.Settings:AddButton({
         Title = "Test Webhook",
         Callback = function()
-            sendTestWebhook()
+            sendChangedWebhook("Value 1", "Value 2", "Test Webhook")
         end
     })
 
@@ -1833,44 +1879,54 @@ function AvHub:GUI()
     })
 
     self.webhookToggle:OnChanged(function()
-        if self.webhookToggle.Value then
-            if webhookUrl == "" then
-                guiWindow[randomKey]:Dialog({
-                    Title = "Error",
-                    Content = "Please enter your Discord UserId & Webhook URL",
-                    Buttons = {
-                        {
-                            Title = "Confirm",
-                            Callback = function()
-                                self.webhookToggle.Value = false
-                                self.webhookToggle:SetValue(false)
-                            end
+        if hubInit then
+            if self.webhookToggle.Value then
+                if webhookUrl == "" then
+                    guiWindow[randomKey]:Dialog({
+                        Title = "Error",
+                        Content = "Please enter your Discord UserId & Webhook URL",
+                        Buttons = {
+                            {
+                                Title = "Confirm",
+                                Callback = function()
+                                    self.webhookToggle.Value = false
+                                    self.webhookToggle:SetValue(false)
+                                end
+                            }
                         }
-                    }
-                })
-                self.webhookToggle.Value = false
-                self.webhookToggle:SetValue(false)
-                return
+                    })
+                    self.webhookToggle.Value = false
+                    self.webhookToggle:SetValue(false)
+                    return
+                end
+        
+                local state = true
+                self.manageWebhookCoroutine(state)
+            elseif not self.webhookToggle.Value then
+                local state = false
+                self.manageWebhookCoroutine(state)
             end
-    
-            local state = true
-            self.manageWebhookCoroutine(state)
-        elseif not self.webhookToggle.Value then
-            local state = false
-            self.manageWebhookCoroutine(state)
         end
     end)
     
     self.discordIdInput:OnChanged(function(Value)
-        discordId = Value
+        if hubInit then
+            sendChangedWebhook(discordId, Value, "Discord User ID")
+            discordId = Value
+        end
     end)
 
     self.webhookUrlInput:OnChanged(function(Value)
-        webhookUrl = Value
+        if hubInit then
+            webhookUrl = Value
+        end
     end)
 
     self.cardThresholdInput:OnChanged(function(Value)
-        cardChanceThreshold = tonumber(Value)
+        if hubInit then
+            sendChangedWebhook(cardChanceThreshold, Value, "Card Threshold")
+            cardChanceThreshold = tonumber(Value)
+        end
     end)
 
     -- Stats Tab
@@ -2190,107 +2246,131 @@ function AvHub:GUI()
 
     -- OnChanged
     self.autoPotionsToggle:OnChanged(function()
-        local state = self.autoPotionsToggle.Value
-        if self.autoPotionsToggle.Value then
-            self.managePotionsCoroutine(state)
-        elseif not self.autoPotionsToggle.Value then
-            self.managePotionsCoroutine(state)
+        if hubInit then
+            local state = self.autoPotionsToggle.Value
+            if self.autoPotionsToggle.Value then
+                self.managePotionsCoroutine(state)
+            elseif not self.autoPotionsToggle.Value then
+                self.managePotionsCoroutine(state)
+            end
         end
     end)
 
     self.autoSwordToggle:OnChanged(function()
-        if self.autoSwordToggle.Value then
-            local swordState = true
-            self.manageSwordCoroutine(swordState)
-        elseif not self.autoSwordToggle.Value then
-            local swordState = false
-            self.manageSwordCoroutine(swordState)
+        if hubInit then
+            if self.autoSwordToggle.Value then
+                local swordState = true
+                self.manageSwordCoroutine(swordState)
+            elseif not self.autoSwordToggle.Value then
+                local swordState = false
+                self.manageSwordCoroutine(swordState)
+            end
         end
     end)
 
     self.autoRaidToggle:OnChanged(function()
-        if self.autoRaidToggle.Value then
-            local raidState = true
-            self.manageRaidCoroutine(raidState)
-        elseif not self.autoRaidToggle.Value then
-            local raidState = false
-            self.manageRaidCoroutine(raidState)
+        if hubInit then
+            if self.autoRaidToggle.Value then
+                local raidState = true
+                self.manageRaidCoroutine(raidState)
+            elseif not self.autoRaidToggle.Value then
+                local raidState = false
+                self.manageRaidCoroutine(raidState)
+            end
         end
     end)
 
     self.autoInfiniteToggle:OnChanged(function()
-        if self.autoInfiniteToggle.Value then
-            local infiniteState = true
-            self.manageInfiniteCoroutine(infiniteState)
-        elseif not self.autoInfiniteToggle.Value then
-            local infiniteState = false
-            self.manageInfiniteCoroutine(infiniteState)
+        if hubInit then
+            if self.autoInfiniteToggle.Value then
+                local infiniteState = true
+                self.manageInfiniteCoroutine(infiniteState)
+            elseif not self.autoInfiniteToggle.Value then
+                local infiniteState = false
+                self.manageInfiniteCoroutine(infiniteState)
+            end
         end
     end)
 
     self.autoRankedToggle:OnChanged(function()
-        if self.autoRankedToggle.Value then
-            local rankedState = true
-            self.manageRankedCoroutine(rankedState)
-        elseif not self.autoRankedToggle.Value then
-            local rankedState = false
-            self.manageRankedCoroutine(rankedState)
+        if hubInit then
+            if self.autoRankedToggle.Value then
+                local rankedState = true
+                self.manageRankedCoroutine(rankedState)
+            elseif not self.autoRankedToggle.Value then
+                local rankedState = false
+                self.manageRankedCoroutine(rankedState)
+            end
         end
     end)
 
     self.autoCloseResultToggle:OnChanged(function()
-        if self.autoCloseResultToggle.Value then
-            local state = true
-            self.manageCloseResultCoroutine(state)
-        elseif not self.autoCloseResultToggle.Value then
-            local state = false
-            self.manageCloseResultCoroutine(state)
+        if hubInit then
+            if self.autoCloseResultToggle.Value then
+                local state = true
+                self.manageCloseResultCoroutine(state)
+            elseif not self.autoCloseResultToggle.Value then
+                local state = false
+                self.manageCloseResultCoroutine(state)
+            end
         end
     end)
 
     self.autoHideBattleToggle:OnChanged(function()
-        if self.autoHideBattleToggle.Value then
-            local state = true
-            self.manageHideBattleCoroutine(state)
-        elseif not self.autoHideBattleToggle.Value then
-            local state = false
-            self.manageHideBattleCoroutine(state)
+        if hubInit then
+            if self.autoHideBattleToggle.Value then
+                local state = true
+                self.manageHideBattleCoroutine(state)
+            elseif not self.autoHideBattleToggle.Value then
+                local state = false
+                self.manageHideBattleCoroutine(state)
+            end
         end
     end)
 
     interactionsDropdown:OnChanged(function(value)
-        local destination = interactionPositions[value]
-        if destination then
-            self.characterTeleport(destination)
-            interactionsDropdown:SetValue(nil)
+        if hubInit then
+            local destination = interactionPositions[value]
+            if destination then
+                self.characterTeleport(destination)
+                interactionsDropdown:SetValue(nil)
+            end
         end
     end)
     battlesDropdown:OnChanged(function(value)
-        local destination = battlePositions[value]
-        if destination then
-            self.characterTeleport(destination)
-            battlesDropdown:SetValue(nil)
+        if hubInit then
+            local destination = battlePositions[value]
+            if destination then
+                self.characterTeleport(destination)
+                battlesDropdown:SetValue(nil)
+            end
         end
     end)
     areasDropdown:OnChanged(function(value)
-        local destination = areaPositions[value]
-        if destination then
-            self.characterTeleport(destination)
-            areasDropdown:SetValue(nil)
+        if hubInit then
+            local destination = areaPositions[value]
+            if destination then
+                self.characterTeleport(destination)
+                areasDropdown:SetValue(nil)
+            end
         end
     end)
     repeatBossDropdown:OnChanged(function(value)
-        local destination = repeatBossPositions[value]
-        if destination then
-            self.characterTeleport(destination)
-            repeatBossDropdown:SetValue(nil)
+        if hubInit then
+            local destination = repeatBossPositions[value]
+            if destination then
+                self.characterTeleport(destination)
+                repeatBossDropdown:SetValue(nil)
+            end
         end
     end)
     normalBossDropdown:OnChanged(function(value)
-        local destination = normalBossPositions[value]
-        if destination then
-            self.characterTeleport(destination)
-            normalBossDropdown:SetValue(nil)
+        if hubInit then
+            local destination = normalBossPositions[value]
+            if destination then
+                self.characterTeleport(destination)
+                normalBossDropdown:SetValue(nil)
+            end
         end
     end)
 
@@ -2403,7 +2483,9 @@ function AvHub:GUI()
     end
 
     selectCardDropdown:OnChanged(function(value)
-        updateCardDataParagraph(value)
+        if hubInit then
+            updateCardDataParagraph(value)
+        end
     end)
 
     guiInit = true
